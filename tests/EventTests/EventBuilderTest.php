@@ -54,7 +54,7 @@ class EventBuilderTest extends \PHPUnit_Framework_TestCase
         return new LogEvent($logE->getUrl(),$params,$logE->getHttpVerb(),$logE->getHeaders());       
     }
 
-    public function testCreateImpressionEventNoAttributes()
+    public function testCreateImpressionEventNoAttributesNoValue()
     {
         $expectedLogEvent = new LogEvent(
             'https://logx.optimizely.com/v1/events',
@@ -99,7 +99,7 @@ class EventBuilderTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($expectedLogEvent, $logEvent);
     }
 
-    public function testCreateImpressionEventWithAttributes()
+    public function testCreateImpressionEventWithAttributesNoValue()
     {   
         $expectedLogEvent = new LogEvent(
             'https://logx.optimizely.com/v1/events',
@@ -150,6 +150,174 @@ class EventBuilderTest extends \PHPUnit_Framework_TestCase
         );
 
         $logEvent = $this->fakeParamsToReconcile($logEvent);
+        $this->assertEquals($expectedLogEvent, $logEvent);
+    }
+
+    /**
+     * Should create proper params for getImpressionEvent with attributes as a false value
+     */
+    public function testCreateImpressionEventWithFalseAttributesNoValue()
+    {   
+        $expectedLogEvent = new LogEvent(
+            'https://logx.optimizely.com/v1/events',
+            [
+                'project_id' => '7720880029',
+                'account_id' => '1592310167',
+                'revision' => '15',
+                'client_name' => 'php-sdk',
+                'client_version' => '1.2.0',
+                'visitors'=> [[
+                  'attributes'=> [[
+                    'entity_id' => '7723280020',
+                    'key' => 'device_type',
+                    'type' => 'custom',
+                    'value' => false,
+                  ]],
+                  'visitor_id'=> 'testUserId',
+                  'snapshots'=> [[
+                    'decisions'=> [[
+                      'variation_id'=> '7721010009',
+                      'experiment_id'=> '7716830082',
+                      'campaign_id'=> '7719770039'
+                    ]],
+                    'events'=> [[
+                      'timestamp'=> $this->timestamp,
+                      'entity_id'=> '7719770039',
+                      'uuid'=> $this->uuid,
+                      'key'=> 'campaign_activated'
+                    ]
+                  ]]
+                ]],
+                ]
+            ],
+            'POST',
+            ['Content-Type' => 'application/json']
+        );
+        
+        $userAttributes = [
+            'device_type' => false,
+            'company' => 'Optimizely'
+        ];
+        $logEvent = $this->eventBuilder->createImpressionEvent(
+            $this->config,
+            'test_experiment',
+            'variation',
+            $this->testUserId,
+            $userAttributes
+        );
+
+        $logEvent = $this->fakeParamsToReconcile($logEvent);
+        file_put_contents('output.txt',print_r($logEvent,true));
+        $this->assertEquals($expectedLogEvent, $logEvent);
+    }
+
+    /**
+     * Should create proper params for getImpressionEvent with attributes as a zero value
+     */
+    public function testCreateImpressionEventWithZeroAttributesNoValue()
+    {   
+        $expectedLogEvent = new LogEvent(
+            'https://logx.optimizely.com/v1/events',
+            [
+                'project_id' => '7720880029',
+                'account_id' => '1592310167',
+                'revision' => '15',
+                'client_name' => 'php-sdk',
+                'client_version' => '1.2.0',
+                'visitors'=> [[
+                  'attributes'=> [[
+                    'entity_id' => '7723280020',
+                    'key' => 'device_type',
+                    'type' => 'custom',
+                    'value' => 0,
+                  ]],
+                  'visitor_id'=> 'testUserId',
+                  'snapshots'=> [[
+                    'decisions'=> [[
+                      'variation_id'=> '7721010009',
+                      'experiment_id'=> '7716830082',
+                      'campaign_id'=> '7719770039'
+                    ]],
+                    'events'=> [[
+                      'timestamp'=> $this->timestamp,
+                      'entity_id'=> '7719770039',
+                      'uuid'=> $this->uuid,
+                      'key'=> 'campaign_activated'
+                    ]
+                  ]]
+                ]],
+                ]
+            ],
+            'POST',
+            ['Content-Type' => 'application/json']
+        );
+        
+        $userAttributes = [
+            'device_type' => 0,
+            'company' => 'Optimizely'
+        ];
+        $logEvent = $this->eventBuilder->createImpressionEvent(
+            $this->config,
+            'test_experiment',
+            'variation',
+            $this->testUserId,
+            $userAttributes
+        );
+
+        $logEvent = $this->fakeParamsToReconcile($logEvent);
+        file_put_contents('output.txt',print_r($logEvent,true));
+        $this->assertEquals($expectedLogEvent, $logEvent);
+    }
+
+    /**
+     * Should not fill in userFeatures for getImpressionEvent when attribute is not in the datafile
+     */
+    public function testCreateImpressionEventWithInvalidAttributesNoValue()
+    {   
+        $expectedLogEvent = new LogEvent(
+            'https://logx.optimizely.com/v1/events',
+            [
+                'project_id' => '7720880029',
+                'account_id' => '1592310167',
+                'revision' => '15',
+                'client_name' => 'php-sdk',
+                'client_version' => '1.2.0',
+                'visitors'=> [[
+                  'attributes'=> [],
+                  'visitor_id'=> 'testUserId',
+                  'snapshots'=> [[
+                    'decisions'=> [[
+                      'variation_id'=> '7721010009',
+                      'experiment_id'=> '7716830082',
+                      'campaign_id'=> '7719770039'
+                    ]],
+                    'events'=> [[
+                      'timestamp'=> $this->timestamp,
+                      'entity_id'=> '7719770039',
+                      'uuid'=> $this->uuid,
+                      'key'=> 'campaign_activated'
+                    ]
+                  ]]
+                ]],
+                ]
+            ],
+            'POST',
+            ['Content-Type' => 'application/json']
+        );
+        
+        $userAttributes = [
+            'invalid_attribute' => 'sorry_not_sorry'
+        ];
+        $logEvent = $this->eventBuilder->createImpressionEvent(
+            $this->config,
+            'test_experiment',
+            'variation',
+            $this->testUserId,
+            $userAttributes
+        );
+
+        $logEvent = $this->fakeParamsToReconcile($logEvent);
+        file_put_contents('output.txt',print_r($logEvent,true));
         $this->assertEquals($expectedLogEvent, $logEvent);
     }
 
@@ -252,6 +420,56 @@ class EventBuilderTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($expectedLogEvent, $logEvent);
     }
 
+     //Should not fill in userFeatures for getConversion when attribute is not in the datafile
+     public function testCreateConversionEventInvalidAttributesNoValue()
+    {
+        $expectedLogEvent = new LogEvent(
+            'https://logx.optimizely.com/v1/events',
+            [
+                'project_id' => '7720880029',
+                'account_id' => '1592310167',
+                'revision' => '15',
+                'client_name' => 'php-sdk',
+                'client_version' => '1.2.0',
+                'visitors'=> [[
+                  'attributes'=> [],
+                  'visitor_id'=> 'testUserId',
+                  'snapshots'=> [[
+                    'decisions'=> [[
+                      'variation_id'=> '7722370027',
+                      'experiment_id'=> '7716830082',
+                      'campaign_id'=> '7719770039'
+                    ]],
+                    'events'=> [[
+                      'timestamp'=> $this->timestamp,
+                      'entity_id'=> '7718020063',
+                      'uuid'=> $this->uuid,
+                      'key'=> 'purchase'
+                    ]
+                  ]]
+                ]],
+                ]
+            ],
+            'POST',
+            ['Content-Type' => 'application/json']
+        );
+        
+        $userAttributes = [
+            'invalid_attribute'=> 'sorry_not_sorry'
+        ];
+        $logEvent = $this->eventBuilder->createConversionEvent(
+            $this->config,
+            'purchase',
+            ['7716830082' => '7722370027'],
+            $this->testUserId,
+            $userAttributes,
+            null
+        );
+
+        $logEvent = $this->fakeParamsToReconcile($logEvent);
+        $this->assertEquals($expectedLogEvent, $logEvent);
+    }
+
     public function testCreateConversionEventNoAttributesWithValue()
     {
         $expectedLogEvent = new LogEvent(
@@ -277,8 +495,10 @@ class EventBuilderTest extends \PHPUnit_Framework_TestCase
                       'uuid'=> $this->uuid,
                       'key'=> 'purchase',
                       'revenue' => 42,
+                      'value'=> 13.37,
                       'tags' => [
-                        'revenue' => 42
+                        'revenue' => 42,
+                        'value' => '13.37'
                       ]
                     ]
                   ]]
@@ -295,7 +515,7 @@ class EventBuilderTest extends \PHPUnit_Framework_TestCase
             ['7716830082' => '7722370027'],
             $this->testUserId,
             null,
-            array('revenue' => 42)
+            array('revenue' => 42,'value'=> '13.37',)
         );
         $logEvent = $this->fakeParamsToReconcile($logEvent);
 
@@ -332,9 +552,11 @@ class EventBuilderTest extends \PHPUnit_Framework_TestCase
                       'uuid'=> $this->uuid,
                       'key'=> 'purchase',
                       'revenue' => 42,
+                      'value' => 13.37,
                       'tags' => [
                         'revenue' => 42,
-                        'non-revenue' => 'definitely'
+                        'non-revenue' => 'definitely',
+                        'value'=> '13.37'
                       ]
                     ]
                   ]]
@@ -357,7 +579,8 @@ class EventBuilderTest extends \PHPUnit_Framework_TestCase
             $userAttributes,
             array(
                 'revenue' => 42,
-                'non-revenue' => 'definitely'
+                'non-revenue' => 'definitely',
+                'value'=> '13.37'
             )
         );
        
@@ -391,7 +614,8 @@ class EventBuilderTest extends \PHPUnit_Framework_TestCase
                       'key'=> 'purchase',
                       'tags' => [
                         'revenue' => 42,
-                        'non-revenue' => 'definitely'
+                        'non-revenue' => 'definitely',
+                        'value' => 'invalid value'
                       ]
                     ]
                   ]]
@@ -410,13 +634,16 @@ class EventBuilderTest extends \PHPUnit_Framework_TestCase
             null,
             array(
                 'revenue' => '42',
-                'non-revenue' => 'definitely'
+                'non-revenue' => 'definitely',
+                'value' => 'invalid value'
             )
         );
  
         $logEvent = $this->fakeParamsToReconcile($logEvent);
         $this->assertEquals($expectedLogEvent, $logEvent);
     }
+
+
 
 
     // Bucketing ID should be part of the impression event sans the ID
@@ -438,8 +665,8 @@ class EventBuilderTest extends \PHPUnit_Framework_TestCase
                     'type' => 'custom',
                     'value' => 'iPhone',
                   ],[
-                    'entity_id' => RESERVED_ATTRIBUTE_KEY_BUCKETING_ID_EVENT_PARAM_KEY,
-                    'key' => 'device_type',
+                    'entity_id' => RESERVED_ATTRIBUTE_KEY_BUCKETING_ID,
+                    'key' => RESERVED_ATTRIBUTE_KEY_BUCKETING_ID_EVENT_PARAM_KEY,
                     'type' => 'custom',
                     'value' => 'variation',
                   ]],
@@ -464,43 +691,6 @@ class EventBuilderTest extends \PHPUnit_Framework_TestCase
             ['Content-Type' => 'application/json']
         );
 
-        // $expectedLogEvent = new LogEvent(
-        //     'https://logx.optimizely.com/log/decision',
-        //     [
-        //         'projectId' => '7720880029',
-        //         'accountId' => '1592310167',
-        //         'revision' => '15',
-        //         'layerId' => '7719770039',
-        //         'visitorId' => 'testUserId',
-        //         'clientEngine' => 'php-sdk',
-        //         'clientVersion' => '1.2.0',
-        //         'timestamp' => time() * 1000,
-        //         'isGlobalHoldback' => false,
-        //         'userFeatures' => [
-        //             [
-        //                 'id' => '7723280020',
-        //                 'name' => 'device_type',
-        //                 'type' => 'custom',
-        //                 'value' => 'iPhone',
-        //                 'shouldIndex' => true
-        //             ],
-        //             [
-        //                 'name' => RESERVED_ATTRIBUTE_KEY_BUCKETING_ID_EVENT_PARAM_KEY,
-        //                 'type' => 'custom',
-        //                 'value' => 'variation',
-        //                 'shouldIndex' => true
-        //             ]
-        //         ],
-        //         'decision' => [
-        //             'experimentId' => '7716830082',
-        //             'variationId' => '7721010009',
-        //             'isLayerHoldback' => false
-        //         ]
-        //     ],
-        //     'POST',
-        //     ['Content-Type' => 'application/json']
-        // );
-
         $userAttributes = [
             'device_type' => 'iPhone',
             'company' => 'Optimizely',
@@ -514,52 +704,48 @@ class EventBuilderTest extends \PHPUnit_Framework_TestCase
             $userAttributes
         );
 
-        file_put_contents('output.txt',print_r($logEvent,true));
-         $logEvent = $this->fakeParamsToReconcile($logEvent);
+     
+        $logEvent = $this->fakeParamsToReconcile($logEvent);
         $this->assertEquals($expectedLogEvent, $logEvent);
     }
 
     public function testCreateConversionEventWithBucketingIDAttribute()
     {
         $expectedLogEvent = new LogEvent(
-            'https://logx.optimizely.com/log/event',
+            'https://logx.optimizely.com/v1/events',
             [
-                'projectId' => '7720880029',
-                'accountId' => '1592310167',
-                'visitorId' => 'testUserId',
+                'project_id' => '7720880029',
+                'account_id' => '1592310167',
                 'revision' => '15',
-                'clientEngine' => 'php-sdk',
-                'clientVersion' => '1.2.0',
-                'isGlobalHoldback' => false,
-                'timestamp' => time() * 1000,
-                'eventFeatures' => [],
-                'eventMetrics' => [],
-                'eventEntityId' => '7718020063',
-                'eventName' => 'purchase',
-                'layerStates' => [[
-                    'layerId' => '7719770039',
-                    'actionTriggered' => true,
-                    'revision' => '15',
-                    'decision' =>  [
-                        'experimentId' => '7716830082',
-                        'variationId' => '7722370027',
-                        'isLayerHoldback' => false
+                'client_name' => 'php-sdk',
+                'client_version' => '1.2.0',
+                'visitors'=> [[
+                  'attributes'=> [[
+                    'entity_id' => '7723280020',
+                    'key' => 'device_type',
+                    'type' => 'custom',
+                    'value' => 'iPhone',
+                  ],[
+                    'entity_id' => RESERVED_ATTRIBUTE_KEY_BUCKETING_ID,
+                    'key' => RESERVED_ATTRIBUTE_KEY_BUCKETING_ID_EVENT_PARAM_KEY,
+                    'type' => 'custom',
+                    'value' => 'variation',
+                  ]],
+                  'visitor_id'=> 'testUserId',
+                  'snapshots'=> [[
+                    'decisions'=> [[
+                      'variation_id'=> '7722370027',
+                      'experiment_id'=> '7716830082',
+                      'campaign_id'=> '7719770039'
+                    ]],
+                    'events'=> [[
+                      'timestamp'=> $this->timestamp,
+                      'entity_id'=> '7718020063',
+                      'uuid'=> $this->uuid,
+                      'key'=> 'purchase'
                     ]
+                  ]]
                 ]],
-                'userFeatures' => [
-                    [
-                        'id' => '7723280020',
-                        'name' => 'device_type',
-                        'type' => 'custom',
-                        'value' => 'iPhone',
-                        'shouldIndex' => true
-                    ],
-                    [
-                        'name' => RESERVED_ATTRIBUTE_KEY_BUCKETING_ID_EVENT_PARAM_KEY,
-                        'type' => 'custom',
-                        'value' => 'variation',
-                        'shouldIndex' => true
-                    ]
                 ]
             ],
             'POST',
@@ -580,6 +766,7 @@ class EventBuilderTest extends \PHPUnit_Framework_TestCase
             null
         );
 
+        $logEvent = $this->fakeParamsToReconcile($logEvent);
         $this->assertEquals($expectedLogEvent, $logEvent);
     }
 }

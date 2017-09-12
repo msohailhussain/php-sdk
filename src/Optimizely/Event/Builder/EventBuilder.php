@@ -41,8 +41,7 @@ class EventBuilder
     const SDK_VERSION = '1.2.0';
 
     /**
-     * @var string URL to send 
-     * event to.
+     * @var string URL to send event to.
      */
     private static $ENDPOINT = 'https://logx.optimizely.com/v1/events';
 
@@ -87,7 +86,7 @@ class EventBuilder
 
         foreach($attributes as $attributeKey => $attributeValue) {
             $feature = [];
-            if ($attributeValue) {
+            if (!is_null($attributeValue)) {
                 // check for reserved attributes
                 if (strcmp($attributeKey , RESERVED_ATTRIBUTE_KEY_BUCKETING_ID) == 0) {
                     // TODO (Alda): the type for bucketing ID attribute may change so that custom

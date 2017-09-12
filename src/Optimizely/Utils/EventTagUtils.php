@@ -70,6 +70,6 @@ class EventTagUtils
             return null;
         }
 
-        return $raw_value;
+        return floatval($raw_value);
     }
 }
