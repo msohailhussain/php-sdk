@@ -28,7 +28,7 @@ class EventTagUtils
 
     /**
      * Grab the revenue value from the event tags. "revenue" is a reserved keyword.
-     *
+     * The revenue value must be an integer, not  a numeric string.   
      * @param $eventTags array Representing metadata associated with the event.
      * @return integer Revenue value as an integer number or null if revenue can't be retrieved from the event tags
      */
@@ -52,7 +52,12 @@ class EventTagUtils
         return $raw_value;
     }
 
-
+    /**
+     * Grab the numeric event value from the event tags. "value" is a reserved keyword.
+     * The value of 'value' can be a float or a numeric string
+     * @param $eventTags array Representing metadata associated with the event.
+     * @return float value of 'value' or null
+     */
     public static function getEventValue($eventTags){
         if (!$eventTags) {
             return null;

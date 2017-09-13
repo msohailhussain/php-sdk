@@ -22,9 +22,7 @@ use Optimizely\Entity\Experiment;
 use Optimizely\Event\LogEvent;
 use Optimizely\ProjectConfig;
 use Optimizely\Utils\EventTagUtils;
-
-use Ramsey\Uuid\Uuid;
-use Ramsey\Uuid\Exception\UnsatisfiedDependencyException;
+use Optimizely\Utils\GeneratorUtils;
 
 define("RESERVED_ATTRIBUTE_KEY_BUCKETING_ID_EVENT_PARAM_KEY",     "optimizely_bucketing_id");
 
@@ -58,7 +56,7 @@ class EventBuilder
     ];
 
     /**
-     * Helper function to get parameters common to impression and conversion event.
+     * Helper function to get parameters common to impression and conversion events.
      *
      * @param $config ProjectConfig Configuration for the project.
      * @param $userId string ID of user.
@@ -67,9 +65,9 @@ class EventBuilder
     private function getCommonParams($config, $userId, $attributes)
     {
         $visitor = [
-            'snapshots'=> [],
-            'visitor_id'=> $userId,
-            'attributes' => []
+            SNAPSHOTS=> [],
+            VISITOR_ID => $userId,
+            ATTRIBUTES => []
         ];
 
         $commonParams = [
@@ -86,33 +84,34 @@ class EventBuilder
 
         foreach($attributes as $attributeKey => $attributeValue) {
             $feature = [];
+            // Do not discard attribute if value if zero or false
             if (!is_null($attributeValue)) {
                 // check for reserved attributes
                 if (strcmp($attributeKey , RESERVED_ATTRIBUTE_KEY_BUCKETING_ID) == 0) {
                     // TODO (Alda): the type for bucketing ID attribute may change so that custom
                     // attributes are not overloaded
                    $feature = [
-                        'entity_id' => RESERVED_ATTRIBUTE_KEY_BUCKETING_ID,
-                        'key' => RESERVED_ATTRIBUTE_KEY_BUCKETING_ID_EVENT_PARAM_KEY,
-                        'type' => CUSTOM_ATTRIBUTE_FEATURE_TYPE,
-                        'value' => $attributeValue
+                        ENTITY_ID => RESERVED_ATTRIBUTE_KEY_BUCKETING_ID,
+                        KEY => RESERVED_ATTRIBUTE_KEY_BUCKETING_ID_EVENT_PARAM_KEY,
+                        TYPE => CUSTOM_ATTRIBUTE_FEATURE_TYPE,
+                        VALUE => $attributeValue
                         ];
 
                 } else {
                     $attributeEntity = $config->getAttribute($attributeKey);
                     if (!is_null($attributeEntity->getKey())) {
                        $feature = [
-                            'entity_id' => $attributeEntity->getId(),
-                            'key' => $attributeKey,
-                            'type' => CUSTOM_ATTRIBUTE_FEATURE_TYPE,
-                            'value' => $attributeValue,
+                            ENTITY_ID => $attributeEntity->getId(),
+                            KEY => $attributeKey,
+                            TYPE => CUSTOM_ATTRIBUTE_FEATURE_TYPE,
+                            VALUE => $attributeValue,
                         ];
                     }
                 }
             }
 
             if(!empty($feature))
-                $commonParams[VISITORS][0]['attributes'][] = $feature;
+                $commonParams[VISITORS][0][ATTRIBUTES][] = $feature;
         }
 
         return $commonParams;
@@ -126,32 +125,22 @@ class EventBuilder
      */
     private function getImpressionParams(Experiment $experiment, $variationId)
     {
-        try {
-            // Generate a version 4 (random) UUID object
-            $uuid4 = Uuid::uuid4();
-            //echo $uuid4->toString() . "\n"; // i.e. 25769c6c-d34d-4bfe-ba98-e0ee856f3e7a
-        } catch (UnsatisfiedDependencyException $e) {
-            // Some dependency was not met. Either the method cannot be called on a
-            // 32-bit system, or it can, but it relies on Moontoast\Math to be present.
-            echo 'Caught exception: ' . $e->getMessage() . "\n";
-        }
-
         $impressionParams = [
-            'decisions' => [
+            DECISIONS => [
                 [
-                    'campaign_id' => $experiment->getLayerId(),
-                    'experiment_id' => $experiment->getId(),
-                    'variation_id' => $variationId
+                    CAMPAIGN_ID => $experiment->getLayerId(),
+                    EXPERIMENT_ID => $experiment->getId(),
+                    VARIATION_ID => $variationId
                 
                 ]
             ],
 
-            'events' => [
+            EVENTS => [
                 [
-                    'entity_id' => $experiment->getLayerId(),
-                    'timestamp' => time()*1000,
-                    'key' => ACTIVATE_EVENT_KEY,
-                    'uuid' => $uuid4->toString()
+                    ENTITY_ID => $experiment->getLayerId(),
+                    TIMESTAMP => time()*1000,
+                    KEY => ACTIVATE_EVENT_KEY,
+                    UUID => GeneratorUtils::getRandomUuid()
                 ]
             ]
 
@@ -177,32 +166,21 @@ class EventBuilder
             $singleSnapshot = [];
             $experiment = $config->getExperimentFromId($experimentId);
             $eventEntity = $config->getEvent($eventKey);
-            try {
-                // Generate a version 4 (random) UUID object
-                $uuid4 = Uuid::uuid4();
-                //echo $uuid4->toString() . "\n"; // i.e. 25769c6c-d34d-4bfe-ba98-e0ee856f3e7a
-            } catch (UnsatisfiedDependencyException $e) {
-                // Some dependency was not met. Either the method cannot be called on a
-                // 32-bit system, or it can, but it relies on Moontoast\Math to be present.
-                echo 'Caught exception: ' . $e->getMessage() . "\n";
-            }
-
-
-            
-            $singleSnapshot['decisions'] = [
+                        
+            $singleSnapshot[DECISIONS] = [
                 [
-                    'campaign_id' => $experiment->getLayerId(),
-                    'experiment_id' => $experimentId,
-                    'variation_id' => $variationId
+                    CAMPAIGN_ID => $experiment->getLayerId(),
+                    EXPERIMENT_ID => $experimentId,
+                    VARIATION_ID => $variationId
                 ]
             ];
 
-            $singleSnapshot['events'] = [
+            $singleSnapshot[EVENTS] = [
                 [
-                    'entity_id' => $eventEntity->getId(),
-                    'timestamp' => time()*1000,
-                    'uuid' => $uuid4->toString(),
-                    'key' => $eventKey
+                    ENTITY_ID => $eventEntity->getId(),
+                    TIMESTAMP => time()*1000,
+                    UUID => GeneratorUtils::getRandomUuid(),
+                    KEY => $eventKey
 
                 ]
             ];
@@ -211,15 +189,15 @@ class EventBuilder
                 
                 $revenue = EventTagUtils::getRevenueValue($eventTags);
                 if(!is_null($revenue)){
-                    $singleSnapshot['events'][0][EventTagUtils::REVENUE_EVENT_METRIC_NAME] = $revenue;
+                    $singleSnapshot[EVENTS][0][EventTagUtils::REVENUE_EVENT_METRIC_NAME] = $revenue;
                 }
 
                 $eventValue = EventTagUtils::getEventValue($eventTags);
                 if(!is_null($eventValue)){
-                    $singleSnapshot['events'][0][EventTagUtils::NUMERIC_EVENT_METRIC_NAME] = $eventValue;
+                    $singleSnapshot[EVENTS][0][EventTagUtils::NUMERIC_EVENT_METRIC_NAME] = $eventValue;
                 }
 
-                 $singleSnapshot['events'][0]['tags'] = $eventTags;
+                 $singleSnapshot[EVENTS][0]['tags'] = $eventTags;
             }
 
             $conversionParams [] = $singleSnapshot;
@@ -247,7 +225,7 @@ class EventBuilder
         $variation = $config->getVariationFromKey($experimentKey, $variationKey);
         $impressionParams = $this->getImpressionParams($experiment, $variation->getId());
 
-        $eventParams[VISITORS][0]['snapshots'][] = $impressionParams;
+        $eventParams[VISITORS][0][SNAPSHOTS][] = $impressionParams;
 
         return new LogEvent(self::$ENDPOINT, $eventParams, self::$HTTP_VERB, self::$HTTP_HEADERS);
     }
@@ -270,7 +248,9 @@ class EventBuilder
         $eventParams = $this->getCommonParams($config, $userId, $attributes);
         $conversionParams = $this->getConversionParams($config, $eventKey, $experimentVariationMap, $userId, $eventTags);
 
-        $eventParams[VISITORS][0]['snapshots'] = $conversionParams;
+        $eventParams[VISITORS][0][SNAPSHOTS] = $conversionParams;
         return new LogEvent(self::$ENDPOINT, $eventParams, self::$HTTP_VERB, self::$HTTP_HEADERS);
     }
 }
+
+
