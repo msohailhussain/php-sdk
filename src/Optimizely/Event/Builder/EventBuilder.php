@@ -84,7 +84,7 @@ class EventBuilder
 
         foreach($attributes as $attributeKey => $attributeValue) {
             $feature = [];
-            // Do not discard attribute if value if zero or false
+            // Do not discard attribute if value is zero or false
             if (!is_null($attributeValue)) {
                 // check for reserved attributes
                 if (strcmp($attributeKey , RESERVED_ATTRIBUTE_KEY_BUCKETING_ID) == 0) {
