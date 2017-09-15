@@ -192,7 +192,7 @@ class EventBuilder
                     $singleSnapshot[EVENTS][0][EventTagUtils::REVENUE_EVENT_METRIC_NAME] = $revenue;
                 }
 
-                $eventValue = EventTagUtils::getEventValue($eventTags);
+                $eventValue = EventTagUtils::getNumericValue($eventTags);
                 if(!is_null($eventValue)){
                     $singleSnapshot[EVENTS][0][EventTagUtils::NUMERIC_EVENT_METRIC_NAME] = $eventValue;
                 }

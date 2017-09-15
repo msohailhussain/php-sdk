@@ -17,10 +17,6 @@
 
 namespace Optimizely\Utils;
 
-use Ramsey\Uuid\Uuid;
-use Ramsey\Uuid\Exception\UnsatisfiedDependencyException;
-
-
 class GeneratorUtils
 {
 	/**
@@ -29,17 +25,25 @@ class GeneratorUtils
      */
 	public static function getRandomUuid()
 	{
-		try {
-            // Generate a version 4 (random) UUID object
-			$uuid4 = Uuid::uuid4();
-                //echo $uuid4->toString() . "\n"; // i.e. 25769c6c-d34d-4bfe-ba98-e0ee856f3e7a
-		}  catch (UnsatisfiedDependencyException $e) {
-            // Some dependency was not met. Either the method cannot be called on a
-            // 32-bit system, or it can, but it relies on Moontoast\Math to be present.
-			echo 'Caught exception: ' . $e->getMessage() . "\n";
-		}
+		return sprintf( '%04x%04x-%04x-%04x-%04x-%04x%04x%04x',
+        // 32 bits for "time_low"
+			mt_rand( 0, 0xffff ), mt_rand( 0, 0xffff ),
 
-		return $uuid4->toString();
+        // 16 bits for "time_mid"
+			mt_rand( 0, 0xffff ),
+
+        // 16 bits for "time_hi_and_version",
+        // four most significant bits holds version number 4
+			mt_rand( 0, 0x0fff ) | 0x4000,
+
+        // 16 bits, 8 bits for "clk_seq_hi_res",
+        // 8 bits for "clk_seq_low",
+        // two most significant bits holds zero and one for variant DCE1.1
+			mt_rand( 0, 0x3fff ) | 0x8000,
+
+        // 48 bits for "node"
+			mt_rand( 0, 0xffff ), mt_rand( 0, 0xffff ), mt_rand( 0, 0xffff )
+		);
 	}
 
 }
