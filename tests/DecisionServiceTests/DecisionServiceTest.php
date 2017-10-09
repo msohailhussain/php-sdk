@@ -577,7 +577,7 @@ class DecisionServiceTest extends \PHPUnit_Framework_TestCase
         // check whitelisted variation
         $variationKey = $optlyObject->getVariation($this->experimentKey, $this->testUserIdWhitelisted, $userAttributesWithBucketingId);
         $this->assertEquals( $this->variationKeyControl, $variationKey);
-
+ 
         // check user profile
         $storedUserProfile = array(
             'user_id' => $userId,
