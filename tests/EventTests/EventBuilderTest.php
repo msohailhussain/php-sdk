@@ -16,6 +16,7 @@
  */
 
 namespace Optimizely\Tests;
+
 use Optimizely\Bucketer;
 use Optimizely\DecisionService\DecisionService;
 use Optimizely\ErrorHandler\NoOpErrorHandler;
@@ -23,6 +24,8 @@ use Optimizely\Event\Builder\EventBuilder;
 use Optimizely\Event\LogEvent;
 use Optimizely\Logger\NoOpLogger;
 use Optimizely\ProjectConfig;
+use Icecave\Parity\Parity;
+use SebastianBergmann\Diff\Differ;
 
 class EventBuilderTest extends \PHPUnit_Framework_TestCase
 {
@@ -41,6 +44,23 @@ class EventBuilderTest extends \PHPUnit_Framework_TestCase
         $this->eventBuilder = new EventBuilder();
         $this->timestamp = time()*1000;
         $this->uuid = 'a68cf1ad-0393-4e18-af87-efe8f01a7c9c';
+        $this->differ = new Differ;
+    }
+
+    /**
+     * Performs Deep Strict Comparison of two objects
+     * @param  LogEvent $e1 
+     * @param  LogEvent $e2 
+     * @return [Boolean,String]  [True,""] when equal, otherwise [False,"diff-string"] 
+     */
+    private function areLogEventsEqual($e1,$e2){
+      $msg = "";
+      $isEqual = Parity::isEqualTo($e1,$e2);
+      if(!$isEqual){
+        $msg = $this->differ->diff(var_export($e1,true),var_export($e2,true));
+      }
+      
+      return [$isEqual,$msg];
     }
 
     /**
@@ -101,8 +121,8 @@ class EventBuilderTest extends \PHPUnit_Framework_TestCase
         );
 
         $logEvent = $this->fakeParamsToReconcile($logEvent);
-
-        $this->assertEquals($expectedLogEvent, $logEvent);
+        $result = $this->areLogEventsEqual($expectedLogEvent,$logEvent);
+        $this->assertTrue($result[0],$result[1]);
     }
 
     public function testCreateImpressionEventWithAttributesNoValue()
@@ -157,7 +177,8 @@ class EventBuilderTest extends \PHPUnit_Framework_TestCase
         );
 
         $logEvent = $this->fakeParamsToReconcile($logEvent);
-        $this->assertEquals($expectedLogEvent, $logEvent);
+        $result = $this->areLogEventsEqual($expectedLogEvent,$logEvent);
+        $this->assertTrue($result[0],$result[1]);
     }
 
     /**
@@ -215,7 +236,8 @@ class EventBuilderTest extends \PHPUnit_Framework_TestCase
         );
 
         $logEvent = $this->fakeParamsToReconcile($logEvent);
-        $this->assertEquals($expectedLogEvent, $logEvent);
+        $result = $this->areLogEventsEqual($expectedLogEvent,$logEvent);
+        $this->assertTrue($result[0],$result[1]);
     }
 
     /**
@@ -273,7 +295,8 @@ class EventBuilderTest extends \PHPUnit_Framework_TestCase
         );
 
         $logEvent = $this->fakeParamsToReconcile($logEvent);
-        $this->assertEquals($expectedLogEvent, $logEvent);
+        $result = $this->areLogEventsEqual($expectedLogEvent,$logEvent);
+        $this->assertTrue($result[0],$result[1]);
     }
 
     /**
@@ -325,7 +348,8 @@ class EventBuilderTest extends \PHPUnit_Framework_TestCase
         );
 
         $logEvent = $this->fakeParamsToReconcile($logEvent);
-        $this->assertEquals($expectedLogEvent, $logEvent);
+        $result = $this->areLogEventsEqual($expectedLogEvent,$logEvent);
+        $this->assertTrue($result[0],$result[1]);
     }
 
     public function testCreateConversionEventNoAttributesNoValue()
@@ -370,7 +394,8 @@ class EventBuilderTest extends \PHPUnit_Framework_TestCase
             null
         );
         $logEvent = $this->fakeParamsToReconcile($logEvent);
-        $this->assertEquals($expectedLogEvent, $logEvent);
+        $result = $this->areLogEventsEqual($expectedLogEvent,$logEvent);
+        $this->assertTrue($result[0],$result[1]);
     }
 
     public function testCreateConversionEventWithAttributesNoValue()
@@ -426,7 +451,8 @@ class EventBuilderTest extends \PHPUnit_Framework_TestCase
         );
 
         $logEvent = $this->fakeParamsToReconcile($logEvent);
-        $this->assertEquals($expectedLogEvent, $logEvent);
+        $result = $this->areLogEventsEqual($expectedLogEvent,$logEvent);
+        $this->assertTrue($result[0],$result[1]);
     }
 
      //Should not fill in userFeatures for getConversion when attribute is not in the datafile
@@ -477,7 +503,8 @@ class EventBuilderTest extends \PHPUnit_Framework_TestCase
         );
 
         $logEvent = $this->fakeParamsToReconcile($logEvent);
-        $this->assertEquals($expectedLogEvent, $logEvent);
+        $result = $this->areLogEventsEqual($expectedLogEvent,$logEvent);
+        $this->assertTrue($result[0],$result[1]);
     }
 
     public function testCreateConversionEventNoAttributesWithValue()
@@ -530,7 +557,8 @@ class EventBuilderTest extends \PHPUnit_Framework_TestCase
         );
         $logEvent = $this->fakeParamsToReconcile($logEvent);
 
-        $this->assertEquals($expectedLogEvent, $logEvent);
+        $result = $this->areLogEventsEqual($expectedLogEvent,$logEvent);
+        $this->assertTrue($result[0],$result[1]);
     }
 
     public function testCreateConversionEventWithAttributesWithValue()
@@ -597,7 +625,8 @@ class EventBuilderTest extends \PHPUnit_Framework_TestCase
         );
        
         $logEvent = $this->fakeParamsToReconcile($logEvent);
-        $this->assertEquals($expectedLogEvent, $logEvent);
+        $result = $this->areLogEventsEqual($expectedLogEvent,$logEvent);
+        $this->assertTrue($result[0],$result[1]);
     }
 
     public function testCreateConversionEventWithAttributesWithNumericTag()
@@ -659,7 +688,8 @@ class EventBuilderTest extends \PHPUnit_Framework_TestCase
         );
        
         $logEvent = $this->fakeParamsToReconcile($logEvent);
-        $this->assertEquals($expectedLogEvent, $logEvent);
+        $result = $this->areLogEventsEqual($expectedLogEvent,$logEvent);
+        $this->assertTrue($result[0],$result[1]);
     }
 
     public function testCreateConversionEventNoAttributesWithInvalidValue()
@@ -715,7 +745,8 @@ class EventBuilderTest extends \PHPUnit_Framework_TestCase
         );
  
         $logEvent = $this->fakeParamsToReconcile($logEvent);
-        $this->assertEquals($expectedLogEvent, $logEvent);
+        $result = $this->areLogEventsEqual($expectedLogEvent,$logEvent);
+        $this->assertTrue($result[0],$result[1]);
     }
 
     // Bucketing ID should be part of the impression event sans the ID
@@ -779,7 +810,8 @@ class EventBuilderTest extends \PHPUnit_Framework_TestCase
 
      
         $logEvent = $this->fakeParamsToReconcile($logEvent);
-        $this->assertEquals($expectedLogEvent, $logEvent);
+        $result = $this->areLogEventsEqual($expectedLogEvent,$logEvent);
+        $this->assertTrue($result[0],$result[1]);
     }
 
     public function testCreateConversionEventWithBucketingIDAttribute()
@@ -841,6 +873,7 @@ class EventBuilderTest extends \PHPUnit_Framework_TestCase
         );
 
         $logEvent = $this->fakeParamsToReconcile($logEvent);
-        $this->assertEquals($expectedLogEvent, $logEvent);
+        $result = $this->areLogEventsEqual($expectedLogEvent,$logEvent);
+        $this->assertTrue($result[0],$result[1]);
     }
 }
