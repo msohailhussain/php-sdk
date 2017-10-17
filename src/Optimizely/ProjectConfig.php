@@ -127,6 +127,30 @@ class ProjectConfig
     private $_forcedVariationMap;
 
     /**
+     * list of Feature Flags that will be parsed from the datafile.
+     * @var [FeatureFlag]
+     */
+    private $_featureFlags;
+
+    /**
+     * list of Rollouts that will be parsed from the datafile
+     * @var [Rollout]
+     */
+    private $_rollouts;
+
+    /**
+     * internal mapping of feature keys to feature flag models.
+     * @var <String, FeatureFlag>  associative array of feature keys to feature flags
+     */
+    private $_featureKeyMapping;
+
+    /**
+     * internal mapping of rollout IDs to Rollout models.
+     * @var <String, Rollout>  associative array of rollout ids to rollouts
+     */
+    private $_rolloutIdMapping;
+
+    /**
      * ProjectConfig constructor to load and set project configuration data.
      *
      * @param $datafile string JSON string representing the project.

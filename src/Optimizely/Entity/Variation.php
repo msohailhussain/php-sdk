@@ -30,11 +30,25 @@ class Variation
      */
     private $_key;
 
+    /**
+     * list of all VariableUsage instances that are part of this variation.
+     * @var [VariableUsage]
+     */
+    private $_variableUsageInstances;
 
-    public function __construct($id = null, $key = null)
+    /**
+     * map of Feature Variable IDs to Variable Usages constructed during the initialization
+     * of Variation objects from the list of Variable Usages. 
+     * @var <String, VariableUsage>  associative array
+     */
+    private $_variableIdToVariableUsageInstanceMap;
+
+
+    public function __construct($id = null, $key = null, $variableUsageInstances = null)
     {
         $this->_id = $id;
         $this->_key = $key;
+        $this->_variableUsageInstances = $variableUsageInstances;
     }
 
     /**
