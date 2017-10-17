@@ -66,10 +66,24 @@ class FeatureFlag{
 	}
 
 	/**
+	 * @param String $id feature flag ID
+	 */
+	public function setId($id){
+		$this->_id = $id;
+	}
+
+	/**
 	 * @return String feature flag key
 	 */
 	public function getKey(){
 		return $this->_key;
+	}
+
+	/**
+	 * @param String $key feature flag key
+	 */
+	public function setKey($key){
+		$this->_key = $key;
 	}
 
 	/**
@@ -80,6 +94,13 @@ class FeatureFlag{
 	}
 
 	/**
+	 * @param String $rolloutId attached rollout ID
+	 */
+	public function setRolloutId($rolloutId){
+		$this->_rolloutId = $rolloutId;
+	}
+
+	/**
 	 * @return [String] attached experiment IDs
 	 */
 	public function getExperimentIds(){
@@ -87,10 +108,24 @@ class FeatureFlag{
 	}
 
 	/**
+	 * @param [String] $experimentIds attached experiment IDs
+	 */
+	public  function setExperimentIds($experimentIds){
+		$this->_experimentIds = $experimentIds;
+	}
+
+	/**
 	 * @return [FeatureVariable] feature variables that are part of this feature
 	 */
 	public function getVariables(){
 		return $this->_variables;
+	}
+
+	/**
+	 * @param [FeatureVariable] $variables feature variables that are part of this feature
+	 */
+	public function setVariables($variables){
+		$this->_variables = ConfigParser::generateMap($variables, null, FeatureVariable::class);
 	}
 
 }

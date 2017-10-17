@@ -44,9 +44,23 @@ class VariableUsage{
 	}
 
 	/**
+	 * @param String $id ID of the live variable this usage is modifying
+	 */
+	public function setId($id){
+		$this->_id = $id;
+	}
+
+	/**
 	 * @return String variable value for users in this particular variation
 	 */
 	public function getValue(){
 		return $this->_value;
+	}
+
+	/**
+	 * @param String $value variable value for users in this particular variation
+	 */
+	public function setValue($value){
+		$this->_value = $value;
 	}
 }

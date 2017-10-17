@@ -17,6 +17,7 @@
 
 namespace Optimizely\Entity;
 
+use Optimizely\Utils\ConfigParser;
 
 class Variation
 {
@@ -81,5 +82,17 @@ class Variation
     public function setKey($key)
     {
         $this->_key = $key;
+    }
+
+    public function getVariables(){
+        return $this->_variableUsageInstances;
+    }
+
+    public function setVariables($variableUsageInstances){
+        $this->_variableUsageInstances = ConfigParser::generateMap($variableUsageInstances,null,VariableUsage::class);
+
+        foreach(array_values($this->_variableUsageInstances) as $variableUsage){
+            $_variableIdToVariableUsageInstanceMap[$variableUsage->getId()] = $variableUsage;
+        }
     }
 }

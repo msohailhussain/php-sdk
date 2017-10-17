@@ -44,9 +44,23 @@ class Rollout{
 	}
 
 	/**
+	 * @param String $id ID of the rollout
+	 */
+	public function setId($id){
+		$this->_id = $id;
+	}
+
+	/**
 	 * @return [Experiments] A list of experiments representing the different rules of the rollout
 	 */
 	public function getExperiments(){
 		return $this->_experiments;
+	}
+
+	/**
+	 * @param [Experiments] $experiments A list of experiments representing the different rules of the rollout
+	 */
+	public function setExperiments($experiments){
+		$this->_experiments = ConfigParser::generateMap($experiments, null, Experiment::class);
 	}
 }

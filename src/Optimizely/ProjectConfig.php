@@ -174,12 +174,16 @@ class ProjectConfig
         $events = $config['events'] ?: [];
         $attributes = $config['attributes'] ?: [];
         $audiences = $config['audiences'] ?: [];
+        $rollouts = isset($config['rollouts']) ? $config['rollouts'] : [];
+        $featureFlags = isset($config['features']) ? $config['features']: [];
 
         $this->_groupIdMap = ConfigParser::generateMap($groups, 'id', Group::class);
         $this->_experimentKeyMap = ConfigParser::generateMap($experiments, 'key', Experiment::class);
         $this->_eventKeyMap = ConfigParser::generateMap($events, 'key', Event::class);
         $this->_attributeKeyMap = ConfigParser::generateMap($attributes, 'key', Attribute::class);
         $this->_audienceIdMap = ConfigParser::generateMap($audiences, 'id', Audience::class);
+        $this->_rollouts = ConfigParser::generateMap($rollouts, null, Rollout::class);
+        $this->_featureFlags = ConfigParser::generateMap($featureFlags, null, FeatureFlag::class);
 
         forEach(array_values($this->_groupIdMap) as $group) {
             $experimentsInGroup = ConfigParser::generateMap($group->getExperiments(), 'key', Experiment::class);
@@ -205,6 +209,14 @@ class ProjectConfig
         forEach(array_values($this->_audienceIdMap) as $audience) {
             $conditionDecoder->deserializeAudienceConditions($audience->getConditions());
             $audience->setConditionsList($conditionDecoder->getConditionsList());
+        }
+
+        foreach(array_values($this->_rollouts) as $rollout){
+            $this->_rolloutIdMapping[$rollout->getId()] = $rollout;
+        }
+
+        foreach(array_values($this->_featureFlags) as $featureFlag){
+            $this->_featureKeyMapping[$featureFlag->getKey()] = $featureFlag;
         }
     }
 

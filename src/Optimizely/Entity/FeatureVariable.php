@@ -65,10 +65,24 @@ class FeatureVariable{
 	}
 
 	/**
+	 * @param String $id Feature variable ID
+	 */
+	public function setId($id){
+		$this->_id = $id;
+	}
+
+	/**
 	 * @return String Feature variable Key
 	 */
 	public function getKey(){
 		return $this->_key;
+	}
+
+	/**
+	 * @param String $key Feature variable Key
+	 */
+	public function setKey($key){
+		$this->_key = $key;
 	}
 
 	/**
@@ -79,9 +93,23 @@ class FeatureVariable{
 	}
 
 	/**
+	 * @param String $type Feature variable primitive type
+	 */
+	public function setType($type){
+		return $this->_type;
+	}
+
+	/**
 	 * @return String Default value of the feature variable
 	 */
 	public function getDefaultValue(){
 		return $this->_defaultValue;
+	}
+
+	/**
+	 * @param String $value Default value of the feature variable
+	 */
+	public function setDefaultValue($value){
+		$this->_defaultValue = $value;
 	}
 }
