@@ -93,7 +93,11 @@ class ProjectConfigTest extends \PHPUnit_Framework_TestCase
             'test_experiment' => $this->config->getExperimentFromKey('test_experiment'),
             'paused_experiment' => $this->config->getExperimentFromKey('paused_experiment'),
             'group_experiment_1' => $this->config->getExperimentFromKey('group_experiment_1'),
-            'group_experiment_2' => $this->config->getExperimentFromKey('group_experiment_2')
+            'group_experiment_2' => $this->config->getExperimentFromKey('group_experiment_2'),
+            'test_experiment_multivariate' => $this->config->getExperimentFromKey('test_experiment_multivariate'),
+            'test_experiment_with_feature_rollout' => $this->config->getExperimentFromKey('test_experiment_with_feature_rollout'),
+            'test_experiment_double_feature' =>  $this->config->getExperimentFromKey('test_experiment_double_feature'),
+            'test_experiment_integer_feature' =>  $this->config->getExperimentFromKey('test_experiment_integer_feature')
         ], $experimentKeyMap->getValue($this->config));
 
         // Check experiment ID map
@@ -103,7 +107,11 @@ class ProjectConfigTest extends \PHPUnit_Framework_TestCase
             '7716830082' => $this->config->getExperimentFromId('7716830082'),
             '7723330021' => $this->config->getExperimentFromId('7723330021'),
             '7718750065' => $this->config->getExperimentFromId('7718750065'),
-            '7716830585' => $this->config->getExperimentFromId('7716830585')
+            '7716830585' => $this->config->getExperimentFromId('7716830585'),
+            '122230' => $this->config->getExperimentFromId('122230'),
+            '122235' => $this->config->getExperimentFromId('122235'),
+            '122238' => $this->config->getExperimentFromId('122238'),
+            '122241' => $this->config->getExperimentFromId('122241')
         ], $experimentIdMap->getValue($this->config));
 
         // Check event key map
@@ -125,7 +133,8 @@ class ProjectConfigTest extends \PHPUnit_Framework_TestCase
         $audienceIdMap = new \ReflectionProperty(ProjectConfig::class, '_audienceIdMap');
         $audienceIdMap->setAccessible(true);
         $this->assertEquals([
-            '7718080042' => $this->config->getAudience('7718080042')
+            '7718080042' => $this->config->getAudience('7718080042'),
+            '11155' => $this->config->getAudience('11155')
         ], $audienceIdMap->getValue($this->config));
 
         // Check variation key map
@@ -147,6 +156,24 @@ class ProjectConfigTest extends \PHPUnit_Framework_TestCase
             'group_experiment_2' => [
                 'group_exp_2_var_1' => $this->config->getVariationFromKey('group_experiment_2', 'group_exp_2_var_1'),
                 'group_exp_2_var_2' => $this->config->getVariationFromKey('group_experiment_2', 'group_exp_2_var_2')
+            ],
+            'test_experiment_multivariate' => [
+                'Fred' => $this->config->getVariationFromKey('test_experiment_multivariate', 'Fred'),
+                'Feorge' => $this->config->getVariationFromKey('test_experiment_multivariate', 'Feorge'),
+                'Gred' => $this->config->getVariationFromKey('test_experiment_multivariate', 'Gred'),
+                'George' => $this->config->getVariationFromKey('test_experiment_multivariate', 'George')
+            ],
+            'test_experiment_with_feature_rollout' => [
+                'control' => $this->config->getVariationFromKey('test_experiment_with_feature_rollout', 'control'),
+                'variation' => $this->config->getVariationFromKey('test_experiment_with_feature_rollout', 'variation')
+            ],
+            'test_experiment_double_feature' => [
+                'control' => $this->config->getVariationFromKey('test_experiment_double_feature', 'control'),
+                'variation' => $this->config->getVariationFromKey('test_experiment_double_feature', 'variation')
+            ],
+            'test_experiment_integer_feature' => [
+                'control' => $this->config->getVariationFromKey('test_experiment_integer_feature', 'control'),
+                'variation' => $this->config->getVariationFromKey('test_experiment_integer_feature', 'variation')
             ]
         ], $variationKeyMap->getValue($this->config));
 
@@ -169,6 +196,24 @@ class ProjectConfigTest extends \PHPUnit_Framework_TestCase
             'group_experiment_2' => [
                 '7713030086' => $this->config->getVariationFromId('group_experiment_2', '7713030086'),
                 '7725250007' => $this->config->getVariationFromId('group_experiment_2', '7725250007')
+            ],
+            'test_experiment_multivariate' => [
+                '122231' => $this->config->getVariationFromId('test_experiment_multivariate', '122231'),
+                '122232' => $this->config->getVariationFromId('test_experiment_multivariate', '122232'),
+                '122233' => $this->config->getVariationFromId('test_experiment_multivariate', '122233'),
+                '122234' => $this->config->getVariationFromId('test_experiment_multivariate', '122234')
+            ],
+            'test_experiment_with_feature_rollout' => [
+                '122236' => $this->config->getVariationFromId('test_experiment_with_feature_rollout', '122236'),
+                '122237' => $this->config->getVariationFromId('test_experiment_with_feature_rollout', '122237')
+            ],
+            'test_experiment_double_feature' => [
+                '122239' => $this->config->getVariationFromId('test_experiment_double_feature', '122239'),
+                '122240' => $this->config->getVariationFromId('test_experiment_double_feature', '122240')
+            ],
+            'test_experiment_integer_feature' => [
+                '122242' => $this->config->getVariationFromId('test_experiment_integer_feature', '122242'),
+                '122243' => $this->config->getVariationFromId('test_experiment_integer_feature', '122243')
             ]
         ], $variationIdMap->getValue($this->config));
     }

@@ -32,7 +32,9 @@ class ValidatorTest extends \PHPUnit_Framework_TestCase
 
     public function testValidateJsonSchemaInvalidFile()
     {
-        $invalidDatafile = '{"key1": "val1"}';
+        $validDataFile = json_decode(DATAFILE);
+        $validDataFile->accountId = null;
+        $invalidDatafile = json_encode($validDataFile);
         $this->assertFalse(Validator::validateJsonSchema($invalidDatafile));
     }
 

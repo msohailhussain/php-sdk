@@ -49,10 +49,17 @@ class Variation
     {
         $this->_id = $id;
         $this->_key = $key;
-        $this->_variableUsageInstances = $variableUsageInstances;
 
-        foreach(array_values($this->_variableUsageInstances) as $variableUsage){
-            $_variableIdToVariableUsageInstanceMap[$variableUsage->getId()] = $variableUsage;
+        if(is_array($variableUsageInstances)){
+            $this->_variableUsageInstances = ConfigParser::generateMap($variableUsageInstances,null,VariableUsage::class);
+        } else {
+            $this->_variableUsageInstances = null;
+        }
+
+        if(is_array($this->_variableUsageInstances)){
+            foreach(array_values($this->_variableUsageInstances) as $variableUsage){
+                $_variableIdToVariableUsageInstanceMap[$variableUsage->getId()] = $variableUsage;
+            }
         }
     }
 
@@ -95,8 +102,10 @@ class Variation
     public function setVariables($variableUsageInstances){
         $this->_variableUsageInstances = ConfigParser::generateMap($variableUsageInstances,null,VariableUsage::class);
 
-        foreach(array_values($this->_variableUsageInstances) as $variableUsage){
-            $_variableIdToVariableUsageInstanceMap[$variableUsage->getId()] = $variableUsage;
+        if(is_array($this->_variableUsageInstances)){
+            foreach(array_values($this->_variableUsageInstances) as $variableUsage){
+                $_variableIdToVariableUsageInstanceMap[$variableUsage->getId()] = $variableUsage;
+            }
         }
     }
 }
