@@ -17,6 +17,8 @@
 
 namespace Optimizely\Entity;
 
+use Optimizely\Utils\ConfigParser;
+
 class Rollout{
 
 	/**

@@ -19,6 +19,12 @@ namespace Optimizely\Entity;
 
 class FeatureVariable{
 
+	// Feature variable primitive types
+	const BOOLEAN_TYPE = 'boolean';
+	const STRING_TYPE = 'string';
+	const INTEGER_TYPE = 'integer';
+	CONST DOUBLE_TYPE = 'double';
+
 	/**
 	 * variable to hold the feature variable ID
 	 * @var String

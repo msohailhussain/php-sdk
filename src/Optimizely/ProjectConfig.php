@@ -24,6 +24,8 @@ use Optimizely\Entity\Event;
 use Optimizely\Entity\Experiment;
 use Optimizely\Entity\Group;
 use Optimizely\Entity\Variation;
+use Optimizely\Entity\FeatureFlag;
+use Optimizely\Entity\Rollout;
 use Optimizely\ErrorHandler\ErrorHandlerInterface;
 use Optimizely\Exceptions\InvalidAttributeException;
 use Optimizely\Exceptions\InvalidAudienceException;
@@ -175,7 +177,7 @@ class ProjectConfig
         $attributes = $config['attributes'] ?: [];
         $audiences = $config['audiences'] ?: [];
         $rollouts = isset($config['rollouts']) ? $config['rollouts'] : [];
-        $featureFlags = isset($config['features']) ? $config['features']: [];
+        $featureFlags = isset($config['featureFlags']) ? $config['featureFlags']: [];
 
         $this->_groupIdMap = ConfigParser::generateMap($groups, 'id', Group::class);
         $this->_experimentKeyMap = ConfigParser::generateMap($experiments, 'key', Experiment::class);

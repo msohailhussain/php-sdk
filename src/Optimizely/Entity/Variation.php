@@ -50,6 +50,10 @@ class Variation
         $this->_id = $id;
         $this->_key = $key;
         $this->_variableUsageInstances = $variableUsageInstances;
+
+        foreach(array_values($this->_variableUsageInstances) as $variableUsage){
+            $_variableIdToVariableUsageInstanceMap[$variableUsage->getId()] = $variableUsage;
+        }
     }
 
     /**
