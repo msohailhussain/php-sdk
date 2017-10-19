@@ -312,7 +312,7 @@ define('DATAFILE','{
       ]
     }
   ],
-  "version": "2",
+  "version": "4",
   "audiences": [
     {
       "conditions": "[\"and\", [\"or\", [\"or\", {\"name\": \"device_type\", \"type\": \"custom_attribute\", \"value\": \"iPhone\"}]], [\"or\", [\"or\", {\"name\": \"location\", \"type\": \"custom_attribute\", \"value\": \"San Francisco\"}]]]",

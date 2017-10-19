@@ -33,9 +33,9 @@ class Rollout{
 	 */
 	private $_experiments;
 
-	public function __construct($id = null, $experiments = null){
+	public function __construct($id = null, $experiments = []){
 		$this->_id = $id;
-		$this->_experiments = $experiments;
+		$this->_experiments = ConfigParser::generateMap($experiments, null, Experiment::class);
 	}
 
 	/**

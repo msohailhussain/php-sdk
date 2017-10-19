@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright 2016, Optimizely
+ * Copyright 2016-2017, Optimizely
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,18 +45,14 @@ class Variation
     private $_variableIdToVariableUsageInstanceMap;
 
 
-    public function __construct($id = null, $key = null, $variableUsageInstances = null)
+    public function __construct($id = null, $key = null, $variableUsageInstances = [])
     {
         $this->_id = $id;
         $this->_key = $key;
 
-        if(is_array($variableUsageInstances)){
-            $this->_variableUsageInstances = ConfigParser::generateMap($variableUsageInstances,null,VariableUsage::class);
-        } else {
-            $this->_variableUsageInstances = null;
-        }
+        $this->_variableUsageInstances = ConfigParser::generateMap($variableUsageInstances,null,VariableUsage::class);
 
-        if(is_array($this->_variableUsageInstances)){
+        if(!empty($this->_variableUsageInstances)){
             foreach(array_values($this->_variableUsageInstances) as $variableUsage){
                 $_variableIdToVariableUsageInstanceMap[$variableUsage->getId()] = $variableUsage;
             }
@@ -102,7 +98,7 @@ class Variation
     public function setVariables($variableUsageInstances){
         $this->_variableUsageInstances = ConfigParser::generateMap($variableUsageInstances,null,VariableUsage::class);
 
-        if(is_array($this->_variableUsageInstances)){
+        if(!empty($this->_variableUsageInstances)){
             foreach(array_values($this->_variableUsageInstances) as $variableUsage){
                 $_variableIdToVariableUsageInstanceMap[$variableUsage->getId()] = $variableUsage;
             }

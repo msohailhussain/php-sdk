@@ -52,12 +52,12 @@ class FeatureFlag{
 	 */
 	private $_variables;
 
-	public function __construct($id = null,$key = null, $rolloutId = null, $experimentIds = null, $variables = null){
+	public function __construct($id = null,$key = null, $rolloutId = null, $experimentIds = null, $variables = []){
 		$this->_id = $id;
 		$this->_key = $key;
 		$this->_rolloutId = $rolloutId;
 		$this->_experimentIds = $experimentIds;
-		$this->_variables = $variables;
+		$this->_variables = ConfigParser::generateMap($variables, null, FeatureVariable::class);
 	}
 
 	/**
