@@ -33,6 +33,8 @@ use Optimizely\Exceptions\InvalidEventException;
 use Optimizely\Exceptions\InvalidExperimentException;
 use Optimizely\Exceptions\InvalidGroupException;
 use Optimizely\Exceptions\InvalidVariationException;
+use Optimizely\Exceptions\InvalidFeatureFlagException;
+use Optimizely\Exceptions\InvalidRolloutException;
 use Optimizely\Logger\LoggerInterface;
 use Optimizely\Utils\ConditionDecoder;
 use Optimizely\Utils\ConfigParser;
@@ -144,13 +146,13 @@ class ProjectConfig
      * internal mapping of feature keys to feature flag models.
      * @var <String, FeatureFlag>  associative array of feature keys to feature flags
      */
-    private $_featureKeyMapping;
+    private $_featureKeyMap;
 
     /**
      * internal mapping of rollout IDs to Rollout models.
      * @var <String, Rollout>  associative array of rollout ids to rollouts
      */
-    private $_rolloutIdMapping;
+    private $_rolloutIdMap;
 
     /**
      * ProjectConfig constructor to load and set project configuration data.
@@ -214,11 +216,11 @@ class ProjectConfig
         }
 
         foreach(array_values($this->_rollouts) as $rollout){
-            $this->_rolloutIdMapping[$rollout->getId()] = $rollout;
+            $this->_rolloutIdMap[$rollout->getId()] = $rollout;
         }
 
         foreach(array_values($this->_featureFlags) as $featureFlag){
-            $this->_featureKeyMapping[$featureFlag->getKey()] = $featureFlag;
+            $this->_featureKeyMap[$featureFlag->getKey()] = $featureFlag;
         }
     }
 
@@ -304,6 +306,28 @@ class ProjectConfig
         $this->_logger->log(Logger::ERROR, sprintf('Experiment ID "%s" is not in datafile.', $experimentId));
         $this->_errorHandler->handleError(new InvalidExperimentException('Provided experiment is not in datafile.'));
         return new Experiment();
+    }
+
+    public function getFeatureFlagFromKey($featureKey)
+    {
+        if(isset($this->_featureKeyMap[$featureKey])){
+            return $this->_featureKeyMap[$featureKey];
+        }
+
+        $this->_logger->log(Logger::ERROR, sprintf('FeatureFlag Key "%s" is not in datafile.', $featureKey));
+        $this->_errorHandler->handleError(new InvalidFeatureFlagException('Provided feature flag is not in datafile.'));
+        return new FeatureFlag();        
+    }
+
+    public function getRolloutFromId($rolloutId)
+    {
+        if (isset($this->_rolloutIdMap[$rolloutId])) {
+            return $this->_rolloutIdMap[$rolloutId];
+        }
+
+        $this->_logger->log(Logger::ERROR, sprintf('Rollout ID "%s" is not in datafile.', $rolloutId));
+        $this->_errorHandler->handleError(new InvalidRolloutException('Provided rollout is not in datafile.'));
+        return new Rollout();
     }
 
     /**

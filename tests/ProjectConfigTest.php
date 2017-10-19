@@ -216,6 +216,31 @@ class ProjectConfigTest extends \PHPUnit_Framework_TestCase
                 '122243' => $this->config->getVariationFromId('test_experiment_integer_feature', '122243')
             ]
         ], $variationIdMap->getValue($this->config));
+
+
+        // Check feature flag key map
+        $featureFlagKeyMap = new \ReflectionProperty(ProjectConfig::class, '_featureKeyMap');
+        $featureFlagKeyMap->setAccessible(true);
+        $this->assertEquals([
+            'boolean_feature' => $this->config->getFeatureFlagFromKey('boolean_feature'),
+            'double_single_variable_feature' => $this->config->getFeatureFlagFromKey('double_single_variable_feature'),
+            'integer_single_variable_feature' => $this->config->getFeatureFlagFromKey('integer_single_variable_feature'),
+            'boolean_single_variable_feature' => $this->config->getFeatureFlagFromKey('boolean_single_variable_feature'),
+            'string_single_variable_feature' => $this->config->getFeatureFlagFromKey('string_single_variable_feature'),
+            'multi_variate_feature' => $this->config->getFeatureFlagFromKey('multi_variate_feature'),
+            'mutex_group_feature' => $this->config->getFeatureFlagFromKey('mutex_group_feature'),      
+            'empty_feature' => $this->config->getFeatureFlagFromKey('empty_feature')
+        ], $featureFlagKeyMap->getValue($this->config));
+
+
+        // Check rollout id map
+        $rolloutIdMap = new \ReflectionProperty(ProjectConfig::class, '_rolloutIdMap');
+        $rolloutIdMap->setAccessible(true);
+        $this->assertEquals([
+            '166660' => $this->config->getRolloutFromId('166660'),
+            '166661' => $this->config->getRolloutFromId('166661')
+        ], $rolloutIdMap->getValue($this->config));
+
     }
 
     public function testGetAccountId()

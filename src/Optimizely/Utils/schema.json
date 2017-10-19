@@ -234,7 +234,7 @@
       "revision": {
         "type": "string"
       }
-    },
+    }
+  },
     "required": ["projectId", "accountId", "groups", "rollouts", "experiments", "featureFlags", "events", "audiences", "attributes", "anonymizeIP", "version", "revision"]
-  }
 }
