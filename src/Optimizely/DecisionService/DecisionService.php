@@ -148,6 +148,123 @@ class DecisionService
   }
 
   /**
+   * Get the variation the user is bucketed into for the given FeatureFlag
+   * @param  FeatureFlag $featureFlag The feature flag the user wants to access
+   * @param  string      $userId      user id
+   * @param  array       $attributes  user attributes
+   * @return array/null  {"experiment" : Experiment, "variation": Variation } / null
+   */
+  public function getVariationForFeature(FeatureFlag $featureFlag, $userId, $attributes){
+    //Evaluate in this order: 
+    //1. Attempt to bucket user into all experiments in the feature flag.
+    //2. Attempt to bucket user into rollout in the feature flag.
+
+    // Check if the feature flag is under an experiment and the the user is bucketed into one of these experiments
+    $result = $this->getVariationForFeatureExperiment($featureFlag, $userId, $attributes);
+    if($result)
+      return $result;
+
+    // Check if the feature flag has rollout and the user is bucketed into one of it's rules
+    $variation = $this->getVariationForFeatureRollout($featureFlag, $userId, $attributes);
+    if($variation){
+      $this->_logger->log(Logger::INFO,
+        "User '{$userId}' is in the rollout for feature flag '{$featureFlag->getKey()}'."
+      );
+      
+      return array(
+        "experiment" => null,
+        "variation" => $variation);
+      
+    } else{
+      $this->_logger->log(Logger::INFO,
+        "User '{$userId}' is not in the rollout for feature flag '{$featureFlag->getKey()}'."
+      );
+
+      return null;
+    }
+  }
+
+  /**
+   * Get the variation if the user is bucketed for one of the experiments on this feature flag
+   * @param  FeatureFlag $featureFlag The feature flag the user wants to access
+   * @param  string      $userId      user id
+   * @param  array       $attributes  user attributes
+   * @return array/null  {"experiment" : Experiment, "variation": Variation } / null
+   */
+  private function getVariationForFeatureExperiment(FeatureFlag $featureFlag, $userId, $attributes){
+
+    $feature_flag_key = $featureFlag->getKey();
+
+    //Check if there are any experiment ids inside feature flag
+    if(empty($featureFlag->getExperimentIds()))
+    {
+      $this->_logger->log(Logger::DEBUG,
+        "The feature flag '{$feature_flag_key}' is not used in any experiments.");
+      return null;
+    }
+
+    // Evaluate first experiment id and check if an experiment with the given id exists
+    $experimentIds = $featureFlag->getExperimentIds();
+    $experiment_id = $experimentIds[0];
+    $experiment = $this->_projectConfig->getExperimentFromId($experiment_id);
+    if( $experiment == new Experiment()){
+      // Error logged and exception thrown in getExperimentFromId
+      return null;
+    }
+
+    // If experiment has a group, call find_bucket with group id to check that the user is bucketed
+    // into one of the experiments, present in the Feature Flag Experiment Ids
+    $group_id = $experiment->getGroupId();
+    if($group_id){
+      $group = $this->_projectConfig->getGroup($group_id);
+      if($group == new Group()){
+      // Error logged and exception thrown in getGroup
+        return null;
+      }
+
+      $bucketed_experiment_id = $this->_bucketer->findBucket($userId, $userId,$group->getId(),
+        $group->getTrafficAllocation());
+
+      // Check if bucketed experiment id not null and is present in list
+      if(!$bucketed_experiment_id || !(in_array($bucketed_experiment_id,$experimentIds))){
+        $this->_logger->log(Logger::INFO,
+          "The user '{$userId}' is not bucketed into any of the experiments on the feature '{$feature_flag_key}'.");
+
+        return null;
+      }
+
+      $experiment_id = $bucketed_experiment_id;
+    }
+
+    // Get user variation on experiment
+    $experiment_to_bucket = $this->_projectConfig->getExperimentFromId($experiment_id);
+    $variation = $this->getVariation($experiment_to_bucket, $userId, $attributes);
+    if($variation && $variation!=new Variation()){
+      return array(
+        "experiment"=> $experiment_to_bucket,
+        "variation" => $variation
+      );
+    } else{
+      $this->_logger->log(Logger::INFO,
+        "The user '{$userId}' is not bucketed into any of the experiments on the feature '{$feature_flag_key}'.");
+
+      return null;
+    }
+
+  }
+
+   /**
+   * Get the variation if the user is bucketed for one of the rollouts on this feature flag
+   * @param  FeatureFlag $featureFlag The feature flag the user wants to access
+   * @param  string      $userId      user id
+   * @param  array       $attributes  user attributes
+   * @return Variation/null
+   */
+  private function getVariationForFeatureRollout(FeatureFlag $featureFlag, $userId, $attributes){
+    
+  }
+
+  /**
    * Determine variation the user has been forced into.
    *
    * @param  $experiment Experiment Experiment in which user is to be bucketed.

@@ -95,7 +95,7 @@ class Bucketer
      *
      * @return string ID representing experiment or variation.
      */
-    private function findBucket($bucketingId, $userId, $parentId, $trafficAllocations)
+    public function findBucket($bucketingId, $userId, $parentId, $trafficAllocations)
     {
         // Generate the bucketing key based on combination of user ID and experiment ID or group ID.
         $bucketingKey = $bucketingId.$parentId;
