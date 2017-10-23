@@ -28,6 +28,7 @@ use Optimizely\UserProfile\UserProfileServiceInterface;
 use Optimizely\UserProfile\UserProfile;
 use Optimizely\UserProfile\UserProfileUtils;
 use Optimizely\Utils\Validator;
+use Optimizely\Entity\FeatureFlag;
 
 // This value was decided between App Backend, Audience, and Oasis teams, but may possibly change.
 // We decided to prefix the reserved keyword with '$' because it is a symbol that is not
@@ -191,7 +192,7 @@ class DecisionService
    * @param  array       $attributes  user attributes
    * @return array/null  {"experiment" : Experiment, "variation": Variation } / null
    */
-  private function getVariationForFeatureExperiment(FeatureFlag $featureFlag, $userId, $attributes){
+  public function getVariationForFeatureExperiment(FeatureFlag $featureFlag, $userId, $attributes){
 
     $feature_flag_key = $featureFlag->getKey();
     $experimentIds = $featureFlag->getExperimentIds();
@@ -212,6 +213,8 @@ class DecisionService
 
       $variation = $this->getVariation($experiment, $userId, $attributes);
       if($variation instanceof Variation && $variation != new Variation){
+        $this->_logger->log(Logger::INFO,
+          "The user '{$userId}' is bucketed into experiment '{$experiment->getKey()}' of feature '{$feature_flag_key}'.");
         return array(
           "experiment"=> $experiment,
           "variation" => $variation
@@ -232,7 +235,7 @@ class DecisionService
    * @param  array       $attributes  user attributes
    * @return Variation/null
    */
-  private function getVariationForFeatureRollout(FeatureFlag $featureFlag, $userId, $attributes){
+  public function getVariationForFeatureRollout(FeatureFlag $featureFlag, $userId, $attributes){
 
     $feature_flag_key = $featureFlag->getKey();
     $rollout_id = $featureFlag->getRolloutId();
@@ -249,7 +252,7 @@ class DecisionService
 
     $rules = $rollout->getExperiments();
     // Evaluate all rollout rules except for last one
-    for($i=0; $i<sizeof($rules)-2; $i++){
+    for($i=0; $i<sizeof($rules)-1; $i++){
       $experiment = $rules[$i];
 
       // Evaluate if user meets the audience condition of this rollout rule
