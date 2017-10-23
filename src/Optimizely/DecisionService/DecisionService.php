@@ -194,63 +194,35 @@ class DecisionService
   private function getVariationForFeatureExperiment(FeatureFlag $featureFlag, $userId, $attributes){
 
     $feature_flag_key = $featureFlag->getKey();
-
+    $experimentIds = $featureFlag->getExperimentIds();
     //Check if there are any experiment ids inside feature flag
-    if(empty($featureFlag->getExperimentIds()))
+    if(empty($experimentIds))
     {
       $this->_logger->log(Logger::DEBUG,
         "The feature flag '{$feature_flag_key}' is not used in any experiments.");
       return null;
     }
 
-    // Evaluate first experiment id and check if an experiment with the given id exists
-    $experimentIds = $featureFlag->getExperimentIds();
-    $experiment_id = $experimentIds[0];
-    $experiment = $this->_projectConfig->getExperimentFromId($experiment_id);
-    if( $experiment == new Experiment()){
-      // Error logged and exception thrown in getExperimentFromId
-      return null;
-    }
-
-    // If experiment has a group, call find_bucket with group id to check that the user is bucketed
-    // into one of the experiments, present in the Feature Flag Experiment Ids
-    $group_id = $experiment->getGroupId();
-    if($group_id){
-      $group = $this->_projectConfig->getGroup($group_id);
-      if($group == new Group()){
-      // Error logged and exception thrown in getGroup
-        return null;
+    // Evaluate each experiment id and return the first bucketed experiment variation
+    foreach($experimentIds as $experiment_id){
+      $experiment = $this->_projectConfig->getExperimentFromId($experiment_id);
+      if( $experiment == new Experiment()){
+        continue;
       }
 
-      $bucketed_experiment_id = $this->_bucketer->findBucket($userId, $userId,$group->getId(),
-        $group->getTrafficAllocation());
-
-      // Check if bucketed experiment id not null and is present in list
-      if(!$bucketed_experiment_id || !(in_array($bucketed_experiment_id,$experimentIds))){
-        $this->_logger->log(Logger::INFO,
-          "The user '{$userId}' is not bucketed into any of the experiments on the feature '{$feature_flag_key}'.");
-
-        return null;
+      $variation = $this->getVariation($experiment, $userId, $attributes);
+      if($variation instanceof Variation && $variation != new Variation){
+        return array(
+          "experiment"=> $experiment,
+          "variation" => $variation
+        );
       }
-
-      $experiment_id = $bucketed_experiment_id;
     }
 
-    // Get user variation on experiment
-    $experiment_to_bucket = $this->_projectConfig->getExperimentFromId($experiment_id);
-    $variation = $this->getVariation($experiment_to_bucket, $userId, $attributes);
-    if($variation && $variation!=new Variation()){
-      return array(
-        "experiment"=> $experiment_to_bucket,
-        "variation" => $variation
-      );
-    } else{
-      $this->_logger->log(Logger::INFO,
-        "The user '{$userId}' is not bucketed into any of the experiments on the feature '{$feature_flag_key}'.");
+    $this->_logger->log(Logger::INFO,
+      "The user '{$userId}' is not bucketed into any of the experiments on the feature '{$feature_flag_key}'.");
 
-      return null;
-    }
-
+    return null;
   }
 
    /**
@@ -261,7 +233,61 @@ class DecisionService
    * @return Variation/null
    */
   private function getVariationForFeatureRollout(FeatureFlag $featureFlag, $userId, $attributes){
-    
+
+    $feature_flag_key = $featureFlag->getKey();
+    $rollout_id = $featureFlag->getRolloutId();
+    if(empty($rollout_id)){
+       $this->_logger->log(Logger::DEBUG,
+        "Feature flag '{$feature_flag_key}' is not part of a rollout.");
+       return null; 
+    }
+
+    $rollout = $this->_projectConfig->getRolloutFromId($rollout_id);
+    if($rollout == new Rollout()){
+      return null;
+    }
+
+    $rules = $rollout->getExperiments();
+    // Evaluate all rollout rules except for last one
+    for($i=0; $i<sizeof($rules)-2; $i++){
+      $experiment = $rules[$i];
+
+      // Evaluate if user meets the audience condition of this rollout rule
+      if (!Validator::isUserInExperiment($this->_projectConfig, $experiment, $attributes)) {
+        $this->_logger->log(
+          Logger::DEBUG,
+          sprintf('User "%s" does not meet conditions to be in experiment "%s".', $userId, $experiment->getKey())
+        );
+        // Evaluate this user for the next rule
+        continue;
+      }
+
+      $this->_logger->log(Logger::DEBUG,
+        sprintf("User '{$user_id}' meets conditions for targeting rule '%s'.", $i+1));
+
+      // Evaluate if user satisfies the traffic allocation for this rollout rule
+      $variation = $this->_bucketer->bucket($this->_projectConfig, $experiment, $userId, $userId);
+      if($variation != new Variation()){
+        return $variation;
+      } else {
+        $this->_logger->log(Logger::DEBUG,
+         "User '{$userId}' is not in the traffic group for the targeting rule. Checking 'Eveyrone Else' rule now.");
+        break;
+      }
+    }
+
+    // Evaluate Everyone Else Rule / Last Rule now
+    $experiment = $rules[sizeof($rules)-1];
+    $variation = $this->_bucketer->bucket($this->_projectConfig, $experiment, $userId, $userId);
+    if($variation != new Variation()){
+      $this->_logger->log(Logger::DEBUG,
+         "User '{$userId}' meets conditions for targeting rule 'Everyone Else'.");
+        return $variation;
+      } else {
+        $this->_logger->log(Logger::DEBUG,
+        "User '{$userId}' does not meet conditions for targeting rule 'Everyone Else'.");
+        return null;
+      }
   }
 
   /**
