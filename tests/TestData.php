@@ -322,7 +322,7 @@ define('DATAFILE','{
     {
       "name": "Chrome users",
       "conditions": "[\"and\", [\"or\", [\"or\", {\"name\": \"browser_type\", \"type\": \"custom_attribute\", \"value\": \"chrome\"}]]]",
-      "id": "11155"
+      "id": "11154"
     }
   ],
   "groups": [

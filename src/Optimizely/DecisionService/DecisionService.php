@@ -29,6 +29,7 @@ use Optimizely\UserProfile\UserProfile;
 use Optimizely\UserProfile\UserProfileUtils;
 use Optimizely\Utils\Validator;
 use Optimizely\Entity\FeatureFlag;
+use Optimizely\Entity\Rollout;
 
 // This value was decided between App Backend, Audience, and Oasis teams, but may possibly change.
 // We decided to prefix the reserved keyword with '$' because it is a symbol that is not
@@ -235,8 +236,7 @@ class DecisionService
    * @param  array       $attributes  user attributes
    * @return Variation/null
    */
-  public function getVariationForFeatureRollout(FeatureFlag $featureFlag, $userId, $attributes){
-
+  public function  getVariationForFeatureRollout(FeatureFlag $featureFlag, $userId, $attributes){
     $feature_flag_key = $featureFlag->getKey();
     $rollout_id = $featureFlag->getRolloutId();
     if(empty($rollout_id)){
@@ -244,13 +244,15 @@ class DecisionService
         "Feature flag '{$feature_flag_key}' is not part of a rollout.");
        return null; 
     }
-
     $rollout = $this->_projectConfig->getRolloutFromId($rollout_id);
     if($rollout == new Rollout()){
       return null;
     }
 
     $rules = $rollout->getExperiments();
+    if(sizeof($rules) == 0)
+      return null;
+
     // Evaluate all rollout rules except for last one
     for($i=0; $i<sizeof($rules)-1; $i++){
       $experiment = $rules[$i];
@@ -266,7 +268,7 @@ class DecisionService
       }
 
       $this->_logger->log(Logger::DEBUG,
-        sprintf("User '{$user_id}' meets conditions for targeting rule '%s'.", $i+1));
+        sprintf("User '{$userId}' meets conditions for targeting rule '%s'.", $i+1));
 
       // Evaluate if user satisfies the traffic allocation for this rollout rule
       $variation = $this->_bucketer->bucket($this->_projectConfig, $experiment, $userId, $userId);

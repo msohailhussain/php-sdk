@@ -134,7 +134,7 @@ class ProjectConfigTest extends \PHPUnit_Framework_TestCase
         $audienceIdMap->setAccessible(true);
         $this->assertEquals([
             '7718080042' => $this->config->getAudience('7718080042'),
-            '11155' => $this->config->getAudience('11155')
+            '11154' => $this->config->getAudience('11154')
         ], $audienceIdMap->getValue($this->config));
 
         // Check variation key map
