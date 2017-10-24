@@ -802,7 +802,7 @@ class DecisionServiceTest extends \PHPUnit_Framework_TestCase
         $this->loggerMock->expects($this->at(0))
         ->method('log')
         ->with(Logger::INFO, 
-            "User 'user_1' is in the rollout for feature flag 'string_single_variable_feature'.");
+            "User 'user_1' was bucketed into a rollout for feature flag 'string_single_variable_feature'.");
 
         $this->assertEquals(
             $this->decisionServiceMock->getVariationForFeature($feature_flag, 'user_1', []),
@@ -829,7 +829,7 @@ class DecisionServiceTest extends \PHPUnit_Framework_TestCase
         $this->loggerMock->expects($this->at(0))
         ->method('log')
         ->with(Logger::INFO, 
-            "User 'user_1' is not in the rollout for feature flag 'string_single_variable_feature'.");
+            "User 'user_1' was not bucketed into a rollout for feature flag 'string_single_variable_feature'.");
 
         $this->assertEquals(
             $this->decisionServiceMock->getVariationForFeature($feature_flag, 'user_1', []),
@@ -843,7 +843,7 @@ class DecisionServiceTest extends \PHPUnit_Framework_TestCase
          $this->loggerMock->expects($this->at(0))
         ->method('log')
         ->with(Logger::DEBUG, 
-            "Feature flag 'boolean_feature' is not part of a rollout.");
+            "Feature flag 'boolean_feature' is not used in a rollout.");
 
         $this->assertEquals(
             $this->decisionServiceMock->getVariationForFeatureRollout($feature_flag, 'user_1', []),
@@ -893,55 +893,166 @@ class DecisionServiceTest extends \PHPUnit_Framework_TestCase
         );
     }
 
-
+    // ============== when the user qualifies for targeting rule (audience match) ======================
+    
+    //  should return the variation the user is bucketed into when the user is bucketed into the targeting rule
     public function testGetVariationForFeatureRolloutWhenUserIsBucketedInTheTargetingRule(){
-
-        $this->decisionService = new DecisionService(new DefaultLogger(Logger::DEBUG), $this->config);
-
         $feature_flag = $this->config->getFeatureFlagFromKey('boolean_single_variable_feature');
         $rollout_id = $feature_flag->getRolloutId();
         $rollout = $this->config->getRolloutFromId($rollout_id);
         $experiment = $rollout->getExperiments()[0];
         $expected_variation = $experiment->getVariations()[0];   
+        // Provide attributes such that user qualifies for audience
+        $user_attributes = ["browser_type" => "chrome"];
 
         $bucketer = new \ReflectionProperty(DecisionService::class, '_bucketer');
         $bucketer->setAccessible(true);
         $bucketer->setValue($this->decisionService, $this->bucketerMock);
 
-        $map = [ [$experiment, 'user_1', $expected_variation] ];
-         $this->bucketerMock
-        ->method('bucket')
-        ->will($this->returnValueMap($map));
+        $this->bucketerMock
+            ->method('bucket')
+            ->willReturn($expected_variation);
 
         $this->loggerMock->expects($this->at(0))
-        ->method('log')
-        ->with(Logger::DEBUG, 
-            "User 'user_1' meets conditions for targeting rule '1'.");
+            ->method('log')
+            ->with(Logger::DEBUG, 
+            "Attempting to bucket user 'user_1' into rollout rule '{$experiment->getKey()}'.");
 
         $this->assertEquals(
-            $this->decisionService->getVariationForFeatureRollout($feature_flag, 'user_1', ["browser_type" => "chrome"]),
+            $this->decisionService->getVariationForFeatureRollout($feature_flag, 'user_1', $user_attributes),
             $expected_variation
         );
     }
 
+    // should return the variation the user is bucketed into when the user is bucketed into the "Everyone Else" rule'
+    // and the user is not bucketed into the targeting rule
+    public function testGetVariationForFeatureRolloutWhenUserIsNotBucketedInTheTargetingRuleButBucketedToEveryoneElseRule(){
+        $feature_flag = $this->config->getFeatureFlagFromKey('boolean_single_variable_feature');
+        $rollout_id = $feature_flag->getRolloutId();
+        $rollout = $this->config->getRolloutFromId($rollout_id);
+        $experiment0 = $rollout->getExperiments()[0];
+        // Everyone Else Rule
+        $experiment2 = $rollout->getExperiments()[2];
+        $expected_variation = $experiment2->getVariations()[0];   
+
+        // Provide attributes such that user qualifies for audience
+        $user_attributes = ["browser_type" => "chrome"];
+        $this->decisionService = new DecisionService($this->loggerMock, $this->config);
+        $bucketer = new \ReflectionProperty(DecisionService::class, '_bucketer');
+        $bucketer->setAccessible(true);
+        $bucketer->setValue($this->decisionService, $this->bucketerMock);
+        // Make bucket return null when called for first targeting rule
+        $this->bucketerMock->expects($this->at(0))
+            ->method('bucket')
+            ->willReturn(null);
+        //Make bucket return expected variation when called second time for everyone else
+        $this->bucketerMock->expects($this->at(1))
+            ->method('bucket')
+            ->willReturn($expected_variation);
+
+        $this->loggerMock->expects($this->at(0))
+            ->method('log')
+            ->with(Logger::DEBUG, 
+            "Attempting to bucket user 'user_1' into rollout rule '{$experiment0->getKey()}'.");
+        $this->loggerMock->expects($this->at(1))
+            ->method('log')
+            ->with(Logger::DEBUG, 
+            "User 'user_1' was excluded due to traffic allocation. Checking 'Eveyrone Else' rule now.");
+
+
+        $this->assertEquals(
+            $this->decisionService->getVariationForFeatureRollout($feature_flag, 'user_1', $user_attributes),
+            $expected_variation
+        );
+    }
+
+    // should log and return nil when  the user is not bucketed into the targeting rule and 
+    // the user is not bucketed into the "Everyone Else" rule'
+    public function testGetVariationForFeatureRolloutWhenUserIsNeitherBucketedInTheTargetingRuleNorToEveryoneElseRule(){
+        $feature_flag = $this->config->getFeatureFlagFromKey('boolean_single_variable_feature');
+        $rollout_id = $feature_flag->getRolloutId();
+        $rollout = $this->config->getRolloutFromId($rollout_id);
+        $experiment0 = $rollout->getExperiments()[0];
+        // Everyone Else Rule
+        $experiment2 = $rollout->getExperiments()[2];
+
+        // Provide attributes such that user qualifies for audience
+        $user_attributes = ["browser_type" => "chrome"];
+        $this->decisionService = new DecisionService($this->loggerMock, $this->config);
+        $bucketer = new \ReflectionProperty(DecisionService::class, '_bucketer');
+        $bucketer->setAccessible(true);
+        $bucketer->setValue($this->decisionService, $this->bucketerMock);
+        // Make bucket return null when called for first targeting rule
+        $this->bucketerMock->expects($this->at(0))
+            ->method('bucket')
+            ->willReturn(null);
+        //Make bucket return null when called second time for everyone else
+        $this->bucketerMock->expects($this->at(1))
+            ->method('bucket')
+            ->willReturn(null);
+
+        $this->loggerMock->expects($this->at(0))
+            ->method('log')
+            ->with(Logger::DEBUG, 
+            "Attempting to bucket user 'user_1' into rollout rule '{$experiment0->getKey()}'.");
+        $this->loggerMock->expects($this->at(1))
+            ->method('log')
+            ->with(Logger::DEBUG, 
+            "User 'user_1' was excluded due to traffic allocation. Checking 'Eveyrone Else' rule now.");
+        $this->loggerMock->expects($this->at(2))
+            ->method('log')
+            ->with(Logger::DEBUG, 
+            "User 'user_1'  was excluded from the 'Everyone Else' rule for feature flag");
+
+        $this->assertEquals(
+            $this->decisionService->getVariationForFeatureRollout($feature_flag, 'user_1', $user_attributes),
+            null
+        );
+    }
+
+    // ============== END of tests - when the user qualifies for targeting rule (audience match) ======================
+    
+    // ===== - when the user does not qualify for the tageting rules (audience mismatch) ======
+    
+    // should return expected variation when the user is attempted to be bucketed into all targeting rules
+    // including Everyone Else rule
+    public function testGetVariationForFeatureRolloutWhenUserDoesNotQualifyForAnyTargetingRule(){
+        $feature_flag = $this->config->getFeatureFlagFromKey('boolean_single_variable_feature');
+        $rollout_id = $feature_flag->getRolloutId();
+        $rollout = $this->config->getRolloutFromId($rollout_id);
+        $experiment0 = $rollout->getExperiments()[0];
+        $experiment1 = $rollout->getExperiments()[1];
+        // Everyone Else Rule
+        $experiment2 = $rollout->getExperiments()[2];   
+        $expected_variation = $experiment2->getVariations()[0];   
+
+        // Provide null attributes so that user does not qualify for audience
+        $user_attributes = [];
+        $this->decisionService = new DecisionService($this->loggerMock, $this->config);
+        $bucketer = new \ReflectionProperty(DecisionService::class, '_bucketer');
+        $bucketer->setAccessible(true);
+        $bucketer->setValue($this->decisionService, $this->bucketerMock);
+
+        // Expect bucket to be called exactly once for the everyone else/last rule. 
+        // As we ignore Audience check only for thelast rule
+        $this->bucketerMock->expects($this->exactly(1))
+            ->method('bucket')
+            ->willReturn($expected_variation);
+
+        $this->loggerMock->expects($this->at(0))
+            ->method('log')
+            ->with(Logger::DEBUG, 
+            "User 'user_1' did not meet the audience conditions to be in rollout rule '{$experiment0->getKey()}'.");
+
+        $this->loggerMock->expects($this->at(1))
+            ->method('log')
+            ->with(Logger::DEBUG, 
+            "User 'user_1' did not meet the audience conditions to be in rollout rule '{$experiment1->getKey()}'.");
+
+        $this->assertEquals(
+            $this->decisionService->getVariationForFeatureRollout($feature_flag, 'user_1', $user_attributes),
+            $expected_variation
+        );
+    }
 }
 
-
-
-// describe 'when the user qualifies for targeting rule' do
-//       describe 'and the user is bucketed into the targeting rule' do
-//         it 'should return the variation the user is bucketed into' do
-//           feature_flag = config.feature_flag_key_map['boolean_single_variable_feature']
-//           rollout_experiment = config.rollout_id_map[feature_flag['rolloutId']]['experiments'][0]
-//           expected_variation = rollout_experiment['variations'][0]
-
-//           allow(Optimizely::Audience).to receive(:user_in_experiment?).and_return(true)
-//           allow(decision_service.bucketer).to receive(:bucket)
-//                                         .with(rollout_experiment, user_id)
-//                                         .and_return(expected_variation)
-//           expect(decision_service.get_variation_for_feature_rollout(feature_flag, user_id, user_attributes)).to eq(expected_variation)
-
-//           expect(spy_logger).to have_received(:log).once
-//                           .with(Logger::DEBUG, "User 'user_1' meets conditions for targeting rule '1'.")
-//         end
-//       end
