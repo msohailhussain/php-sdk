@@ -33,7 +33,7 @@ use Optimizely\Entity\Rollout;
 
 // This value was decided between App Backend, Audience, and Oasis teams, but may possibly change.
 // We decided to prefix the reserved keyword with '$' because it is a symbol that is not
-// allowed in custom userAttributes.
+// allowed in custom attributes.
 // We also thought that the prefix 'opt' makes it apparent to users that the variable belongs to Optimizely.
 define("RESERVED_ATTRIBUTE_KEY_BUCKETING_ID",     "\$opt_bucketing_id");
 
@@ -89,14 +89,14 @@ class DecisionService
    *
    * @param  $experiment  Experiment Experiment to get the variation for.
    * @param  $userId      string     User identifier.
-   * @param  $userAttributes  array      userAttributes of the user.
+   * @param  $attributes  array      Attributes of the user.
    *
    * @return Variation   Variation  which the user is bucketed into.
    */
-  public function getVariation(Experiment $experiment, $userId, $userAttributes = null)
+  public function getVariation(Experiment $experiment, $userId, $attributes = null)
   {
     
-    $bucketingId = $this->getBucketingIdFromUserAttributes($userId, $userAttributes);
+    $bucketingId = $this->getBucketingId($userId, $attributes);
 
     if (!$experiment->isExperimentRunning()) {
       $this->_logger->log(Logger::INFO, sprintf('Experiment "%s" is not running.', $experiment->getKey()));
@@ -128,7 +128,7 @@ class DecisionService
       }
     }
 
-    if (!Validator::isUserInExperiment($this->_projectConfig, $experiment, $userAttributes)) {
+    if (!Validator::isUserInExperiment($this->_projectConfig, $experiment, $attributes)) {
         $this->_logger->log(
             Logger::INFO,
             sprintf('User "%s" does not meet conditions to be in experiment "%s".', $userId, $experiment->getKey())
@@ -144,12 +144,12 @@ class DecisionService
   }
 
   /**
-   * Gets Bucketing Id for Bucketing
+   * Gets the Bucketing Id for Bucketing
    * @param  string $userId         
    * @param  array $userAttributes 
    * @return string  
    */
-  private function getBucketingIdFromUserAttributes($userId, $userAttributes){
+  private function getBucketingId($userId, $userAttributes){
     // by default, the bucketing ID should be the user ID
     $bucketingId = $userId;
 
@@ -252,7 +252,7 @@ class DecisionService
    * @return Variation/null
    */
   public function  getVariationForFeatureRollout(FeatureFlag $featureFlag, $userId, $userAttributes){
-    $bucketing_id = $this->getBucketingIdFromUserAttributes($userId, $userAttributes);
+    $bucketing_id = $this->getBucketingId($userId, $userAttributes);
     $feature_flag_key = $featureFlag->getKey();
     $rollout_id = $featureFlag->getRolloutId();
     if(empty($rollout_id)){
