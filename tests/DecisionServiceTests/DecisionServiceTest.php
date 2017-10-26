@@ -774,7 +774,7 @@ class DecisionServiceTest extends \PHPUnit_Framework_TestCase
     }
 
     // should return the bucketed variation and null experiment
-    public function testGetVariationForFeatureWhenTheUserIsNotBucketedIntoFeatureExperimentAndBucketedToFeatureRollout(){
+    public function testGetVariationForFeatureWhenBucketedToFeatureRollout(){
 
         $this->decisionServiceMock = $this->getMockBuilder(DecisionService::class)
         ->setConstructorArgs(array($this->loggerMock, $this->config))
@@ -802,7 +802,7 @@ class DecisionServiceTest extends \PHPUnit_Framework_TestCase
         $this->loggerMock->expects($this->at(0))
         ->method('log')
         ->with(Logger::INFO, 
-            "User 'user_1' was bucketed into a rollout for feature flag 'string_single_variable_feature'.");
+            "User 'user_1' is bucketed into a rollout for feature flag 'string_single_variable_feature'.");
 
         $this->assertEquals(
             $this->decisionServiceMock->getVariationForFeature($feature_flag, 'user_1', []),
@@ -829,7 +829,7 @@ class DecisionServiceTest extends \PHPUnit_Framework_TestCase
         $this->loggerMock->expects($this->at(0))
         ->method('log')
         ->with(Logger::INFO, 
-            "User 'user_1' was not bucketed into a rollout for feature flag 'string_single_variable_feature'.");
+            "User 'user_1' is not bucketed into a rollout for feature flag 'string_single_variable_feature'.");
 
         $this->assertEquals(
             $this->decisionServiceMock->getVariationForFeature($feature_flag, 'user_1', []),

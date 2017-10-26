@@ -170,7 +170,7 @@ class DecisionService
     $variation = $this->getVariationForFeatureRollout($featureFlag, $userId, $userAttributes);
     if($variation){
       $this->_logger->log(Logger::INFO,
-        "User '{$userId}' was bucketed into a rollout for feature flag '{$featureFlag->getKey()}'."
+        "User '{$userId}' is bucketed into a rollout for feature flag '{$featureFlag->getKey()}'."
       );
       
       return array(
@@ -179,7 +179,7 @@ class DecisionService
       
     } else{
       $this->_logger->log(Logger::INFO,
-        "User '{$userId}' was not bucketed into a rollout for feature flag '{$featureFlag->getKey()}'."
+        "User '{$userId}' is not bucketed into a rollout for feature flag '{$featureFlag->getKey()}'."
       );
 
       return null;
@@ -209,6 +209,7 @@ class DecisionService
     foreach($experimentIds as $experiment_id){
       $experiment = $this->_projectConfig->getExperimentFromId($experiment_id);
       if( $experiment == new Experiment()){
+        // Error logged and exception thrown in ProjectConfig-getExperimentFromId
         continue;
       }
 
