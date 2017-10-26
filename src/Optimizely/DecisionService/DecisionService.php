@@ -95,14 +95,8 @@ class DecisionService
    */
   public function getVariation(Experiment $experiment, $userId, $userAttributes = null)
   {
-    // by default, the bucketing ID should be the user ID
-    $bucketingId = $userId;
-
-    // If the bucketing ID key is defined in userAttributes, then use that in place of the userID for the murmur hash key
-    if (!empty($userAttributes[RESERVED_ATTRIBUTE_KEY_BUCKETING_ID])) {
-        $bucketingId = $userAttributes[RESERVED_ATTRIBUTE_KEY_BUCKETING_ID];
-        $this->_logger->log(Logger::DEBUG, sprintf('Setting the bucketing ID to "%s".', $bucketingId));
-    }
+    
+    $bucketingId = $this->getBucketingIdFromUserAttributes($userId, $userAttributes);
 
     if (!$experiment->isExperimentRunning()) {
       $this->_logger->log(Logger::INFO, sprintf('Experiment "%s" is not running.', $experiment->getKey()));
@@ -150,6 +144,25 @@ class DecisionService
   }
 
   /**
+   * Gets Bucketing Id for Bucketing
+   * @param  string $userId         
+   * @param  array $userAttributes 
+   * @return string  
+   */
+  private function getBucketingIdFromUserAttributes($userId, $userAttributes){
+    // by default, the bucketing ID should be the user ID
+    $bucketingId = $userId;
+
+    // If the bucketing ID key is defined in userAttributes, then use that in place of the userID for the murmur hash key
+    if (!empty($userAttributes[RESERVED_ATTRIBUTE_KEY_BUCKETING_ID])) {
+        $bucketingId = $userAttributes[RESERVED_ATTRIBUTE_KEY_BUCKETING_ID];
+        $this->_logger->log(Logger::DEBUG, sprintf('Setting the bucketing ID to "%s".', $bucketingId));
+    }
+
+    return $bucketingId;
+  }
+
+  /**
    * Get the variation the user is bucketed into for the given FeatureFlag
    * @param  FeatureFlag $featureFlag The feature flag the user wants to access
    * @param  string      $userId      user id
@@ -194,7 +207,6 @@ class DecisionService
    * @return array/null  {"experiment" : Experiment, "variation": Variation } / null
    */
   public function getVariationForFeatureExperiment(FeatureFlag $featureFlag, $userId, $userAttributes){
-
     $feature_flag_key = $featureFlag->getKey();
     $experimentIds = $featureFlag->getExperimentIds();
     //Check if there are any experiment ids inside feature flag
@@ -240,6 +252,7 @@ class DecisionService
    * @return Variation/null
    */
   public function  getVariationForFeatureRollout(FeatureFlag $featureFlag, $userId, $userAttributes){
+    $bucketing_id = $this->getBucketingIdFromUserAttributes($userId, $userAttributes);
     $feature_flag_key = $featureFlag->getKey();
     $rollout_id = $featureFlag->getRolloutId();
     if(empty($rollout_id)){
@@ -275,7 +288,7 @@ class DecisionService
         sprintf("Attempting to bucket user '{$userId}' into rollout rule '%s'.", $experiment->getKey()));
 
       // Evaluate if user satisfies the traffic allocation for this rollout rule
-      $variation = $this->_bucketer->bucket($this->_projectConfig, $experiment, $userId, $userId);
+      $variation = $this->_bucketer->bucket($this->_projectConfig, $experiment, $bucketing_id, $userId);
       if($variation && $variation != new Variation()){
         return $variation;
       } else {
@@ -287,7 +300,7 @@ class DecisionService
 
     // Evaluate Everyone Else Rule / Last Rule now
     $experiment = $rolloutRules[sizeof($rolloutRules)-1];
-    $variation = $this->_bucketer->bucket($this->_projectConfig, $experiment, $userId, $userId);
+    $variation = $this->_bucketer->bucket($this->_projectConfig, $experiment, $bucketing_id, $userId);
     if($variation && $variation != new Variation()){
         return $variation;
       } else {
