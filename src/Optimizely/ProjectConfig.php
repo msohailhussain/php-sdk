@@ -334,7 +334,7 @@ class ProjectConfig
             return $this->_rolloutIdMap[$rolloutId];
         }
 
-        $this->_logger->log(Logger::ERROR, sprintf('Rollout ID "%s" is not in datafile.', $rolloutId));
+        $this->_logger->log(Logger::ERROR, sprintf('Rollout with ID "%s" is not in the datafile.', $rolloutId));
         $this->_errorHandler->handleError(new InvalidRolloutException('Provided rollout is not in datafile.'));
         return new Rollout();
     }

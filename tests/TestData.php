@@ -322,7 +322,7 @@ define('DATAFILE','{
     {
       "name": "Chrome users",
       "conditions": "[\"and\", [\"or\", [\"or\", {\"name\": \"browser_type\", \"type\": \"custom_attribute\", \"value\": \"chrome\"}]]]",
-      "id": "11155"
+      "id": "11154"
     }
   ],
   "groups": [
@@ -467,8 +467,8 @@ define('DATAFILE','{
       "key": "boolean_feature",
       "rolloutId": "",
       "experimentIds": [
-        "133331",
-        "133332"
+        "7723330021",
+        "7718750065"
       ],
       "variables": [
         
