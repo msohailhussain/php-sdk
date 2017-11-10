@@ -24,11 +24,14 @@ class NotificationType
 
     public static function isNotificationTypeValid($notification_type)
     {
-        $notificationTypeList = [];
-        $notificationTypeList [] = self::DECISON;
-        $notificationTypeList [] = self::TRACK;
-        $notificationTypeList [] = self::FEATURE_ACCESSED;
+        $oClass = new \ReflectionClass(__CLASS__);
+        $notificationTypeList = array_values($oClass->getConstants());
 
         return in_array($notification_type, $notificationTypeList);
+    }
+
+    public static function getAll(){
+        $oClass = new \ReflectionClass(__CLASS__);
+        return $oClass->getConstants();
     }
 }

@@ -23,18 +23,29 @@ use Optimizely\Logger\NoOpLogger;
 
 class NotificationCenter
 {
-    private $notificationId;
+    private $_notificationId;
 
-    private $notifications;
+    private $_notifications;
 
     private $logger;
 
     public function __construct(LoggerInterface $logger = null)
     {
-        $this->notificationId = 1;
-        $this->notifications = [];
+        $this->_notificationId = 1;
+        $this->_notifications = [];
+        foreach(array_values(NotificationType::getAll()) as $type){
+            $this->_notifications[$type] = [];
+        }
 
         $this->logger = $logger?: new NoOpLogger;
+    }
+
+    public function getNotificationId(){
+        return $this->_notificationId;
+    }
+
+    public function getNotifications(){
+        return $this->_notifications;
     }
 
     /**
@@ -54,20 +65,16 @@ class NotificationCenter
             return null;
         }
 
-        if (!isset($this->notifications[$notification_type])) {
-            $this->notifications[$notification_type] = [];
-        }
-
-        foreach (array_values($this->notifications[$notification_type]) as $callback) {
+        foreach (array_values($this->_notifications[$notification_type]) as $callback) {
             if ($notification_callback == $callback) {
                 $this->logger->log(Logger::DEBUG, "Callback already added for notification type '{$notification_type}'.");
                 return -1;
             }
         }
 
-        $this->notifications[$notification_type][$this->notificationId] = $notification_callback;
+        $this->_notifications[$notification_type][$this->_notificationId] = $notification_callback;
         $this->logger->log(Logger::INFO, "Callback added for notification type '{$notification_type}'.");
-        $returnVal = $this->notificationId++;
+        $returnVal = $this->_notificationId++;
         return $returnVal;
     }
 
@@ -78,11 +85,11 @@ class NotificationCenter
      */
     public function removeNotificationListener($notification_id)
     {
-        foreach ($this->notifications as $notification_type => $notifications) {
+        foreach ($this->_notifications as $notification_type => $notifications) {
             foreach (array_keys($notifications) as $id) {
                 if ($notification_id == $id) {
-                    unset($this->notifications[$notification_type][$id]);
-                    $this->logger->log(Logger::INFO, "Callback with notification ID '{$notification_id}'has been removed.");
+                    unset($this->_notifications[$notification_type][$id]);
+                    $this->logger->log(Logger::INFO, "Callback with notification ID '{$notification_id}' has been removed.");
                     return true;
                 }
             }
@@ -104,7 +111,7 @@ class NotificationCenter
             return null;
         }
 
-        unset($this->notifications[$notification_type]);
+        $this->_notifications[$notification_type] = [];
         $this->logger->log(Logger::INFO, "All callbacks for notification type '{$notification_type}' have been removed.");
     }
 
@@ -114,7 +121,9 @@ class NotificationCenter
      */
     public function clearAllNotifications()
     {
-        unset($this->notifications);
+        foreach(array_values(NotificationType::getAll()) as $type){
+            $this->_notifications[$type] = [];
+        }
     }
 
     /**
@@ -125,11 +134,11 @@ class NotificationCenter
      */
     public function fireNotifications($notification_type, array $args)
     {
-        if (!isset($this->notifications[$notification_type])) {
+        if (!isset($this->_notifications[$notification_type])) {
             return;
         }
 
-        foreach (array_values($this->notifications[$notification_type]) as $callback) {
+        foreach (array_values($this->_notifications[$notification_type]) as $callback) {
             try {
                 call_user_func_array($callback, $args);
             } catch (Exception $e) {
