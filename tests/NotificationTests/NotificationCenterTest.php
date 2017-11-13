@@ -61,13 +61,13 @@ class NotificationCenterTest extends \PHPUnit_Framework_TestCase
 
         $this->assertSame(
             null,
-            $this->notificationCenterObj->addNotificationListener(NotificationType::DECISON, $invalid_callable)
+            $this->notificationCenterObj->addNotificationListener(NotificationType::DECISION, $invalid_callable)
         );
     }
 
     public function testAddNotificationWithValidTypeAndCallback()
     {
-        $notificationType = NotificationType::DECISON;
+        $notificationType = NotificationType::DECISION;
         $this->notificationCenterObj->clearAllNotifications();
 
         //  ===== should add, log and return notification ID when a plain function is passed as an argument =====
@@ -126,16 +126,16 @@ class NotificationCenterTest extends \PHPUnit_Framework_TestCase
         // ===== should add, log and return notification ID when a valid callback is added for each notification type =====
         $this->loggerMock->expects($this->at(0))
             ->method('log')
-            ->with(Logger::INFO, sprintf("Callback added for notification type '%s'.", NotificationType::DECISON));
+            ->with(Logger::INFO, sprintf("Callback added for notification type '%s'.", NotificationType::DECISION));
         $this->assertSame(
             1,
-            $this->notificationCenterObj->addNotificationListener(NotificationType::DECISON, function () {
+            $this->notificationCenterObj->addNotificationListener(NotificationType::DECISION, function () {
             })
         );
-        // verify that notifications length for NotificationType::DECISON has incremented by 1
+        // verify that notifications length for NotificationType::DECISION has incremented by 1
         $this->assertSame(
             1,
-            sizeof($this->notificationCenterObj->getNotifications()[NotificationType::DECISON])
+            sizeof($this->notificationCenterObj->getNotifications()[NotificationType::DECISION])
         );
 
         $this->loggerMock->expects($this->at(0))
@@ -175,40 +175,40 @@ class NotificationCenterTest extends \PHPUnit_Framework_TestCase
         // are added for a single notification type =====
         $this->loggerMock->expects($this->at(0))
             ->method('log')
-            ->with(Logger::INFO, sprintf("Callback added for notification type '%s'.", NotificationType::DECISON));
+            ->with(Logger::INFO, sprintf("Callback added for notification type '%s'.", NotificationType::DECISION));
         $this->assertSame(
             1,
-            $this->notificationCenterObj->addNotificationListener(NotificationType::DECISON, function () {
+            $this->notificationCenterObj->addNotificationListener(NotificationType::DECISION, function () {
             })
         );
-        // verify that notifications length for NotificationType::DECISON has incremented by 1
+        // verify that notifications length for NotificationType::DECISION has incremented by 1
         $this->assertSame(
             1,
-            sizeof($this->notificationCenterObj->getNotifications()[NotificationType::DECISON])
+            sizeof($this->notificationCenterObj->getNotifications()[NotificationType::DECISION])
         );
 
         $this->assertSame(
             2,
-            $this->notificationCenterObj->addNotificationListener(NotificationType::DECISON, function () {
+            $this->notificationCenterObj->addNotificationListener(NotificationType::DECISION, function () {
                 echo "HelloWorld";
             })
         );
-        // verify that notifications length for NotificationType::DECISON has incremented by 1
+        // verify that notifications length for NotificationType::DECISION has incremented by 1
         $this->assertSame(
             2,
-            sizeof($this->notificationCenterObj->getNotifications()[NotificationType::DECISON])
+            sizeof($this->notificationCenterObj->getNotifications()[NotificationType::DECISION])
         );
 
         $this->assertSame(
             3,
-            $this->notificationCenterObj->addNotificationListener(NotificationType::DECISON, function () {
+            $this->notificationCenterObj->addNotificationListener(NotificationType::DECISION, function () {
                 $a = 1;
             })
         );
-        // verify that notifications length for NotificationType::DECISON has incremented by 1
+        // verify that notifications length for NotificationType::DECISION has incremented by 1
         $this->assertSame(
             3,
-            sizeof($this->notificationCenterObj->getNotifications()[NotificationType::DECISON])
+            sizeof($this->notificationCenterObj->getNotifications()[NotificationType::DECISION])
         );
     }
 
@@ -225,21 +225,21 @@ class NotificationCenterTest extends \PHPUnit_Framework_TestCase
         ///////////////////////////////////////////////////////////////////////////
         $this->loggerMock->expects($this->at(0))
             ->method('log')
-            ->with(Logger::INFO, sprintf("Callback added for notification type '%s'.", NotificationType::DECISON));
+            ->with(Logger::INFO, sprintf("Callback added for notification type '%s'.", NotificationType::DECISION));
         // verify that notification ID 1 is returned
         $this->assertSame(
             1,
-            $this->notificationCenterObj->addNotificationListener(NotificationType::DECISON, $functionToSend)
+            $this->notificationCenterObj->addNotificationListener(NotificationType::DECISION, $functionToSend)
         );
 
         $this->loggerMock->expects($this->at(0))
             ->method('log')
-            ->with(Logger::DEBUG, sprintf("Callback already added for notification type '%s'.", NotificationType::DECISON));
+            ->with(Logger::DEBUG, sprintf("Callback already added for notification type '%s'.", NotificationType::DECISION));
 
         // verify that -1 is returned when adding the same callback
         $this->assertSame(
             -1,
-            $this->notificationCenterObj->addNotificationListener(NotificationType::DECISON, $functionToSend)
+            $this->notificationCenterObj->addNotificationListener(NotificationType::DECISION, $functionToSend)
         );
 
         // verify that same method is added for a different notification type
@@ -259,19 +259,19 @@ class NotificationCenterTest extends \PHPUnit_Framework_TestCase
 
         $this->loggerMock->expects($this->at(0))
             ->method('log')
-            ->with(Logger::INFO, sprintf("Callback added for notification type '%s'.", NotificationType::DECISON));
+            ->with(Logger::INFO, sprintf("Callback added for notification type '%s'.", NotificationType::DECISION));
         $this->assertSame(
             3,
-            $this->notificationCenterObj->addNotificationListener(NotificationType::DECISON, $callbackInput)
+            $this->notificationCenterObj->addNotificationListener(NotificationType::DECISION, $callbackInput)
         );
 
         $this->loggerMock->expects($this->at(0))
             ->method('log')
-            ->with(Logger::DEBUG, sprintf("Callback already added for notification type '%s'.", NotificationType::DECISON));
+            ->with(Logger::DEBUG, sprintf("Callback already added for notification type '%s'.", NotificationType::DECISION));
         // verify that -1 is returned when adding the same callback
         $this->assertSame(
             -1,
-            $this->notificationCenterObj->addNotificationListener(NotificationType::DECISON, $callbackInput)
+            $this->notificationCenterObj->addNotificationListener(NotificationType::DECISION, $callbackInput)
         );
         // verify that same method is added for a different notification type
         $this->loggerMock->expects($this->at(0))
@@ -291,7 +291,7 @@ class NotificationCenterTest extends \PHPUnit_Framework_TestCase
         // add a callback for multiple notification types
         $this->assertSame(
             1,
-            $this->notificationCenterObj->addNotificationListener(NotificationType::DECISON, function () {
+            $this->notificationCenterObj->addNotificationListener(NotificationType::DECISION, function () {
             })
         );
         $this->assertSame(
@@ -299,18 +299,18 @@ class NotificationCenterTest extends \PHPUnit_Framework_TestCase
             $this->notificationCenterObj->addNotificationListener(NotificationType::TRACK, function () {
             })
         );
-        // add another callback for NotificationType::DECISON
+        // add another callback for NotificationType::DECISION
         $this->assertSame(
             3,
-            $this->notificationCenterObj->addNotificationListener(NotificationType::DECISON, function () {
+            $this->notificationCenterObj->addNotificationListener(NotificationType::DECISION, function () {
                 //doSomething
             })
         );
 
-        // Verify that notifications length for NotificationType::DECISON is 2
+        // Verify that notifications length for NotificationType::DECISION is 2
         $this->assertSame(
             2,
-            sizeof($this->notificationCenterObj->getNotifications()[NotificationType::DECISON])
+            sizeof($this->notificationCenterObj->getNotifications()[NotificationType::DECISION])
         );
 
         // Verify that notifications length for NotificationType::TRACK is 1
@@ -345,10 +345,10 @@ class NotificationCenterTest extends \PHPUnit_Framework_TestCase
             $this->notificationCenterObj->removeNotificationListener($valid_id)
         );
 
-        // verify that notifications length for NotificationType::DECISON is now 1
+        // verify that notifications length for NotificationType::DECISION is now 1
         $this->assertSame(
             1,
-            sizeof($this->notificationCenterObj->getNotifications()[NotificationType::DECISON])
+            sizeof($this->notificationCenterObj->getNotifications()[NotificationType::DECISION])
         );
 
         //verify that notifications length for NotificationType::TRACK remains same
@@ -369,11 +369,11 @@ class NotificationCenterTest extends \PHPUnit_Framework_TestCase
             $this->notificationCenterObj->removeNotificationListener($valid_id)
         );
 
-        //verify that notifications lengths for NotificationType::DECISON and NotificationType::TRACK
+        //verify that notifications lengths for NotificationType::DECISION and NotificationType::TRACK
         // remain same
         $this->assertSame(
             1,
-            sizeof($this->notificationCenterObj->getNotifications()[NotificationType::DECISON])
+            sizeof($this->notificationCenterObj->getNotifications()[NotificationType::DECISION])
         );
         $this->assertSame(
             1,
@@ -387,19 +387,19 @@ class NotificationCenterTest extends \PHPUnit_Framework_TestCase
         $this->notificationCenterObj->clearAllNotifications();
         
         // add a callback for multiple notification types
-        $this->notificationCenterObj->addNotificationListener(NotificationType::DECISON, function () {
+        $this->notificationCenterObj->addNotificationListener(NotificationType::DECISION, function () {
         });
         $this->notificationCenterObj->addNotificationListener(NotificationType::TRACK, function () {
         });
 
-        // add another callback for NotificationType::DECISON
-        $this->notificationCenterObj->addNotificationListener(NotificationType::DECISON, function () {
+        // add another callback for NotificationType::DECISION
+        $this->notificationCenterObj->addNotificationListener(NotificationType::DECISION, function () {
         });
 
-        // Verify that notifications length for NotificationType::DECISON is 2
+        // Verify that notifications length for NotificationType::DECISION is 2
         $this->assertSame(
             2,
-            sizeof($this->notificationCenterObj->getNotifications()[NotificationType::DECISON])
+            sizeof($this->notificationCenterObj->getNotifications()[NotificationType::DECISION])
         );
 
         // Verify that notifications length for NotificationType::TRACK is 1
@@ -423,10 +423,10 @@ class NotificationCenterTest extends \PHPUnit_Framework_TestCase
             $this->notificationCenterObj->clearNotifications($invalid_type)
         );
 
-        // Verify that notifications length for NotificationType::DECISON is still 2
+        // Verify that notifications length for NotificationType::DECISION is still 2
         $this->assertSame(
             2,
-            sizeof($this->notificationCenterObj->getNotifications()[NotificationType::DECISON])
+            sizeof($this->notificationCenterObj->getNotifications()[NotificationType::DECISION])
         );
 
         // Verify that notifications length for NotificationType::TRACK is still 1
@@ -443,15 +443,15 @@ class NotificationCenterTest extends \PHPUnit_Framework_TestCase
             ->method('log')
             ->with(
                 Logger::INFO,
-                sprintf("All callbacks for notification type '%s' have been removed.", NotificationType::DECISON)
+                sprintf("All callbacks for notification type '%s' have been removed.", NotificationType::DECISION)
             );
 
-        $this->notificationCenterObj->clearNotifications(NotificationType::DECISON);
+        $this->notificationCenterObj->clearNotifications(NotificationType::DECISION);
 
-        // Verify that notifications length for NotificationType::DECISON is now 0
+        // Verify that notifications length for NotificationType::DECISION is now 0
         $this->assertSame(
             0,
-            sizeof($this->notificationCenterObj->getNotifications()[NotificationType::DECISON])
+            sizeof($this->notificationCenterObj->getNotifications()[NotificationType::DECISION])
         );
 
         // Verify that notifications length for NotificationType::TRACK is still 1
@@ -471,7 +471,7 @@ class NotificationCenterTest extends \PHPUnit_Framework_TestCase
         // verify that for each of the notification types, the notifications length is zero
         $this->assertSame(
             0,
-            sizeof($notificationCenterA->getNotifications()[NotificationType::DECISON])
+            sizeof($notificationCenterA->getNotifications()[NotificationType::DECISION])
         );
         $this->assertSame(
             0,
@@ -483,11 +483,11 @@ class NotificationCenterTest extends \PHPUnit_Framework_TestCase
         );
 
         // add a callback for multiple notification types
-        $notificationCenterA->addNotificationListener(NotificationType::DECISON, function () {
+        $notificationCenterA->addNotificationListener(NotificationType::DECISION, function () {
         });
-        $notificationCenterA->addNotificationListener(NotificationType::DECISON, function () {
+        $notificationCenterA->addNotificationListener(NotificationType::DECISION, function () {
         });
-        $notificationCenterA->addNotificationListener(NotificationType::DECISON, function () {
+        $notificationCenterA->addNotificationListener(NotificationType::DECISION, function () {
         });
 
         $notificationCenterA->addNotificationListener(NotificationType::TRACK, function () {
@@ -502,7 +502,7 @@ class NotificationCenterTest extends \PHPUnit_Framework_TestCase
         // verify that notifications length for each type reflects the just added callbacks
         $this->assertSame(
             3,
-            sizeof($notificationCenterA->getNotifications()[NotificationType::DECISON])
+            sizeof($notificationCenterA->getNotifications()[NotificationType::DECISION])
         );
         $this->assertSame(
             2,
@@ -522,7 +522,7 @@ class NotificationCenterTest extends \PHPUnit_Framework_TestCase
         // verify that notifications length for each type is now set to 0
         $this->assertSame(
             0,
-            sizeof($notificationCenterA->getNotifications()[NotificationType::DECISON])
+            sizeof($notificationCenterA->getNotifications()[NotificationType::DECISION])
         );
         $this->assertSame(
             0,
@@ -536,12 +536,12 @@ class NotificationCenterTest extends \PHPUnit_Framework_TestCase
 
     public function testFireNotificationsGivenLessThanExpectedNumberOfArguments()
     {
-        $clientObj = new FireNotification_Tester;
+        $clientObj = new FireNotificationTester;
         $this->notificationCenterObj->clearAllNotifications();
         
         // add a notification callback with arguments
         $this->notificationCenterObj->addNotificationListener(
-            NotificationType::DECISON,
+            NotificationType::DECISION,
             array($clientObj, 'decision_callback_with_args')
         );
 
@@ -553,12 +553,12 @@ class NotificationCenterTest extends \PHPUnit_Framework_TestCase
             ->method('log')
             ->with(Logger::ERROR, "Problem calling notify callback.");
 
-        $this->notificationCenterObj->fireNotifications(NotificationType::DECISON, array("HelloWorld"));
+        $this->notificationCenterObj->fireNotifications(NotificationType::DECISION, array("HelloWorld"));
     }
 
     public function testFireNotificationsAndVerifyThatAllCallbacksWithoutArgsAreCalled()
     {
-        $clientMock = $this->getMockBuilder(FireNotification_Tester::class)
+        $clientMock = $this->getMockBuilder(FireNotificationTester::class)
             ->setMethods(array('decision_callback_no_args', 'decision_callback_no_args_2', 'track_callback_no_args'))
             ->getMock();
 
@@ -566,11 +566,11 @@ class NotificationCenterTest extends \PHPUnit_Framework_TestCase
 
         //add notification callbacks
         $this->notificationCenterObj->addNotificationListener(
-            NotificationType::DECISON,
+            NotificationType::DECISION,
             array($clientMock, 'decision_callback_no_args')
         );
         $this->notificationCenterObj->addNotificationListener(
-            NotificationType::DECISON,
+            NotificationType::DECISION,
             array($clientMock, 'decision_callback_no_args_2')
         );
         $this->notificationCenterObj->addNotificationListener(
@@ -579,7 +579,7 @@ class NotificationCenterTest extends \PHPUnit_Framework_TestCase
         );
 
         //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-        // === Verify that all callbacks for NotificationType::DECISON are called and no other callbacks are called === //
+        // === Verify that all callbacks for NotificationType::DECISION are called and no other callbacks are called === //
         //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
         $clientMock->expects($this->exactly(1))
@@ -590,12 +590,12 @@ class NotificationCenterTest extends \PHPUnit_Framework_TestCase
         $clientMock->expects($this->never())
             ->method('track_callback_no_args');
 
-        $this->notificationCenterObj->fireNotifications(NotificationType::DECISON);
+        $this->notificationCenterObj->fireNotifications(NotificationType::DECISION);
     }
 
     public function testFireNotificationsAndVerifyThatAllCallbacksWithArgsAreCalled()
     {
-        $clientMock = $this->getMockBuilder(FireNotification_Tester::class)
+        $clientMock = $this->getMockBuilder(FireNotificationTester::class)
             ->setMethods(array('decision_callback_with_args', 'decision_callback_with_args_2', 'track_callback_no_args'))
             ->getMock();
 
@@ -603,11 +603,11 @@ class NotificationCenterTest extends \PHPUnit_Framework_TestCase
 
         //add notification callbacks with args
         $this->notificationCenterObj->addNotificationListener(
-            NotificationType::DECISON,
+            NotificationType::DECISION,
             array($clientMock, 'decision_callback_with_args')
         );
         $this->notificationCenterObj->addNotificationListener(
-            NotificationType::DECISON,
+            NotificationType::DECISION,
             array($clientMock, 'decision_callback_with_args_2')
         );
         $this->notificationCenterObj->addNotificationListener(
@@ -616,7 +616,7 @@ class NotificationCenterTest extends \PHPUnit_Framework_TestCase
         );
 
         //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-        // === Verify that all callbacks for NotificationType::DECISON are called and no other callbacks are called === //
+        // === Verify that all callbacks for NotificationType::DECISION are called and no other callbacks are called === //
         //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
         $clientMock->expects($this->exactly(1))
@@ -631,7 +631,7 @@ class NotificationCenterTest extends \PHPUnit_Framework_TestCase
             ->method('track_callback_no_args');
 
         $this->notificationCenterObj->fireNotifications(
-            NotificationType::DECISON,
+            NotificationType::DECISION,
             array(5, 5.5, 'string', array(5,6), function () {
             })
         );

@@ -20,6 +20,7 @@ use Exception;
 use Optimizely\Bucketer;
 use Optimizely\Event\Dispatcher\EventDispatcherInterface;
 use Optimizely\Event\LogEvent;
+use Optimizely\Optimizely;
 
 define('DATAFILE','{
   "experiments": [
@@ -754,7 +755,19 @@ class TestBucketer extends Bucketer
     }
 }
 
-class FireNotification_Tester{
+/**
+ * Class OptimizelyTester
+ * Extending Optimizely for the sake of tests.
+ * In PHP we cannot mock private/protected methods and so this was the most novel way to test.
+ */
+class OptimizelyTester extends Optimizely
+{
+  public function sendImpressionEvent($experimentKey, $variationKey, $userId, $attributes){
+    parent::sendImpressionEvent($experimentKey, $variationKey, $userId, $attributes);
+  }
+}
+
+class FireNotificationTester{
     public function decision_callback_no_args(){}
 
     public function decision_callback_no_args_2(){}

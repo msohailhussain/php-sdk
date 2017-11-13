@@ -143,6 +143,8 @@ class NotificationCenter
                 call_user_func_array($callback, $args);
             } catch (Exception $e) {
                 $this->logger->log(Logger::ERROR, "Problem calling notify callback.");
+            } catch (ArgumentCountError $e) {
+                $this->logger->log(Logger::ERROR, "Problem calling notify callback.");
             }
         }
     }

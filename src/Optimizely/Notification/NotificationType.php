@@ -18,7 +18,7 @@ namespace Optimizely\Notification;
 
 class NotificationType
 {
-    const DECISON = "DECISION:experiment, user_id,attributes, variation, event";
+    const DECISION = "DECISION:experiment, user_id,attributes, variation, event";
     const TRACK = "TRACK:event_key, user_id, attributes, event_tags, event";
     const FEATURE_ACCESSED = "FEATURE:feature_key, user_id, attributes, variation";
 

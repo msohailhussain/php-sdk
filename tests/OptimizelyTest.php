@@ -151,8 +151,16 @@ class OptimizelyTest extends \PHPUnit_Framework_TestCase
 
     public function testActivateInvalidOptimizelyObject()
     {
-        $optlyObject = new Optimizely('Random datafile');
-        $optlyObject->activate('some_experiment', 'some_user');
+        $optimizelyMock = $this->getMockBuilder(Optimizely::class)
+            ->setConstructorArgs(array('Random datafile', null, $this->loggerMock))
+            ->setMethods(array('sendImpressionEvent'))
+            ->getMock();
+
+        // verify that sendImpression isn't called
+        $optimizelyMock->expects($this->never())
+            ->method('sendImpressionEvent');
+
+        $optimizelyMock->activate('some_experiment', 'some_user');
         $this->expectOutputRegex('/Datafile has invalid format. Failing "activate"./');
     }
 
@@ -174,12 +182,17 @@ class OptimizelyTest extends \PHPUnit_Framework_TestCase
             ->method('handleError')
             ->with(new InvalidAttributeException('Provided attributes are in an invalid format.'));
 
-        $optlyObject = new Optimizely(
-            $this->datafile, new ValidEventDispatcher(), $this->loggerMock, $errorHandlerMock
-        );
+        $optimizelyMock = $this->getMockBuilder(Optimizely::class)
+            ->setConstructorArgs(array($this->datafile, new ValidEventDispatcher(), $this->loggerMock, $errorHandlerMock))
+            ->setMethods(array('sendImpressionEvent'))
+            ->getMock();
+            
+        // verify that sendImpression isn't called
+        $optimizelyMock->expects($this->never())
+            ->method('sendImpressionEvent');
 
         // Call activate
-        $this->assertNull($optlyObject->activate('test_experiment', 'test_user', 42));
+        $this->assertNull($optimizelyMock->activate('test_experiment', 'test_user', 42));
     }
 
     public function testActivateUserInNoVariation()
@@ -210,32 +223,32 @@ class OptimizelyTest extends \PHPUnit_Framework_TestCase
             ->method('log')
             ->with(Logger::INFO, 'Not activating user "not_in_variation_user".');
 
-        $optlyObject = new Optimizely($this->datafile, new ValidEventDispatcher(), $this->loggerMock);
+        $optimizelyMock = $this->getMockBuilder(Optimizely::class)
+            ->setConstructorArgs(array($this->datafile, new ValidEventDispatcher(), $this->loggerMock))
+            ->setMethods(array('sendImpressionEvent'))
+            ->getMock();
 
         $eventBuilder = new \ReflectionProperty(Optimizely::class, '_eventBuilder');
         $eventBuilder->setAccessible(true);
-        $eventBuilder->setValue($optlyObject, $this->eventBuilderMock);
+        $eventBuilder->setValue($optimizelyMock, $this->eventBuilderMock);
+
+        // verify that sendImpression isn't called
+        $optimizelyMock->expects($this->never())
+            ->method('sendImpressionEvent');
 
         // Call activate
-        $this->assertNull($optlyObject->activate('test_experiment', 'not_in_variation_user', $userAttributes));
+        $this->assertNull($optimizelyMock->activate('test_experiment', 'not_in_variation_user', $userAttributes));
     }
 
     public function testActivateNoAudienceNoAttributes()
     {
-        $this->eventBuilderMock->expects($this->once())
-            ->method('createImpressionEvent')
-            ->with(
-                $this->projectConfig,
-                'group_experiment_1',
-                'group_exp_1_var_2', 'user_1', null
-            )
-            ->willReturn(new LogEvent(
-                    'logx.optimizely.com/decision',
-                    ['param1' => 'val1', 'param2' => 'val2'], 'POST', [])
-            );
+        $optimizelyMock = $this->getMockBuilder(Optimizely::class)
+            ->setConstructorArgs(array($this->datafile, new ValidEventDispatcher(), $this->loggerMock))
+            ->setMethods(array('sendImpressionEvent'))
+            ->getMock();
 
         $callIndex = 0;
-        $this->loggerMock->expects($this->exactly(7))
+        $this->loggerMock->expects($this->exactly(5))
             ->method('log');
         $this->loggerMock->expects($this->at($callIndex++))
             ->method('log')
@@ -255,22 +268,14 @@ class OptimizelyTest extends \PHPUnit_Framework_TestCase
             ->method('log')
             ->with(Logger::INFO,
                 'User "user_1" is in variation group_exp_1_var_2 of experiment group_experiment_1.');
-        $this->loggerMock->expects($this->at($callIndex++))
-            ->method('log')
-            ->with(Logger::INFO,
-                'Activating user "user_1" in experiment "group_experiment_1".');
-        $this->loggerMock->expects($this->at($callIndex++))
-            ->method('log')
-            ->with(Logger::DEBUG,
-                'Dispatching impression event to URL logx.optimizely.com/decision with params param1=val1&param2=val2.');
-
-        $optlyObject = new Optimizely($this->datafile, new ValidEventDispatcher(), $this->loggerMock);
-        $eventBuilder = new \ReflectionProperty(Optimizely::class, '_eventBuilder');
-        $eventBuilder->setAccessible(true);
-        $eventBuilder->setValue($optlyObject, $this->eventBuilderMock);
+      
+        // Verify that sendImpression is called with expected params
+        $optimizelyMock->expects($this->exactly(1))
+            ->method('sendImpressionEvent')
+            ->with('group_experiment_1', 'group_exp_1_var_2', 'user_1', null);
 
         // Call activate
-        $this->assertEquals('group_exp_1_var_2', $optlyObject->activate('group_experiment_1', 'user_1'));
+        $this->assertSame('group_exp_1_var_2', $optimizelyMock->activate('group_experiment_1', 'user_1'));
     }
 
     public function testActivateNoAudienceNoAttributesAfterSetForcedVariation()
@@ -281,20 +286,13 @@ class OptimizelyTest extends \PHPUnit_Framework_TestCase
         $variationKey = 'control';
         $variationId = '7722370027';
 
-        $this->eventBuilderMock->expects($this->once())
-            ->method('createImpressionEvent')
-            ->with(
-                $this->projectConfig,
-                'group_experiment_1',
-                'group_exp_1_var_2', 'user_1', null
-            )
-            ->willReturn(new LogEvent(
-                    'logx.optimizely.com/decision',
-                    ['param1' => 'val1', 'param2' => 'val2'], 'POST', [])
-            );
+        $optimizelyMock = $this->getMockBuilder(Optimizely::class)
+            ->setConstructorArgs(array($this->datafile, new ValidEventDispatcher(), $this->loggerMock))
+            ->setMethods(array('sendImpressionEvent'))
+            ->getMock();
 
         $callIndex = 0;
-        $this->loggerMock->expects($this->exactly(8))
+        $this->loggerMock->expects($this->exactly(6))
             ->method('log');
         $this->loggerMock->expects($this->at($callIndex++))
             ->method('log')
@@ -317,31 +315,29 @@ class OptimizelyTest extends \PHPUnit_Framework_TestCase
             ->method('log')
             ->with(Logger::INFO,
                 'User "user_1" is in variation group_exp_1_var_2 of experiment group_experiment_1.');
-        $this->loggerMock->expects($this->at($callIndex++))
-            ->method('log')
-            ->with(Logger::INFO,
-                'Activating user "user_1" in experiment "group_experiment_1".');
-        $this->loggerMock->expects($this->at($callIndex++))
-            ->method('log')
-            ->with(Logger::DEBUG,
-                'Dispatching impression event to URL logx.optimizely.com/decision with params param1=val1&param2=val2.');
-
-        $optlyObject = new Optimizely($this->datafile, new ValidEventDispatcher(), $this->loggerMock);
-        $eventBuilder = new \ReflectionProperty(Optimizely::class, '_eventBuilder');
-        $eventBuilder->setAccessible(true);
-        $eventBuilder->setValue($optlyObject, $this->eventBuilderMock);
+    
+        // Verify that sendImpression is called with expected params
+        $optimizelyMock->expects($this->exactly(1))
+            ->method('sendImpressionEvent')
+            ->with('group_experiment_1', 'group_exp_1_var_2', 'user_1', null);
 
         // set forced variation
-        $this->assertTrue($this->optimizelyObject->setForcedVariation($experimentKey, $userId, $variationKey), 'Set variation for paused experiment should have failed.');
+        $this->assertTrue($optimizelyMock->setForcedVariation($experimentKey, $userId, $variationKey), 'Set variation for paused experiment should have failed.');
 
         // Call activate
-        $this->assertEquals('group_exp_1_var_2', $optlyObject->activate('group_experiment_1', 'user_1'));
+        $this->assertEquals('group_exp_1_var_2', $optimizelyMock->activate('group_experiment_1', 'user_1'));
     }
 
     public function testActivateAudienceNoAttributes()
     {
-        $this->eventBuilderMock->expects($this->never())
-            ->method('createImpressionEvent');
+        $optimizelyMock = $this->getMockBuilder(Optimizely::class)
+            ->setConstructorArgs(array($this->datafile, null, $this->loggerMock))
+            ->setMethods(array('sendImpressionEvent'))
+            ->getMock();
+
+        // Verify that sendImpressionEvent is not called
+        $optimizelyMock->expects($this->never())
+            ->method('sendImpressionEvent');
 
         $callIndex = 0;
         $this->loggerMock->expects($this->exactly(3))
@@ -357,14 +353,8 @@ class OptimizelyTest extends \PHPUnit_Framework_TestCase
             ->with(Logger::INFO,
                 'Not activating user "test_user".');
 
-        $optlyObject = new Optimizely($this->datafile, new ValidEventDispatcher(), $this->loggerMock);
-
-        $eventBuilder = new \ReflectionProperty(Optimizely::class, '_eventBuilder');
-        $eventBuilder->setAccessible(true);
-        $eventBuilder->setValue($optlyObject, $this->eventBuilderMock);
-
         // Call activate
-        $this->assertNull($optlyObject->activate('test_experiment', 'test_user'));
+        $this->assertNull($optimizelyMock->activate('test_experiment', 'test_user'));
     }
 
     public function testActivateWithAttributes()
@@ -375,16 +365,13 @@ class OptimizelyTest extends \PHPUnit_Framework_TestCase
             'location' => 'San Francisco'
         ];
 
-        $this->eventBuilderMock->expects($this->once())
-            ->method('createImpressionEvent')
-            ->with(
-                $this->projectConfig,
-                'test_experiment',
-                'control', 'test_user', $userAttributes
-            )
-            ->willReturn(new LogEvent('logx.optimizely.com/decision', ['param1' => 'val1'], 'POST', []));
+        $optimizelyMock = $this->getMockBuilder(Optimizely::class)
+            ->setConstructorArgs(array($this->datafile, null, $this->loggerMock))
+            ->setMethods(array('sendImpressionEvent'))
+            ->getMock();
+
         $callIndex = 0;
-        $this->loggerMock->expects($this->exactly(5))
+        $this->loggerMock->expects($this->exactly(3))
             ->method('log');
         $this->loggerMock->expects($this->at($callIndex++))
             ->method('log')
@@ -396,28 +383,26 @@ class OptimizelyTest extends \PHPUnit_Framework_TestCase
             ->method('log')
             ->with(Logger::INFO,
                 'User "test_user" is in variation control of experiment test_experiment.');
-        $this->loggerMock->expects($this->at($callIndex++))
-            ->method('log')
-            ->with(Logger::INFO, 'Activating user "test_user" in experiment "test_experiment".');
-        $this->loggerMock->expects($this->at($callIndex++))
-            ->method('log')
-            ->with(Logger::DEBUG,
-                'Dispatching impression event to URL logx.optimizely.com/decision with params param1=val1.');
-
-        $optlyObject = new Optimizely($this->datafile, new ValidEventDispatcher(), $this->loggerMock);
-
-        $eventBuilder = new \ReflectionProperty(Optimizely::class, '_eventBuilder');
-        $eventBuilder->setAccessible(true);
-        $eventBuilder->setValue($optlyObject, $this->eventBuilderMock);
+        
+        // Verify that sendImpressionEvent is called with expected attributes
+        $optimizelyMock->expects($this->exactly(1))
+            ->method('sendImpressionEvent')
+            ->with('test_experiment', 'control', 'test_user', $userAttributes);
 
         // Call activate
-        $this->assertEquals('control', $optlyObject->activate('test_experiment', 'test_user', $userAttributes));
+        $this->assertEquals('control', $optimizelyMock->activate('test_experiment', 'test_user', $userAttributes));
     }
 
     public function testActivateExperimentNotRunning()
     {
-        $this->eventBuilderMock->expects($this->never())
-            ->method('createImpressionEvent');
+        $optimizelyMock = $this->getMockBuilder(Optimizely::class)
+            ->setConstructorArgs(array($this->datafile, null, $this->loggerMock))
+            ->setMethods(array('sendImpressionEvent'))
+            ->getMock();
+
+        // Verify that sendImpressionEvent is not called
+        $optimizelyMock->expects($this->never())
+            ->method('sendImpressionEvent');
 
         $this->loggerMock->expects($this->exactly(2))
             ->method('log');
@@ -429,14 +414,8 @@ class OptimizelyTest extends \PHPUnit_Framework_TestCase
             ->with(Logger::INFO,
                 'Not activating user "test_user".');
 
-        $optlyObject = new Optimizely($this->datafile, new ValidEventDispatcher(), $this->loggerMock);
-
-        $eventBuilder = new \ReflectionProperty(Optimizely::class, '_eventBuilder');
-        $eventBuilder->setAccessible(true);
-        $eventBuilder->setValue($optlyObject, $this->eventBuilderMock);
-
-        // Call activate
-        $this->assertNull($optlyObject->activate('paused_experiment', 'test_user', null));
+         // Call activate
+        $this->assertNull($optimizelyMock->activate('paused_experiment', 'test_user', null));
     }
 
     public function testGetVariationInvalidOptimizelyObject()
@@ -2305,4 +2284,73 @@ class OptimizelyTest extends \PHPUnit_Framework_TestCase
             '59abc0p'
         );
     }
+
+    public function testSendImpressionEventWithNoAttributes(){
+        $optlyObject = new OptimizelyTester($this->datafile, new ValidEventDispatcher(), $this->loggerMock);
+
+        $this->eventBuilderMock->expects($this->once())
+            ->method('createImpressionEvent')
+            ->with(
+                $this->projectConfig,
+                'group_experiment_1',
+                'group_exp_1_var_2', 'user_1', null
+            )
+            ->willReturn(new LogEvent(
+                    'logx.optimizely.com/decision',
+                    ['param1' => 'val1', 'param2' => 'val2'], 'POST', [])
+            );
+
+        $eventBuilder = new \ReflectionProperty(Optimizely::class, '_eventBuilder');
+        $eventBuilder->setAccessible(true);
+        $eventBuilder->setValue($optlyObject, $this->eventBuilderMock);
+
+        $this->loggerMock->expects($this->at(0))
+            ->method('log')
+            ->with(Logger::INFO,
+                'Activating user "user_1" in experiment "group_experiment_1".');
+        $this->loggerMock->expects($this->at(1))
+            ->method('log')
+            ->with(Logger::DEBUG,
+                'Dispatching impression event to URL logx.optimizely.com/decision with params param1=val1&param2=val2.');
+
+        $optlyObject->sendImpressionEvent('group_experiment_1', 'group_exp_1_var_2', 'user_1', null);
+    }
+
+    
+    public function testSendImpressionEventWithAttributes(){
+        $optlyObject = new OptimizelyTester($this->datafile, new ValidEventDispatcher(), $this->loggerMock);
+
+        $userAttributes = [
+            'device_type' => 'iPhone',
+            'company' => 'Optimizely',
+            'location' => 'San Francisco'
+        ];
+
+        $this->eventBuilderMock->expects($this->once())
+            ->method('createImpressionEvent')
+            ->with(
+                $this->projectConfig,
+                'test_experiment',
+                'control', 'test_user', $userAttributes
+            )
+            ->willReturn(new LogEvent('logx.optimizely.com/decision', ['param1' => 'val1'], 'POST', []));
+
+
+        $this->loggerMock->expects($this->at(0))
+            ->method('log')
+            ->with(Logger::INFO, 'Activating user "test_user" in experiment "test_experiment".');
+        $this->loggerMock->expects($this->at(1))
+            ->method('log')
+            ->with(Logger::DEBUG,
+                'Dispatching impression event to URL logx.optimizely.com/decision with params param1=val1.');
+
+        $eventBuilder = new \ReflectionProperty(Optimizely::class, '_eventBuilder');
+        $eventBuilder->setAccessible(true);
+        $eventBuilder->setValue($optlyObject, $this->eventBuilderMock);
+
+        $optlyObject->sendImpressionEvent('test_experiment', 'control', 'test_user', $userAttributes);
+
+    }
+
+
 }

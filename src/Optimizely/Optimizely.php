@@ -35,6 +35,8 @@ use Optimizely\Event\Dispatcher\DefaultEventDispatcher;
 use Optimizely\Event\Dispatcher\EventDispatcherInterface;
 use Optimizely\Logger\LoggerInterface;
 use Optimizely\Logger\NoOpLogger;
+use Optimizely\Notification\NotificationCenter;
+use Optimizely\Notification\NotificationType;
 use Optimizely\UserProfile\UserProfileServiceInterface;
 use Optimizely\Utils\EventTagUtils;
 use Optimizely\Utils\Validator;
@@ -81,6 +83,8 @@ class Optimizely
      * @var LoggerInterface
      */
     private $_logger;
+
+    private $_notificationCenter;
 
     /**
      * Optimizely constructor for managing Full Stack PHP projects.
@@ -129,6 +133,7 @@ class Optimizely
 
         $this->_eventBuilder = new EventBuilder();
         $this->_decisionService = new DecisionService($this->_logger, $this->_config, $userProfileService);
+        $this->_notificationCenter = new NotificationCenter($this->_logger);
     }
 
     /**
@@ -227,6 +232,7 @@ class Optimizely
 
         try {
             $this->_eventDispatcher->dispatchEvent($impressionEvent);
+            $eventDispatched = true;
         } catch (Throwable $exception) {
             $this->_logger->log(Logger::ERROR, sprintf(
                 'Unable to dispatch impression event. Error %s',
@@ -238,6 +244,18 @@ class Optimizely
                 $exception->getMessage()
             ));
         }
+
+        if($eventDispatched)
+            $this->_notificationCenter->fireNotifications(
+                NotificationType::DECISION,
+                array(
+                    $this->_config->getExperimentFromKey($experimentKey),
+                    $userId,
+                    $attributes,
+                    $this->_config->getVariationFromKey($experimentKey, $variationKey),
+                    $impressionEvent
+                )    
+            );
     }
     
     /**
@@ -324,6 +342,7 @@ class Optimizely
 
             try {
                 $this->_eventDispatcher->dispatchEvent($conversionEvent);
+                $eventDispatched = true;
             }
             catch (Throwable $exception) {
                 $this->_logger->log(Logger::ERROR, sprintf(
@@ -333,6 +352,17 @@ class Optimizely
                 $this->_logger->log(Logger::ERROR, sprintf(
                     'Unable to dispatch conversion event. Error %s', $exception->getMessage()));
             }
+
+            $this->_notificationCenter->fireNotifications(
+                NotificationType::TRACK,
+                array(
+                    $eventKey,
+                    $userId,
+                    $attributes,
+                    $eventTags,
+                    $conversionEvent
+                )
+            );
 
         } else {
             $this->_logger->log(
@@ -464,6 +494,17 @@ class Optimizely
         }
 
         $this->_logger->log(Logger::INFO, "Feature Flag '{$featureFlagKey}' is enabled for user '{$userId}'.");
+
+        // $this->_notificationCenter->fireNotifications(
+        //     NotificationType::FEATURE_ACCESSED,
+        //     array(
+        //         $featureFlagKey,
+        //         $userId,
+        //         $attributes,
+        //         $this->_config->getVariationFromId($experiment->getKey(), $variation_id)
+        //     )
+        // );
+
         return true;
     }
 
