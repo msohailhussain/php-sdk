@@ -754,6 +754,18 @@ class TestBucketer extends Bucketer
     }
 }
 
+class FireNotification_Tester{
+    public function decision_callback_no_args(){}
+
+    public function decision_callback_no_args_2(){}
+
+    public function decision_callback_with_args($anInt, $aDouble, $aString, $anArray, $aFunction){}
+
+    public function decision_callback_with_args_2($anInt, $aDouble, $aString, $anArray, $aFunction){}
+
+    public function track_callback_no_args(){}
+}
+
 
 class ValidEventDispatcher implements EventDispatcherInterface
 {

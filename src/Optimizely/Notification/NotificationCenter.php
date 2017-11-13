@@ -132,7 +132,7 @@ class NotificationCenter
      * @param  array  $args              [description]
      * @return [type]                    [description]
      */
-    public function fireNotifications($notification_type, array $args)
+    public function fireNotifications($notification_type, array $args = [])
     {
         if (!isset($this->_notifications[$notification_type])) {
             return;
@@ -142,7 +142,7 @@ class NotificationCenter
             try {
                 call_user_func_array($callback, $args);
             } catch (Exception $e) {
-                $this->logger->log(Logger::ERROR, "Problem calling notify callback");
+                $this->logger->log(Logger::ERROR, "Problem calling notify callback.");
             }
         }
     }
