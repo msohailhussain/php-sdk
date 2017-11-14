@@ -18,6 +18,8 @@ namespace Optimizely\Notification;
 
 use Monolog\Logger;
 use Exception;
+use Optimizely\ErrorHandler\ErrorHandlerInterface;
+use Optimizely\Exceptions\InvalidCallbackArgumentCountException;
 use Optimizely\Logger\LoggerInterface;
 use Optimizely\Logger\NoOpLogger;
 
@@ -27,9 +29,11 @@ class NotificationCenter
 
     private $_notifications;
 
-    private $logger;
+    private $_logger;
 
-    public function __construct(LoggerInterface $logger = null)
+    private $_errorHandler;
+
+    public function __construct(LoggerInterface $logger, ErrorHandlerInterface $errorHandler)
     {
         $this->_notificationId = 1;
         $this->_notifications = [];
@@ -37,7 +41,8 @@ class NotificationCenter
             $this->_notifications[$type] = [];
         }
 
-        $this->logger = $logger?: new NoOpLogger;
+        $this->_logger = $logger;
+        $this->_errorHandler = $errorHandler;
     }
 
     public function getNotificationId(){
@@ -56,24 +61,24 @@ class NotificationCenter
     public function addNotificationListener($notification_type, $notification_callback)
     {
         if (!NotificationType::isNotificationTypeValid($notification_type)) {
-            $this->logger->log(Logger::ERROR, "Invalid notification type.");
+            $this->_logger->log(Logger::ERROR, "Invalid notification type.");
             return null;
         }
 
         if (!is_callable($notification_callback)) {
-            $this->logger->log(Logger::ERROR, "Invalid notification callback.");
+            $this->_logger->log(Logger::ERROR, "Invalid notification callback.");
             return null;
         }
 
         foreach (array_values($this->_notifications[$notification_type]) as $callback) {
             if ($notification_callback == $callback) {
-                $this->logger->log(Logger::DEBUG, "Callback already added for notification type '{$notification_type}'.");
+                $this->_logger->log(Logger::DEBUG, "Callback already added for notification type '{$notification_type}'.");
                 return -1;
             }
         }
 
         $this->_notifications[$notification_type][$this->_notificationId] = $notification_callback;
-        $this->logger->log(Logger::INFO, "Callback added for notification type '{$notification_type}'.");
+        $this->_logger->log(Logger::INFO, "Callback added for notification type '{$notification_type}'.");
         $returnVal = $this->_notificationId++;
         return $returnVal;
     }
@@ -89,13 +94,13 @@ class NotificationCenter
             foreach (array_keys($notifications) as $id) {
                 if ($notification_id == $id) {
                     unset($this->_notifications[$notification_type][$id]);
-                    $this->logger->log(Logger::INFO, "Callback with notification ID '{$notification_id}' has been removed.");
+                    $this->_logger->log(Logger::INFO, "Callback with notification ID '{$notification_id}' has been removed.");
                     return true;
                 }
             }
         }
 
-        $this->logger->log(Logger::DEBUG, "No Callback found with notification ID '{$notification_id}'.");
+        $this->_logger->log(Logger::DEBUG, "No Callback found with notification ID '{$notification_id}'.");
         return false;
     }
 
@@ -107,12 +112,12 @@ class NotificationCenter
     public function clearNotifications($notification_type)
     {
         if (!NotificationType::isNotificationTypeValid($notification_type)) {
-            $this->logger->log(Logger::ERROR, "Invalid notification type.");
+            $this->_logger->log(Logger::ERROR, "Invalid notification type.");
             return null;
         }
 
         $this->_notifications[$notification_type] = [];
-        $this->logger->log(Logger::INFO, "All callbacks for notification type '{$notification_type}' have been removed.");
+        $this->_logger->log(Logger::INFO, "All callbacks for notification type '{$notification_type}' have been removed.");
     }
 
     /**
@@ -138,14 +143,33 @@ class NotificationCenter
             return;
         }
 
+        /**
+         * Note: Before PHP 7, if the callback in call_user_func is called with less number of arguments, 
+         * a warning is issued but the method is still executed with assigning null to the remaining
+         * arguments. We set error handler for warnings so that we raise an exception and notify the user
+         * that the registered callback has more number of arguments than expected. This should be done
+         * to keep a consistent behavior across all PHP versions. 
+         * From PHP 7, ArgumentCountError is thrown in such case
+         */
+
+        set_error_handler(array($this, 'reportArgumentCountError'), E_WARNING);
+
         foreach (array_values($this->_notifications[$notification_type]) as $callback) {
             try {
                 call_user_func_array($callback, $args);
             } catch (ArgumentCountError $e) {
-                $this->logger->log(Logger::ERROR, "Problem calling notify callback.");
-            } catch (Exception $e) {
-                $this->logger->log(Logger::ERROR, "Problem calling notify callback.");
-            } 
+                $this->reportArgumentCountError();
+            } catch (Exception $e){
+                $this->_logger->log(Logger::ERROR, "Problem calling notify callback.");
+            }
         }
+
+        restore_error_handler();
+    }
+
+    public function reportArgumentCountError(){
+        $this->_logger->log(Logger::ERROR, "Problem calling notify callback.");
+        $this->_errorHandler->handleError(
+            new InvalidCallbackArgumentCountException('Registered callback expects more number of arguments than the actual number'));
     }
 }
