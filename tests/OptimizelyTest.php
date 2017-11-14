@@ -24,6 +24,8 @@ use Optimizely\ErrorHandler\NoOpErrorHandler;
 use Optimizely\Event\LogEvent;
 use Optimizely\Exceptions\InvalidAttributeException;
 use Optimizely\Logger\NoOpLogger;
+use Optimizely\Notification\NotificationCenter;
+use Optimizely\Notification\NotificationType;
 use Optimizely\ProjectConfig;
 use TypeError;
 use Optimizely\ErrorHandler\DefaultErrorHandler;
@@ -61,6 +63,11 @@ class OptimizelyTest extends \PHPUnit_Framework_TestCase
         // Mock EventBuilder
         $this->eventBuilderMock = $this->getMockBuilder(EventBuilder::class)
             ->setMethods(array('createImpressionEvent', 'createConversionEvent'))
+            ->getMock();
+
+        $this->notificationCenterMock = $this->getMockBuilder(NotificationCenter::class)
+            ->setConstructorArgs(array($this->loggerMock, new NoOpErrorHandler))
+            ->setMethods(array('fireNotifications'))
             ->getMock();
     }
 
@@ -629,6 +636,15 @@ class OptimizelyTest extends \PHPUnit_Framework_TestCase
     public function testTrackInvalidOptimizelyObject()
     {
         $optlyObject = new Optimizely('Random datafile');
+
+        $notificationCenter = new \ReflectionProperty(Optimizely::class, '_notificationCenter');
+        $notificationCenter->setAccessible(true);
+        $notificationCenter->setValue($optlyObject, $this->notificationCenterMock);
+
+        // Verify that fireNotifications isn't called
+        $this->notificationCenterMock->expects($this->never())
+            ->method('fireNotifications');
+
         $optlyObject->track('some_event', 'some_user');
         $this->expectOutputRegex('/Datafile has invalid format. Failing "track"./');
     }
@@ -649,6 +665,14 @@ class OptimizelyTest extends \PHPUnit_Framework_TestCase
         $optlyObject = new Optimizely(
             $this->datafile, new ValidEventDispatcher(), $this->loggerMock, $errorHandlerMock
         );
+
+        $notificationCenter = new \ReflectionProperty(Optimizely::class, '_notificationCenter');
+        $notificationCenter->setAccessible(true);
+        $notificationCenter->setValue($optlyObject, $this->notificationCenterMock);
+
+        // Verify that fireNotifications isn't called
+        $this->notificationCenterMock->expects($this->never())
+            ->method('fireNotifications');
 
         // Call activate
         $this->assertNull($optlyObject->track('purchase', 'test_user', 42));
@@ -733,6 +757,26 @@ class OptimizelyTest extends \PHPUnit_Framework_TestCase
                 'Dispatching conversion event to URL logx.optimizely.com/track with params param1=val1.');
 
         $optlyObject = new Optimizely($this->datafile, new ValidEventDispatcher(), $this->loggerMock);
+
+        $notificationCenter = new \ReflectionProperty(Optimizely::class, '_notificationCenter');
+        $notificationCenter->setAccessible(true);
+        $notificationCenter->setValue($optlyObject, $this->notificationCenterMock);
+
+        // Verify that fireNotifications is called with expected params
+        $arrayParam = array(
+            'purchase',
+            'test_user',
+            null,
+            null,
+            new LogEvent('logx.optimizely.com/track', ['param1' => 'val1'], 'POST', [])
+        );
+
+        $this->notificationCenterMock->expects($this->exactly(1))
+            ->method('fireNotifications')
+            ->with(
+                NotificationType::TRACK,
+                $arrayParam
+            );
 
         $eventBuilder = new \ReflectionProperty(Optimizely::class, '_eventBuilder');
         $eventBuilder->setAccessible(true);
@@ -830,6 +874,26 @@ class OptimizelyTest extends \PHPUnit_Framework_TestCase
                 'Dispatching conversion event to URL logx.optimizely.com/track with params param1=val1.');
 
         $optlyObject = new Optimizely($this->datafile, new ValidEventDispatcher(), $this->loggerMock);
+
+        $notificationCenter = new \ReflectionProperty(Optimizely::class, '_notificationCenter');
+        $notificationCenter->setAccessible(true);
+        $notificationCenter->setValue($optlyObject, $this->notificationCenterMock);
+
+        // Verify that fireNotifications is called with expected params
+        $arrayParam = array(
+            'purchase',
+            'test_user',
+            null,
+            null,
+            new LogEvent('logx.optimizely.com/track', ['param1' => 'val1'], 'POST', [])
+        );
+        
+        $this->notificationCenterMock->expects($this->exactly(1))
+            ->method('fireNotifications')
+            ->with(
+                NotificationType::TRACK,
+                $arrayParam
+            );
 
         $this->assertTrue($this->optimizelyObject->setForcedVariation($experimentKey, $userId, $variationKey), 'Set variation for paused experiment should have failed.');
 
@@ -930,6 +994,26 @@ class OptimizelyTest extends \PHPUnit_Framework_TestCase
 
         $optlyObject = new Optimizely($this->datafile, new ValidEventDispatcher(), $this->loggerMock);
 
+        $notificationCenter = new \ReflectionProperty(Optimizely::class, '_notificationCenter');
+        $notificationCenter->setAccessible(true);
+        $notificationCenter->setValue($optlyObject, $this->notificationCenterMock);
+
+        // Verify that fireNotifications is called with expected params
+        $arrayParam = array(
+            'purchase',
+            'test_user',
+            $userAttributes,
+            null,
+            new LogEvent('logx.optimizely.com/track', ['param1' => 'val1'], 'POST', [])
+        );
+        
+        $this->notificationCenterMock->expects($this->exactly(1))
+            ->method('fireNotifications')
+            ->with(
+                NotificationType::TRACK,
+                $arrayParam
+            );
+
         $eventBuilder = new \ReflectionProperty(Optimizely::class, '_eventBuilder');
         $eventBuilder->setAccessible(true);
         $eventBuilder->setValue($optlyObject, $this->eventBuilderMock);
@@ -1022,6 +1106,26 @@ class OptimizelyTest extends \PHPUnit_Framework_TestCase
 
         $optlyObject = new Optimizely($this->datafile, new ValidEventDispatcher(), $this->loggerMock);
 
+        $notificationCenter = new \ReflectionProperty(Optimizely::class, '_notificationCenter');
+        $notificationCenter->setAccessible(true);
+        $notificationCenter->setValue($optlyObject, $this->notificationCenterMock);
+
+        // Verify that fireNotifications is called with expected params
+        $arrayParam = array(
+            'purchase',
+            'test_user',
+            null,
+            array('revenue' => 42),
+            new LogEvent('logx.optimizely.com/track', ['param1' => 'val1'], 'POST', [])
+        );
+        
+        $this->notificationCenterMock->expects($this->exactly(1))
+            ->method('fireNotifications')
+            ->with(
+                NotificationType::TRACK,
+                $arrayParam
+            );
+
         $eventBuilder = new \ReflectionProperty(Optimizely::class, '_eventBuilder');
         $eventBuilder->setAccessible(true);
         $eventBuilder->setValue($optlyObject, $this->eventBuilderMock);
@@ -1109,6 +1213,26 @@ class OptimizelyTest extends \PHPUnit_Framework_TestCase
 
         $optlyObject = new Optimizely($this->datafile, new ValidEventDispatcher(), $this->loggerMock);
 
+        $notificationCenter = new \ReflectionProperty(Optimizely::class, '_notificationCenter');
+        $notificationCenter->setAccessible(true);
+        $notificationCenter->setValue($optlyObject, $this->notificationCenterMock);
+
+        // Verify that fireNotifications is called with expected params
+        $arrayParam = array(
+            'purchase',
+            'test_user',
+            null,
+            array('revenue' => 42),
+            new LogEvent('logx.optimizely.com/track', ['param1' => 'val1'], 'POST', [])
+        );
+        
+        $this->notificationCenterMock->expects($this->exactly(1))
+            ->method('fireNotifications')
+            ->with(
+                NotificationType::TRACK,
+                $arrayParam
+            );
+
         $eventBuilder = new \ReflectionProperty(Optimizely::class, '_eventBuilder');
         $eventBuilder->setAccessible(true);
         $eventBuilder->setValue($optlyObject, $this->eventBuilderMock);
@@ -1184,6 +1308,26 @@ class OptimizelyTest extends \PHPUnit_Framework_TestCase
             ->with(Logger::DEBUG, 'Dispatching conversion event to URL logx.optimizely.com/track with params param1=val1.');
 
         $optlyObject = new Optimizely($this->datafile, new ValidEventDispatcher(), $this->loggerMock);
+
+        $notificationCenter = new \ReflectionProperty(Optimizely::class, '_notificationCenter');
+        $notificationCenter->setAccessible(true);
+        $notificationCenter->setValue($optlyObject, $this->notificationCenterMock);
+
+        // Verify that fireNotifications is called with expected params
+        $arrayParam = array(
+            'purchase',
+            'test_user',
+            null,
+            array('revenue' => '4200'),
+            new LogEvent('logx.optimizely.com/track', ['param1' => 'val1'], 'POST', [])
+        );
+        
+        $this->notificationCenterMock->expects($this->exactly(1))
+            ->method('fireNotifications')
+            ->with(
+                NotificationType::TRACK,
+                $arrayParam
+            );
 
         $eventBuilder = new \ReflectionProperty(Optimizely::class, '_eventBuilder');
         $eventBuilder->setAccessible(true);
@@ -1286,6 +1430,26 @@ class OptimizelyTest extends \PHPUnit_Framework_TestCase
 
 
         $optlyObject = new Optimizely($this->datafile, new ValidEventDispatcher(), $this->loggerMock);
+
+        $notificationCenter = new \ReflectionProperty(Optimizely::class, '_notificationCenter');
+        $notificationCenter->setAccessible(true);
+        $notificationCenter->setValue($optlyObject, $this->notificationCenterMock);
+
+        // Verify that fireNotifications is called with expected params
+        $arrayParam = array(
+            'purchase',
+            'test_user',
+            $userAttributes,
+            array('revenue' => 42),
+            new LogEvent('logx.optimizely.com/track', ['param1' => 'val1'], 'POST', [])
+        );
+        
+        $this->notificationCenterMock->expects($this->exactly(1))
+            ->method('fireNotifications')
+            ->with(
+                NotificationType::TRACK,
+                $arrayParam
+            );
 
         $eventBuilder = new \ReflectionProperty(Optimizely::class, '_eventBuilder');
         $eventBuilder->setAccessible(true);
@@ -2288,6 +2452,7 @@ class OptimizelyTest extends \PHPUnit_Framework_TestCase
     public function testSendImpressionEventWithNoAttributes(){
         $optlyObject = new OptimizelyTester($this->datafile, new ValidEventDispatcher(), $this->loggerMock);
 
+        // verify that createImpressionEvent is called
         $this->eventBuilderMock->expects($this->once())
             ->method('createImpressionEvent')
             ->with(
@@ -2300,9 +2465,31 @@ class OptimizelyTest extends \PHPUnit_Framework_TestCase
                     ['param1' => 'val1', 'param2' => 'val2'], 'POST', [])
             );
 
+        // verify that fireNotifications is called with expected params
+        $arrayParam = array(
+            $this->projectConfig->getExperimentFromKey('group_experiment_1'),
+            'user_1',
+            null,
+            $this->projectConfig->getVariationFromKey('group_experiment_1', 'group_exp_1_var_2'),
+            new LogEvent(
+                    'logx.optimizely.com/decision',
+                    ['param1' => 'val1', 'param2' => 'val2'], 'POST', [])
+        );
+
+        $this->notificationCenterMock->expects($this->once())
+            ->method('fireNotifications')
+            ->with(
+                NotificationType::DECISION,
+                $arrayParam
+            );
+
         $eventBuilder = new \ReflectionProperty(Optimizely::class, '_eventBuilder');
         $eventBuilder->setAccessible(true);
         $eventBuilder->setValue($optlyObject, $this->eventBuilderMock);
+
+        $notificationCenter = new \ReflectionProperty(Optimizely::class, '_notificationCenter');
+        $notificationCenter->setAccessible(true);
+        $notificationCenter->setValue($optlyObject, $this->notificationCenterMock);
 
         $this->loggerMock->expects($this->at(0))
             ->method('log')
@@ -2326,6 +2513,7 @@ class OptimizelyTest extends \PHPUnit_Framework_TestCase
             'location' => 'San Francisco'
         ];
 
+         // verify that createImpressionEvent is called
         $this->eventBuilderMock->expects($this->once())
             ->method('createImpressionEvent')
             ->with(
@@ -2335,6 +2523,23 @@ class OptimizelyTest extends \PHPUnit_Framework_TestCase
             )
             ->willReturn(new LogEvent('logx.optimizely.com/decision', ['param1' => 'val1'], 'POST', []));
 
+        // verify that fireNotifications is called with expected params
+        $arrayParam = array(
+            $this->projectConfig->getExperimentFromKey('test_experiment'),
+            'test_user',
+            $userAttributes,
+            $this->projectConfig->getVariationFromKey('test_experiment', 'control'),
+            new LogEvent(
+                    'logx.optimizely.com/decision',
+                    ['param1' => 'val1'], 'POST', [])
+        );
+
+        $this->notificationCenterMock->expects($this->once())
+            ->method('fireNotifications')
+            ->with(
+                NotificationType::DECISION,
+                $arrayParam
+            );
 
         $this->loggerMock->expects($this->at(0))
             ->method('log')
@@ -2348,9 +2553,12 @@ class OptimizelyTest extends \PHPUnit_Framework_TestCase
         $eventBuilder->setAccessible(true);
         $eventBuilder->setValue($optlyObject, $this->eventBuilderMock);
 
+        $notificationCenter = new \ReflectionProperty(Optimizely::class, '_notificationCenter');
+        $notificationCenter->setAccessible(true);
+        $notificationCenter->setValue($optlyObject, $this->notificationCenterMock);
+
         $optlyObject->sendImpressionEvent('test_experiment', 'control', 'test_user', $userAttributes);
 
     }
-
 
 }
