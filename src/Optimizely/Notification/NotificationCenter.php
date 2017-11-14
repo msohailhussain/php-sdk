@@ -116,10 +116,10 @@ class NotificationCenter
     }
 
     /**
-     * [clearAllNotifications description]
+     * [cleanAllNotifications description]
      * @return [type] [description]
      */
-    public function clearAllNotifications()
+    public function cleanAllNotifications()
     {
         foreach(array_values(NotificationType::getAll()) as $type){
             $this->_notifications[$type] = [];
@@ -141,11 +141,11 @@ class NotificationCenter
         foreach (array_values($this->_notifications[$notification_type]) as $callback) {
             try {
                 call_user_func_array($callback, $args);
-            } catch (Exception $e) {
-                $this->logger->log(Logger::ERROR, "Problem calling notify callback.");
             } catch (ArgumentCountError $e) {
                 $this->logger->log(Logger::ERROR, "Problem calling notify callback.");
-            }
+            } catch (Exception $e) {
+                $this->logger->log(Logger::ERROR, "Problem calling notify callback.");
+            } 
         }
     }
 }

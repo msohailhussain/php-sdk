@@ -232,20 +232,7 @@ class Optimizely
 
         try {
             $this->_eventDispatcher->dispatchEvent($impressionEvent);
-            $eventDispatched = true;
-        } catch (Throwable $exception) {
-            $this->_logger->log(Logger::ERROR, sprintf(
-                'Unable to dispatch impression event. Error %s',
-                $exception->getMessage()
-            ));
-        } catch (Exception $exception) {
-            $this->_logger->log(Logger::ERROR, sprintf(
-                'Unable to dispatch impression event. Error %s',
-                $exception->getMessage()
-            ));
-        }
 
-        if($eventDispatched)
             $this->_notificationCenter->fireNotifications(
                 NotificationType::DECISION,
                 array(
@@ -256,6 +243,17 @@ class Optimizely
                     $impressionEvent
                 )    
             );
+        } catch (Throwable $exception) {
+            $this->_logger->log(Logger::ERROR, sprintf(
+                'Unable to dispatch impression event. Error %s',
+                $exception->getMessage()
+            ));
+        } catch (Exception $exception) {
+            $this->_logger->log(Logger::ERROR, sprintf(
+                'Unable to dispatch impression event. Error %s',
+                $exception->getMessage()
+            ));
+        }          
     }
     
     /**
@@ -342,7 +340,17 @@ class Optimizely
 
             try {
                 $this->_eventDispatcher->dispatchEvent($conversionEvent);
-                $eventDispatched = true;
+
+                $this->_notificationCenter->fireNotifications(
+                NotificationType::TRACK,
+                array(
+                    $eventKey,
+                    $userId,
+                    $attributes,
+                    $eventTags,
+                    $conversionEvent
+                )
+                );
             }
             catch (Throwable $exception) {
                 $this->_logger->log(Logger::ERROR, sprintf(
@@ -352,17 +360,6 @@ class Optimizely
                 $this->_logger->log(Logger::ERROR, sprintf(
                     'Unable to dispatch conversion event. Error %s', $exception->getMessage()));
             }
-
-            $this->_notificationCenter->fireNotifications(
-                NotificationType::TRACK,
-                array(
-                    $eventKey,
-                    $userId,
-                    $attributes,
-                    $eventTags,
-                    $conversionEvent
-                )
-            );
 
         } else {
             $this->_logger->log(
@@ -482,28 +479,30 @@ class Optimizely
             return false;
         }
 
+        $experiment_id = $decision->getExperimentId();
+        $variation_id = $decision->getVariationId();
+
         if ($decision->getSource() == FeatureDecision::DECISION_SOURCE_EXPERIMENT) {
-            $experiment_id = $decision->getExperimentId();
-            $variation_id = $decision->getVariationId();
             $experiment = $this->_config->getExperimentFromId($experiment_id);
             $variation = $this->_config->getVariationFromId($experiment->getKey(), $variation_id);
 
             $this->sendImpressionEvent($experiment->getKey(), $variation->getKey(), $userId, $attributes);
         } else {
+            $variation = $this->_config->getVariationFromRolloutExperiment($experiment_id, $variation_id);
             $this->_logger->log(Logger::INFO, "The user '{$userId}' is not being experimented on Feature Flag '{$featureFlagKey}'.");
         }
 
         $this->_logger->log(Logger::INFO, "Feature Flag '{$featureFlagKey}' is enabled for user '{$userId}'.");
 
-        // $this->_notificationCenter->fireNotifications(
-        //     NotificationType::FEATURE_ACCESSED,
-        //     array(
-        //         $featureFlagKey,
-        //         $userId,
-        //         $attributes,
-        //         $this->_config->getVariationFromId($experiment->getKey(), $variation_id)
-        //     )
-        // );
+        $this->_notificationCenter->fireNotifications(
+            NotificationType::FEATURE_ACCESSED,
+            array(
+                $featureFlagKey,
+                $userId,
+                $attributes,
+                $variation
+            )
+        );
 
         return true;
     }
