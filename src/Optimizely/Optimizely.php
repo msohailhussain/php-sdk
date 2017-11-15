@@ -84,6 +84,9 @@ class Optimizely
      */
     private $_logger;
 
+    /**
+     * @var NotificationCenter
+     */
     private $_notificationCenter;
 
     /**

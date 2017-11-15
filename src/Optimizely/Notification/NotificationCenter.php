@@ -16,13 +16,15 @@
  */
 namespace Optimizely\Notification;
 
-use Monolog\Logger;
+use ArgumentCountError;
 use Exception;
 use Throwable;
-use ArgumentCountError;
+
+use Monolog\Logger;
 
 use Optimizely\ErrorHandler\ErrorHandlerInterface;
 use Optimizely\Exceptions\InvalidCallbackArgumentCountException;
+use Optimizely\Exceptions\InvalidNotificationTypeException;
 use Optimizely\Logger\LoggerInterface;
 use Optimizely\Logger\NoOpLogger;
 
@@ -40,7 +42,7 @@ class NotificationCenter
     {
         $this->_notificationId = 1;
         $this->_notifications = [];
-        foreach(array_values(NotificationType::getAll()) as $type){
+        foreach (array_values(NotificationType::getAll()) as $type) {
             $this->_notifications[$type] = [];
         }
 
@@ -48,23 +50,30 @@ class NotificationCenter
         $this->_errorHandler = $errorHandler;
     }
 
-    public function getNotificationId(){
+    public function getNotificationId()
+    {
         return $this->_notificationId;
     }
 
-    public function getNotifications(){
+    public function getNotifications()
+    {
         return $this->_notifications;
     }
 
     /**
-     * [addNotificationListener description]
-     * @param [type] $notification_type     [description]
-     * @param [type] $notification_callback [description]
+     * Adds a notification callback for a notification type to the notification center
+     * @param string $notification_type    One of the constants defined in NotificationType
+     * @param string $notification_callback A valid PHP callback
+     *
+     * @return null  Given invalid notification type/callback
+     *         -1    Given callback has been already added
+     *         int   Notification ID for the added callback
      */
     public function addNotificationListener($notification_type, $notification_callback)
     {
         if (!NotificationType::isNotificationTypeValid($notification_type)) {
             $this->_logger->log(Logger::ERROR, "Invalid notification type.");
+            $this->_errorHandler->handleError(new InvalidNotificationTypeException('Invalid notification type.'));
             return null;
         }
 
@@ -75,6 +84,8 @@ class NotificationCenter
 
         foreach (array_values($this->_notifications[$notification_type]) as $callback) {
             if ($notification_callback == $callback) {
+                // Note: anonymous methods sent with the same body will be re-added.
+                // Only variable and object methods can be checked for duplication
                 $this->_logger->log(Logger::DEBUG, "Callback already added for notification type '{$notification_type}'.");
                 return -1;
             }
@@ -87,9 +98,11 @@ class NotificationCenter
     }
 
     /**
-     * [removeNotificationListener description]
-     * @param  [type] $notification_id [description]
-     * @return [type]                  [description]
+     * Removes notification callback from the notification center
+     * @param  int $notification_id notification IT
+     *
+     * @return true   When callback removed
+     *         false  When no callback found for the given notification ID
      */
     public function removeNotificationListener($notification_id)
     {
@@ -108,15 +121,16 @@ class NotificationCenter
     }
 
     /**
-     * [clearNotifications description]
-     * @param  [type] $notification_type [description]
-     * @return [type]                    [description]
+     * Removes all notification callbacks for the given notification type
+     * @param  string $notification_type One of the constants defined in NotificationType
+     *
      */
     public function clearNotifications($notification_type)
     {
         if (!NotificationType::isNotificationTypeValid($notification_type)) {
             $this->_logger->log(Logger::ERROR, "Invalid notification type.");
-            return null;
+            $this->_errorHandler->handleError(new InvalidNotificationTypeException('Invalid notification type.'));
+            return;
         }
 
         $this->_notifications[$notification_type] = [];
@@ -124,34 +138,38 @@ class NotificationCenter
     }
 
     /**
-     * [cleanAllNotifications description]
-     * @return [type] [description]
+     * Removes all notifications for all notification types
+     * from the notification center
+     *
      */
     public function cleanAllNotifications()
     {
-        foreach(array_values(NotificationType::getAll()) as $type){
+        foreach (array_values(NotificationType::getAll()) as $type) {
             $this->_notifications[$type] = [];
         }
     }
 
     /**
-     * [fireNotifications description]
-     * @param  [type] $notification_type [description]
-     * @param  array  $args              [description]
-     * @return [type]                    [description]
+     * Executes all registered callbacks for the given notification type
+     * @param  [type] $notification_type One of the constants defined in NotificationType
+     * @param  array  $args              Array of items to pass as arguments to the callback
+     *
      */
     public function fireNotifications($notification_type, array $args = [])
     {
         if (!isset($this->_notifications[$notification_type])) {
+            // No exception thrown and error logged since this method will be called from
+            // within the SDK
             return;
         }
 
         /**
-         * Note: Before PHP 7, if the callback in call_user_func is called with less number of arguments, 
+         * Note: Before PHP 7, if the callback in call_user_func is called with less number of arguments than expected,
          * a warning is issued but the method is still executed with assigning null to the remaining
-         * arguments. From PHP 7, ArgumentCountError is thrown in such case. Therefore, we set error handler for warnings so 
-         * that we raise an exception and notify the user that the registered callback has more number of arguments than
-         *  expected. This should be done to keep a consistent behavior across all PHP versions.
+         * arguments. From PHP 7, ArgumentCountError is thrown in such case and the method isn't executed.
+         * Therefore, we set error handler for warnings so that we raise an exception and notify the
+         * user that the registered callback has more number of arguments than
+         * expected. This should be done to keep a consistent behavior across all PHP versions.
          */
 
         set_error_handler(array($this, 'reportArgumentCountError'), E_WARNING);
@@ -161,9 +179,9 @@ class NotificationCenter
                 call_user_func_array($callback, $args);
             } catch (ArgumentCountError $e) {
                 $this->reportArgumentCountError();
-            } catch (Throwable $e){
+            } catch (Throwable $e) {
                 $this->_logger->log(Logger::ERROR, "Problem calling notify callback.");
-            } catch (Exception $e){
+            } catch (Exception $e) {
                 $this->_logger->log(Logger::ERROR, "Problem calling notify callback.");
             }
         }
@@ -171,9 +189,15 @@ class NotificationCenter
         restore_error_handler();
     }
 
-    public function reportArgumentCountError(){
+    /**
+     * Logs and raises an exception when registered callback expects more number of arguments when executed
+     *
+     */
+    public function reportArgumentCountError()
+    {
         $this->_logger->log(Logger::ERROR, "Problem calling notify callback.");
         $this->_errorHandler->handleError(
-            new InvalidCallbackArgumentCountException('Registered callback expects more number of arguments than the actual number'));
+            new InvalidCallbackArgumentCountException('Registered callback expects more number of arguments than the actual number')
+        );
     }
 }

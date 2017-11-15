@@ -484,7 +484,7 @@ class ProjectConfig
      * @param  string $experimentId Experiment ID
      * @param  string $variationId  VariationID
      * 
-     * @return [Variation]  Variation object corresponding to given experiment and variation IDs
+     * @return Variation  Variation object corresponding to given experiment and variation IDs
      */
     public function getVariationFromRolloutExperiment($experimentId, $variationId){
         foreach($this->_rollouts as $rollout){

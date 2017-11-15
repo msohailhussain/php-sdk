@@ -18,6 +18,7 @@ namespace Optimizely\Notification;
 
 class NotificationType
 {
+    // format is EVENT: list of parameters to callback.
     const DECISION = "DECISION:experiment, user_id,attributes, variation, event";
     const TRACK = "TRACK:event_key, user_id, attributes, event_tags, event";
     const FEATURE_ACCESSED = "FEATURE:feature_key, user_id, attributes, variation";
@@ -30,7 +31,8 @@ class NotificationType
         return in_array($notification_type, $notificationTypeList);
     }
 
-    public static function getAll(){
+    public static function getAll()
+    {
         $oClass = new \ReflectionClass(__CLASS__);
         return $oClass->getConstants();
     }
