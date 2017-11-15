@@ -18,6 +18,9 @@ namespace Optimizely\Notification;
 
 use Monolog\Logger;
 use Exception;
+use Throwable;
+use ArgumentCountError;
+
 use Optimizely\ErrorHandler\ErrorHandlerInterface;
 use Optimizely\Exceptions\InvalidCallbackArgumentCountException;
 use Optimizely\Logger\LoggerInterface;
@@ -146,10 +149,9 @@ class NotificationCenter
         /**
          * Note: Before PHP 7, if the callback in call_user_func is called with less number of arguments, 
          * a warning is issued but the method is still executed with assigning null to the remaining
-         * arguments. We set error handler for warnings so that we raise an exception and notify the user
-         * that the registered callback has more number of arguments than expected. This should be done
-         * to keep a consistent behavior across all PHP versions. 
-         * From PHP 7, ArgumentCountError is thrown in such case
+         * arguments. From PHP 7, ArgumentCountError is thrown in such case. Therefore, we set error handler for warnings so 
+         * that we raise an exception and notify the user that the registered callback has more number of arguments than
+         *  expected. This should be done to keep a consistent behavior across all PHP versions.
          */
 
         set_error_handler(array($this, 'reportArgumentCountError'), E_WARNING);
@@ -159,6 +161,8 @@ class NotificationCenter
                 call_user_func_array($callback, $args);
             } catch (ArgumentCountError $e) {
                 $this->reportArgumentCountError();
+            } catch (Throwable $e){
+                $this->_logger->log(Logger::ERROR, "Problem calling notify callback.");
             } catch (Exception $e){
                 $this->_logger->log(Logger::ERROR, "Problem calling notify callback.");
             }

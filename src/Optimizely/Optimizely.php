@@ -232,17 +232,6 @@ class Optimizely
 
         try {
             $this->_eventDispatcher->dispatchEvent($impressionEvent);
-
-            $this->_notificationCenter->fireNotifications(
-                NotificationType::DECISION,
-                array(
-                    $this->_config->getExperimentFromKey($experimentKey),
-                    $userId,
-                    $attributes,
-                    $this->_config->getVariationFromKey($experimentKey, $variationKey),
-                    $impressionEvent
-                )    
-            );
         } catch (Throwable $exception) {
             $this->_logger->log(Logger::ERROR, sprintf(
                 'Unable to dispatch impression event. Error %s',
@@ -253,7 +242,18 @@ class Optimizely
                 'Unable to dispatch impression event. Error %s',
                 $exception->getMessage()
             ));
-        }          
+        }
+
+        $this->_notificationCenter->fireNotifications(
+            NotificationType::DECISION,
+            array(
+                $this->_config->getExperimentFromKey($experimentKey),
+                $userId,
+                $attributes,
+                $this->_config->getVariationFromKey($experimentKey, $variationKey),
+                $impressionEvent
+            )    
+        );          
     }
     
     /**
@@ -340,17 +340,6 @@ class Optimizely
 
             try {
                 $this->_eventDispatcher->dispatchEvent($conversionEvent);
-
-                $this->_notificationCenter->fireNotifications(
-                NotificationType::TRACK,
-                array(
-                    $eventKey,
-                    $userId,
-                    $attributes,
-                    $eventTags,
-                    $conversionEvent
-                )
-                );
             }
             catch (Throwable $exception) {
                 $this->_logger->log(Logger::ERROR, sprintf(
@@ -360,6 +349,17 @@ class Optimizely
                 $this->_logger->log(Logger::ERROR, sprintf(
                     'Unable to dispatch conversion event. Error %s', $exception->getMessage()));
             }
+
+            $this->_notificationCenter->fireNotifications(
+                NotificationType::TRACK,
+                array(
+                    $eventKey,
+                    $userId,
+                    $attributes,
+                    $eventTags,
+                    $conversionEvent
+                )
+            );
 
         } else {
             $this->_logger->log(

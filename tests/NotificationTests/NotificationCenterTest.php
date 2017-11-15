@@ -25,6 +25,7 @@ use Optimizely\Notification\NotificationCenter;
 use Optimizely\Notification\NotificationType;
 use Optimizely\Logger\NoOpLogger;
 use Optimizely\Logger\DefaultLogger;
+use Optimizely\Exceptions\InvalidCallbackArgumentCountException;
 
 class NotificationCenterTest extends \PHPUnit_Framework_TestCase
 {
@@ -465,10 +466,15 @@ class NotificationCenterTest extends \PHPUnit_Framework_TestCase
             1,
             sizeof($this->notificationCenterObj->getNotifications()[NotificationType::TRACK])
         );
+
+        ///////////////////////////////////////////////////////////////////////////////////////////////////////////
+        // == Verify that no error is thrown when clearNotification is called for the same notification type === //
+        ///////////////////////////////////////////////////////////////////////////////////////////////////////////
+        $this->notificationCenterObj->clearNotifications(NotificationType::DECISION);
     }
 
 
-    public function testcleanAllNotifications()
+    public function testCleanAllNotifications()
     {
         // using a new notification center object to avoid using the method being tested,
         // to reset notifications list
@@ -538,33 +544,36 @@ class NotificationCenterTest extends \PHPUnit_Framework_TestCase
             0,
             sizeof($notificationCenterA->getNotifications()[NotificationType::FEATURE_ACCESSED])
         );
+
+        ///////////////////////////////////////////////////////////////////////////////////////
+        //=== verify that cleanAllNotifications doesn't throw an error when called again === //
+        ///////////////////////////////////////////////////////////////////////////////////////
+        $notificationCenterA->cleanAllNotifications();
     }
 
-    // TODO: PHP Unit by default converts all errors/warnings to exception for testing
-    // Current PHP Unit 5.7, is neither converting ArgumentCountError to an exception nor
-    // it is catching ArgumentCountError in it's catch block for latest PHP 7.1.11. 
-    // We can not update PHP Unit to 6.4 since it does not support earlier versions than PHP 7. 
-    // 
     public function testFireNotificationsGivenLessThanExpectedNumberOfArguments()
     {
-        // $clientObj = new FireNotificationTester;
-        // $this->notificationCenterObj->cleanAllNotifications();
+        $clientObj = new FireNotificationTester;
+        $this->notificationCenterObj->cleanAllNotifications();
         
-        // // add a notification callback with arguments
-        // $this->notificationCenterObj->addNotificationListener(
-        //     NotificationType::DECISION,
-        //     array($clientObj, 'decision_callback_with_args')
-        // );
+        // add a notification callback with arguments
+        $this->notificationCenterObj->addNotificationListener(
+            NotificationType::DECISION,
+            array($clientObj, 'decision_callback_with_args')
+        );
 
-        // /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-        // // === Verify that an exception is thrown and message logged when less number of args passed than expected === //
-        // /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        // === Verify that an exception is thrown and message logged when less number of args passed than expected === //
+        /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        $this->errorHandlerMock->expects($this->at(0))
+            ->method('handleError')
+            ->with(new InvalidCallbackArgumentCountException('Registered callback expects more number of arguments than the actual number'));
 
-        // $this->loggerMock->expects($this->at(0))
-        //     ->method('log')
-        //     ->with(Logger::ERROR, "Problem calling notify callback.");
+        $this->loggerMock->expects($this->at(0))
+            ->method('log')
+            ->with(Logger::ERROR, "Problem calling notify callback.");
 
-        // $this->notificationCenterObj->fireNotifications(NotificationType::DECISION, array("HelloWorld"));
+        $this->notificationCenterObj->fireNotifications(NotificationType::DECISION, array("HelloWorld"));
     }
 
     public function testFireNotificationsAndVerifyThatAllCallbacksWithoutArgsAreCalled()

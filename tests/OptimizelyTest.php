@@ -771,7 +771,7 @@ class OptimizelyTest extends \PHPUnit_Framework_TestCase
             new LogEvent('logx.optimizely.com/track', ['param1' => 'val1'], 'POST', [])
         );
 
-        $this->notificationCenterMock->expects($this->exactly(1))
+        $this->notificationCenterMock->expects($this->once())
             ->method('fireNotifications')
             ->with(
                 NotificationType::TRACK,
@@ -888,7 +888,7 @@ class OptimizelyTest extends \PHPUnit_Framework_TestCase
             new LogEvent('logx.optimizely.com/track', ['param1' => 'val1'], 'POST', [])
         );
         
-        $this->notificationCenterMock->expects($this->exactly(1))
+        $this->notificationCenterMock->expects($this->once())
             ->method('fireNotifications')
             ->with(
                 NotificationType::TRACK,
@@ -1007,7 +1007,7 @@ class OptimizelyTest extends \PHPUnit_Framework_TestCase
             new LogEvent('logx.optimizely.com/track', ['param1' => 'val1'], 'POST', [])
         );
         
-        $this->notificationCenterMock->expects($this->exactly(1))
+        $this->notificationCenterMock->expects($this->once())
             ->method('fireNotifications')
             ->with(
                 NotificationType::TRACK,
@@ -1119,7 +1119,7 @@ class OptimizelyTest extends \PHPUnit_Framework_TestCase
             new LogEvent('logx.optimizely.com/track', ['param1' => 'val1'], 'POST', [])
         );
         
-        $this->notificationCenterMock->expects($this->exactly(1))
+        $this->notificationCenterMock->expects($this->once())
             ->method('fireNotifications')
             ->with(
                 NotificationType::TRACK,
@@ -1226,7 +1226,7 @@ class OptimizelyTest extends \PHPUnit_Framework_TestCase
             new LogEvent('logx.optimizely.com/track', ['param1' => 'val1'], 'POST', [])
         );
         
-        $this->notificationCenterMock->expects($this->exactly(1))
+        $this->notificationCenterMock->expects($this->once())
             ->method('fireNotifications')
             ->with(
                 NotificationType::TRACK,
@@ -1322,7 +1322,7 @@ class OptimizelyTest extends \PHPUnit_Framework_TestCase
             new LogEvent('logx.optimizely.com/track', ['param1' => 'val1'], 'POST', [])
         );
         
-        $this->notificationCenterMock->expects($this->exactly(1))
+        $this->notificationCenterMock->expects($this->once())
             ->method('fireNotifications')
             ->with(
                 NotificationType::TRACK,
@@ -1444,7 +1444,7 @@ class OptimizelyTest extends \PHPUnit_Framework_TestCase
             new LogEvent('logx.optimizely.com/track', ['param1' => 'val1'], 'POST', [])
         );
         
-        $this->notificationCenterMock->expects($this->exactly(1))
+        $this->notificationCenterMock->expects($this->once())
             ->method('fireNotifications')
             ->with(
                 NotificationType::TRACK,
@@ -1547,6 +1547,26 @@ class OptimizelyTest extends \PHPUnit_Framework_TestCase
                 'Dispatching conversion event to URL logx.optimizely.com/track with params param1=val1.');
 
         $optlyObject = new Optimizely($this->datafile, new ValidEventDispatcher(), $this->loggerMock);
+
+        $notificationCenter = new \ReflectionProperty(Optimizely::class, '_notificationCenter');
+        $notificationCenter->setAccessible(true);
+        $notificationCenter->setValue($optlyObject, $this->notificationCenterMock);
+
+        // Verify that fireNotifications is called with expected params
+        $arrayParam = array(
+            'purchase',
+            'test_user',
+            $userAttributes,
+            array('revenue' => 42),
+            new LogEvent('logx.optimizely.com/track', ['param1' => 'val1'], 'POST', [])
+        );
+        
+        $this->notificationCenterMock->expects($this->once())
+            ->method('fireNotifications')
+            ->with(
+                NotificationType::TRACK,
+                $arrayParam
+            );
 
         $eventBuilder = new \ReflectionProperty(Optimizely::class, '_eventBuilder');
         $eventBuilder->setAccessible(true);
@@ -1971,6 +1991,14 @@ class OptimizelyTest extends \PHPUnit_Framework_TestCase
         $optimizelyMock->expects($this->never())
             ->method('sendImpressionEvent');
 
+        $notificationCenter = new \ReflectionProperty(Optimizely::class, '_notificationCenter');
+        $notificationCenter->setAccessible(true);
+        $notificationCenter->setValue($optimizelyMock, $this->notificationCenterMock);
+
+        // verify that fireNotifications isn't called
+        $this->notificationCenterMock->expects($this->never())
+            ->method('fireNotifications');
+
         $this->loggerMock->expects($this->at(0))
             ->method('log')
             ->with(Logger::INFO, "Feature Flag 'double_single_variable_feature' is not enabled for user 'user_id'.");
@@ -2016,6 +2044,22 @@ class OptimizelyTest extends \PHPUnit_Framework_TestCase
             ->method('sendImpressionEvent')
             ->with('test_experiment_double_feature', 'control', 'user_id', []);
 
+        $notificationCenter = new \ReflectionProperty(Optimizely::class, '_notificationCenter');
+        $notificationCenter->setAccessible(true);
+        $notificationCenter->setValue($optimizelyMock, $this->notificationCenterMock);
+
+        // verify that fireNotifications is called with expected params
+        $arrayParam = array(
+           'double_single_variable_feature',
+           'user_id',
+           [],
+           $variation
+        );
+
+        $this->notificationCenterMock->expects($this->once())
+            ->method('fireNotifications')
+            ->with( NotificationType::FEATURE_ACCESSED, $arrayParam);
+
         $this->loggerMock->expects($this->at(0))
             ->method('log')
             ->with(Logger::INFO, "Feature Flag 'double_single_variable_feature' is enabled for user 'user_id'.");
@@ -2051,6 +2095,22 @@ class OptimizelyTest extends \PHPUnit_Framework_TestCase
             $variation->getId(),
             FeatureDecision::DECISION_SOURCE_ROLLOUT
         );
+
+        $notificationCenter = new \ReflectionProperty(Optimizely::class, '_notificationCenter');
+        $notificationCenter->setAccessible(true);
+        $notificationCenter->setValue($optimizelyMock, $this->notificationCenterMock);
+
+        // verify that fireNotifications is called with expected params
+        $arrayParam = array(
+           'boolean_single_variable_feature',
+           'user_id',
+           [],
+           $this->projectConfig->getVariationFromRolloutExperiment($experiment->getId(), $variation->getId())
+        );
+
+        $this->notificationCenterMock->expects($this->once())
+            ->method('fireNotifications')
+            ->with( NotificationType::FEATURE_ACCESSED, $arrayParam);
 
         $decisionServiceMock->expects($this->exactly(1))
             ->method('getVariationForFeature')
