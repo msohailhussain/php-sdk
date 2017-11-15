@@ -2618,7 +2618,6 @@ class OptimizelyTest extends \PHPUnit_Framework_TestCase
         $notificationCenter->setValue($optlyObject, $this->notificationCenterMock);
 
         $optlyObject->sendImpressionEvent('test_experiment', 'control', 'test_user', $userAttributes);
-
     }
 
 }

@@ -16,16 +16,16 @@
  */
 namespace Optimizely\Tests;
 
-use Exception;
 use Monolog\Logger;
 
 use Optimizely\Event\Builder\EventBuilder;
 use Optimizely\ErrorHandler\NoOpErrorHandler;
+use Optimizely\Logger\DefaultLogger;
+use Optimizely\Logger\NoOpLogger;
 use Optimizely\Notification\NotificationCenter;
 use Optimizely\Notification\NotificationType;
-use Optimizely\Logger\NoOpLogger;
-use Optimizely\Logger\DefaultLogger;
 use Optimizely\Exceptions\InvalidCallbackArgumentCountException;
+use Optimizely\Exceptions\InvalidNotificationTypeException;
 
 class NotificationCenterTest extends \PHPUnit_Framework_TestCase
 {
@@ -47,8 +47,12 @@ class NotificationCenterTest extends \PHPUnit_Framework_TestCase
 
     public function testAddNotificationWithInvalidParams()
     {
-        // should log and return null if invalid notification type given
+        // should log, throw an exception  and return null if invalid notification type given
         $invalid_type = "HelloWorld";
+
+        $this->errorHandlerMock->expects($this->at(0))
+            ->method('handleError')
+            ->with(new InvalidNotificationTypeException('Invalid notification type.'));
 
         $this->loggerMock->expects($this->at(0))
             ->method('log')
@@ -77,7 +81,9 @@ class NotificationCenterTest extends \PHPUnit_Framework_TestCase
         $notificationType = NotificationType::DECISION;
         $this->notificationCenterObj->cleanAllNotifications();
 
-        //  ===== should add, log and return notification ID when a plain function is passed as an argument =====
+        ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        //  === should add, log and return notification ID when a plain function is passed as an argument === //
+        ////////////////////////////////////////////////////////////////////////////////////////////////////////////
         $simple_method = function () {
         };
         $this->loggerMock->expects($this->at(0))
@@ -93,7 +99,9 @@ class NotificationCenterTest extends \PHPUnit_Framework_TestCase
             sizeof($this->notificationCenterObj->getNotifications()[$notificationType])
         );
 
-        // ===== should add, log and return notification ID when an anonymous function is passed as an argument =====
+        ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        // === should add, log and return notification ID when an anonymous function is passed as an argument === //
+        ////////////////////////////////////////////////////////////////////////////////////////////////////////////
         $this->loggerMock->expects($this->at(0))
             ->method('log')
             ->with(Logger::INFO, "Callback added for notification type '{$notificationType}'.");
@@ -108,7 +116,9 @@ class NotificationCenterTest extends \PHPUnit_Framework_TestCase
             sizeof($this->notificationCenterObj->getNotifications()[$notificationType])
         );
 
-        // ===== should add, log and return notification ID when an object method is passed as an argument =====
+        ///////////////////////////////////////////////////////////////////////////////////////////////////////
+        // === should add, log and return notification ID when an object method is passed as an argument === //
+        ///////////////////////////////////////////////////////////////////////////////////////////////////////
         $eBuilder = new EventBuilder;
         $callbackInput = array($eBuilder, 'createImpressionEvent');
 
@@ -130,7 +140,9 @@ class NotificationCenterTest extends \PHPUnit_Framework_TestCase
     {
         $this->notificationCenterObj->cleanAllNotifications();
 
-        // ===== should add, log and return notification ID when a valid callback is added for each notification type =====
+        //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        // === should add, log and return notification ID when a valid callback is added for each notification type === //
+        //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         $this->loggerMock->expects($this->at(0))
             ->method('log')
             ->with(Logger::INFO, sprintf("Callback added for notification type '%s'.", NotificationType::DECISION));
@@ -139,6 +151,7 @@ class NotificationCenterTest extends \PHPUnit_Framework_TestCase
             $this->notificationCenterObj->addNotificationListener(NotificationType::DECISION, function () {
             })
         );
+
         // verify that notifications length for NotificationType::DECISION has incremented by 1
         $this->assertSame(
             1,
@@ -153,6 +166,7 @@ class NotificationCenterTest extends \PHPUnit_Framework_TestCase
             $this->notificationCenterObj->addNotificationListener(NotificationType::TRACK, function () {
             })
         );
+
         // verify that notifications length for NotificationType::TRACK has incremented by 1
         $this->assertSame(
             1,
@@ -167,6 +181,7 @@ class NotificationCenterTest extends \PHPUnit_Framework_TestCase
             $this->notificationCenterObj->addNotificationListener(NotificationType::FEATURE_ACCESSED, function () {
             })
         );
+
         // verify that notifications length for NotificationType::FEATURE_ACCESSED has incremented by 1
         $this->assertSame(
             1,
@@ -174,12 +189,14 @@ class NotificationCenterTest extends \PHPUnit_Framework_TestCase
         );
     }
 
-    public function testAddNotificationForMultipleCallbacksForANotificationType()
+    public function testAddNotificationForMultipleCallbacksForASingleNotificationType()
     {
         $this->notificationCenterObj->cleanAllNotifications();
 
-        // ===== should add, log and return notification ID when multiple valid callbacks
-        // are added for a single notification type =====
+        ///////////////////////////////////////////////////////////////////////////////////////
+        // === should add, log and return notification ID when multiple valid callbacks
+        //  are added for a single notification type ===                                     //
+        ///////////////////////////////////////////////////////////////////////////////////////
         $this->loggerMock->expects($this->at(0))
             ->method('log')
             ->with(Logger::INFO, sprintf("Callback added for notification type '%s'.", NotificationType::DECISION));
@@ -188,6 +205,7 @@ class NotificationCenterTest extends \PHPUnit_Framework_TestCase
             $this->notificationCenterObj->addNotificationListener(NotificationType::DECISION, function () {
             })
         );
+
         // verify that notifications length for NotificationType::DECISION has incremented by 1
         $this->assertSame(
             1,
@@ -200,6 +218,7 @@ class NotificationCenterTest extends \PHPUnit_Framework_TestCase
                 echo "HelloWorld";
             })
         );
+
         // verify that notifications length for NotificationType::DECISION has incremented by 1
         $this->assertSame(
             2,
@@ -212,6 +231,7 @@ class NotificationCenterTest extends \PHPUnit_Framework_TestCase
                 $a = 1;
             })
         );
+
         // verify that notifications length for NotificationType::DECISION has incremented by 1
         $this->assertSame(
             3,
@@ -224,7 +244,8 @@ class NotificationCenterTest extends \PHPUnit_Framework_TestCase
         // Note: anonymous methods sent with the same body will be re-added.
         // Only variable and object methods can be checked for duplication
         
-        $functionToSend = function () {};
+        $functionToSend = function () {
+        };
         $this->notificationCenterObj->cleanAllNotifications();
 
         ///////////////////////////////////////////////////////////////////////////
@@ -233,6 +254,7 @@ class NotificationCenterTest extends \PHPUnit_Framework_TestCase
         $this->loggerMock->expects($this->at(0))
             ->method('log')
             ->with(Logger::INFO, sprintf("Callback added for notification type '%s'.", NotificationType::DECISION));
+
         // verify that notification ID 1 is returned
         $this->assertSame(
             1,
@@ -275,11 +297,13 @@ class NotificationCenterTest extends \PHPUnit_Framework_TestCase
         $this->loggerMock->expects($this->at(0))
             ->method('log')
             ->with(Logger::DEBUG, sprintf("Callback already added for notification type '%s'.", NotificationType::DECISION));
+
         // verify that -1 is returned when adding the same callback
         $this->assertSame(
             -1,
             $this->notificationCenterObj->addNotificationListener(NotificationType::DECISION, $callbackInput)
         );
+
         // verify that same method is added for a different notification type
         $this->loggerMock->expects($this->at(0))
             ->method('log')
@@ -289,7 +313,6 @@ class NotificationCenterTest extends \PHPUnit_Framework_TestCase
             $this->notificationCenterObj->addNotificationListener(NotificationType::TRACK, $callbackInput)
         );
     }
-
 
     public function testRemoveNotification()
     {
@@ -376,8 +399,7 @@ class NotificationCenterTest extends \PHPUnit_Framework_TestCase
             $this->notificationCenterObj->removeNotificationListener($valid_id)
         );
 
-        //verify that notifications lengths for NotificationType::DECISION and NotificationType::TRACK
-        // remain same
+        //verify that notifications lengths for NotificationType::DECISION and NotificationType::TRACK remain same
         $this->assertSame(
             1,
             sizeof($this->notificationCenterObj->getNotifications()[NotificationType::DECISION])
@@ -425,6 +447,10 @@ class NotificationCenterTest extends \PHPUnit_Framework_TestCase
             ->method('log')
             ->with(Logger::ERROR, "Invalid notification type.");
 
+        $this->errorHandlerMock->expects($this->at(0))
+            ->method('handleError')
+            ->with(new InvalidNotificationTypeException('Invalid notification type.'));
+
         $this->assertSame(
             null,
             $this->notificationCenterObj->clearNotifications($invalid_type)
@@ -468,7 +494,7 @@ class NotificationCenterTest extends \PHPUnit_Framework_TestCase
         );
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////
-        // == Verify that no error is thrown when clearNotification is called for the same notification type === //
+        // == Verify that no error is thrown when clearNotification is called again for the same notification type === //
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////
         $this->notificationCenterObj->clearNotifications(NotificationType::DECISION);
     }

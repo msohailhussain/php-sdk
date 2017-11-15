@@ -758,7 +758,6 @@ class TestBucketer extends Bucketer
 /**
  * Class OptimizelyTester
  * Extending Optimizely for the sake of tests.
- * In PHP we cannot mock private/protected methods and so this was the most novel way to test.
  */
 class OptimizelyTester extends Optimizely
 {
