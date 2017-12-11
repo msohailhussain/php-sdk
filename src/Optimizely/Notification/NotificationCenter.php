@@ -158,6 +158,17 @@ class NotificationCenter
             return;
         }
 
+        $validatorFunc = 'validate'.$notification_type;
+        if(!NotificationType::$validatorFunc($args)){
+            return false;
+        }
+
+        //call_user_func(__NAMESPACE__ ."\NotificationType::{$validatorFunc}", $args);
+        
+        // if (!($validatorFunc())){
+        //     throw new Exception("sendNotifications called with invalid arguments for notification type: {$notification_type}");
+        // }
+
         /**
          * Note: Before PHP 7, if the callback in call_user_func is called with less number of arguments than expected,
          * a warning is issued but the method is still executed with assigning null to the remaining

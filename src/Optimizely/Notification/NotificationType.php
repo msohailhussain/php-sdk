@@ -16,11 +16,17 @@
  */
 namespace Optimizely\Notification;
 
+use Optimizely\Entity\Experiment;
+use Optimizely\Entity\Variation;
+use Optimizely\Event\LogEvent;
+use Optimizely\Utils\Validator;
+
 class NotificationType
 {
-    // format is EVENT: list of parameters to callback.
-    const ACTIVATE = "ACTIVATE:experiment, user_id, attributes, variation, event";
-    const TRACK = "TRACK:event_key, user_id, attributes, event_tags, event";
+    // ACTIVATE:experiment, user_id, attributes, variation, event
+    const ACTIVATE = "ACTIVATE";
+    // TRACK:event_key, user_id, attributes, event_tags, event
+    const TRACK = "TRACK";
 
     public static function isNotificationTypeValid($notification_type)
     {
@@ -34,5 +40,87 @@ class NotificationType
     {
         $oClass = new \ReflectionClass(__CLASS__);
         return $oClass->getConstants();
+    }
+
+    /**
+     * Validates params for notification type ACTIVATE
+     * @param  array  $args Params to execute callback for notification type ACTIVATE
+     * @return boolean  
+     */
+    public static function validateACTIVATE(array $args = [])
+    {
+        // validate arguments length
+        if(sizeof($args)!=5){
+            return false;
+        }
+
+        // validate experiment
+        if(!($args[0] instanceof Experiment)){
+            return false;
+        }
+
+        // validate user ID
+        if(gettype($args[1]) != 'string'){
+            return false;
+        }
+
+        // validate attributes
+        if(!is_null($args[2])){
+            if(!Validator::areAttributesValid($args[2])){
+                return false;
+            }
+        }
+
+        // validate variation
+        if(!($args[3] instanceof Variation)){
+            return false;
+        }
+
+        // validate event
+        if(!($args[4] instanceof LogEvent)){
+            return false;
+        }
+
+        return true;
+    }
+
+     /**
+     * Validates params for notification type TRACK
+     * @param  array  $args Params to execute callback for notification type TRACK
+     * @return boolean  
+     */
+     public static function validateTRACK(array $args = [])
+    {
+        // validate arguments length
+        if(sizeof($args)!=5){
+            return false;
+        }
+
+        // validate event key
+        if(gettype($args[0]) != 'string'){
+            return false;
+        }
+
+        //validate user ID
+        if(gettype($args[1]) != 'string'){
+            return false;
+        }
+
+        // validate attributes
+        if(!Validator::areAttributesValid($args[2])){
+            return false;
+        }
+
+        // validate event tags
+        if(!Validator::areEventTagsValid($args[3])){
+            return false;
+        }
+
+        // validate event
+        if(!($args[4] instanceof LogEvent)){
+            return false;
+        }
+
+        return true;
     }
 }
