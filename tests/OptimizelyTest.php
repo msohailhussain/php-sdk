@@ -2447,12 +2447,15 @@ class OptimizelyTest extends \PHPUnit_Framework_TestCase
         $decisionService->setAccessible(true);
         $decisionService->setValue($this->optimizelyObject, $decisionServiceMock);
 
-        $experiment = $this->projectConfig->getExperimentFromId('177770');
-        $variation = $this->projectConfig->getVariationFromId($experiment->getKey(), '177771');
+        $feature_flag = $this->projectConfig->getFeatureFlagFromKey('boolean_single_variable_feature');
+        $rollout_id = $feature_flag->getRolloutId();
+        $rollout = $this->projectConfig->getRolloutFromId($rollout_id);
+        $experiment = $rollout->getExperiments()[0];
+        $expected_variation = $experiment->getVariations()[0];
         $expected_decision = new FeatureDecision(
             $experiment->getId(),
-            $variation->getId(),
-            FeatureDecision::DECISION_SOURCE_EXPERIMENT
+            $expected_variation->getId(),
+            FeatureDecision::DECISION_SOURCE_ROLLOUT
         );
 
         $decisionServiceMock->expects($this->exactly(1))
@@ -2468,7 +2471,12 @@ class OptimizelyTest extends \PHPUnit_Framework_TestCase
             );
 
         $this->assertSame(
-            $this->optimizelyObject->getFeatureVariableBoolean('boolean_single_variable_feature', 'boolean_variable', 'user_id', []),
+            $this->optimizelyObject->getFeatureVariableBoolean(
+                'boolean_single_variable_feature',
+                'boolean_variable',
+                'user_id',
+                []
+            ),
             true
         );
     }

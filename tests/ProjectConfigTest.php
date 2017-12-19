@@ -118,8 +118,8 @@ class ProjectConfigTest extends \PHPUnit_Framework_TestCase
             '122241' => $this->config->getExperimentFromId('122241')
         ], $experimentIdMap->getValue($this->config));
 
-        // Check experiment ID map
-        $rolloutExperimentIdMap = new \ReflectionProperty(ProjectConfig::class, '_RolloutExperimentIdMap');
+        // Check rollout experiment ID map
+        $rolloutExperimentIdMap = new \ReflectionProperty(ProjectConfig::class, '_rolloutExperimentIdMap');
         $rolloutExperimentIdMap->setAccessible(true);
         $this->assertEquals([
             '177770' => $this->config->getExperimentFromId('177770'),
@@ -128,7 +128,6 @@ class ProjectConfigTest extends \PHPUnit_Framework_TestCase
             '177774' => $this->config->getExperimentFromId('177774'),
             '177779' => $this->config->getExperimentFromId('177779')
         ], $rolloutExperimentIdMap->getValue($this->config));
-
 
         // Check event key map
         $eventKeyMap = new \ReflectionProperty(ProjectConfig::class, '_eventKeyMap');
