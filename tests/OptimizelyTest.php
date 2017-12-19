@@ -2435,6 +2435,44 @@ class OptimizelyTest extends \PHPUnit_Framework_TestCase
         );
     }
 
+    public function testGetFeatureVariableValueForTypeWithRolloutRule()
+    {
+        // should return specific value
+        $decisionServiceMock = $this->getMockBuilder(DecisionService::class)
+            ->setConstructorArgs(array($this->loggerMock, $this->projectConfig))
+            ->setMethods(array('getVariationForFeature'))
+            ->getMock();
+
+        $decisionService = new \ReflectionProperty(Optimizely::class, '_decisionService');
+        $decisionService->setAccessible(true);
+        $decisionService->setValue($this->optimizelyObject, $decisionServiceMock);
+
+        $experiment = $this->projectConfig->getExperimentFromId('177770');
+        $variation = $this->projectConfig->getVariationFromId($experiment->getKey(), '177771');
+        $expected_decision = new FeatureDecision(
+            $experiment->getId(),
+            $variation->getId(),
+            FeatureDecision::DECISION_SOURCE_EXPERIMENT
+        );
+
+        $decisionServiceMock->expects($this->exactly(1))
+            ->method('getVariationForFeature')
+            ->will($this->returnValue($expected_decision));
+
+        $this->loggerMock->expects($this->exactly(1))
+            ->method('log')
+            ->with(
+                Logger::INFO,
+                "Returning variable value 'true' for variation '177771' ".
+                "of feature flag 'boolean_single_variable_feature'"
+            );
+
+        $this->assertSame(
+            $this->optimizelyObject->getFeatureVariableBoolean('boolean_single_variable_feature', 'boolean_variable', 'user_id', []),
+            true
+        );
+    }
+
     public function testGetFeatureVariableValueForTypeGivenFeatureFlagIsEnabledForUserAndVariableNotInVariation()
     {
         // should return default value

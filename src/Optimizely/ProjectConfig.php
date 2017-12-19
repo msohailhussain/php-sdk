@@ -90,6 +90,11 @@ class ProjectConfig
     private $_experimentIdMap;
 
     /**
+     * @var array Associative array of experiment ID to Rollout Experiment(s) in the datafile.
+     */
+    private $_RolloutExperimentIdMap;
+
+    /**
      * @var array Associative array of experiment key to associative array of variation key to variations.
      */
     private $_variationKeyMap;
@@ -209,7 +214,8 @@ class ProjectConfig
         $this->_variationKeyMap = [];
         $this->_variationIdMap = [];
         $this->_experimentIdMap = [];
-        
+        $this->_RolloutExperimentIdMap= [];
+
         forEach(array_values($this->_experimentKeyMap) as $experiment) {
             $this->_variationKeyMap[$experiment->getKey()] = [];
             $this->_variationIdMap[$experiment->getKey()] = [];
@@ -236,6 +242,7 @@ class ProjectConfig
             foreach($rollout->getExperiments() as $rule){
                 $rolloutVariationIdMap[$rule->getKey()] = [];
                 $rolloutVariationKeyMap[$rule->getKey()] = [];
+                $this->_RolloutExperimentIdMap[$rule->getId()] = $rule;
 
                 $variations = $rule->getVariations();
                 foreach($variations as $variation){
@@ -346,6 +353,10 @@ class ProjectConfig
     {
         if (isset($this->_experimentIdMap[$experimentId])) {
             return $this->_experimentIdMap[$experimentId];
+        }
+
+        if (isset($this->_RolloutExperimentIdMap[$experimentId])) {
+            return $this->_RolloutExperimentIdMap[$experimentId];
         }
 
         $this->_logger->log(Logger::ERROR, sprintf('Experiment ID "%s" is not in datafile.', $experimentId));
