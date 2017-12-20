@@ -364,7 +364,7 @@ class ProjectConfig
     /**
      * @param $ruleId string ID of the Rollout rule.
      *
-     * @return Rollout rule Entity corresponding to the key.
+     * @return Experiment Entity corresponding to the key.
      *         Dummy entity is returned if ID is invalid.
      */
     public function getRolloutRuleFromId($ruleId)

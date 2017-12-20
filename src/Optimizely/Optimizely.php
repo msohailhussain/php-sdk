@@ -590,7 +590,7 @@ class Optimizely
             $variation_id = $decision->getVariationId();
             if ($decision->getSource() == FeatureDecision::DECISION_SOURCE_ROLLOUT) {
                 $experiment = $this->_config->getRolloutRuleFromId($experiment_id);
-            } else {
+            } elseif ($decision->getSource() == FeatureDecision::DECISION_SOURCE_EXPERIMENT) {
                 $experiment = $this->_config->getExperimentFromId($experiment_id);
             }
             $variation = $this->_config->getVariationFromId($experiment->getKey(), $variation_id);

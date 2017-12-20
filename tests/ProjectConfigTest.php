@@ -376,8 +376,8 @@ class ProjectConfigTest extends \PHPUnit_Framework_TestCase
     public function testGetRolloutRuleValidId()
     {
         $rule = $this->config->getRolloutRuleFromId('177770');
-        $this->assertEquals('177770', $rule->getId());
-        $this->assertEquals('rollout_1_exp_1', $rule->getKey());
+        $this->assertSame('177770', $rule->getId());
+        $this->assertSame('rollout_1_exp_1', $rule->getKey());
     }
 
     public function testGetRolloutRuleInvalidId()
