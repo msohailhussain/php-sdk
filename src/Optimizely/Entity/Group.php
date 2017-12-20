@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright 2016, Optimizely
+ * Copyright 2016-2017, Optimizely
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,12 +42,12 @@ class Group
     private $_trafficAllocation;
 
 
-    public function __construct($id = null, $policy = null, $experiments = null, $trafficAllocation = null)
+    public function __construct($id = null, $policy = null, $experiments = [], $trafficAllocation = [])
     {
         $this->_id = $id;
         $this->_policy = $policy;
-        $this->_experiments = $experiments;
-        $this->_trafficAllocation = $trafficAllocation;
+        $this->_experiments = ConfigParser::generateMap($experiments, null, Experiment::class);
+        $this->_trafficAllocation = ConfigParser::generateMap($trafficAllocation, null, TrafficAllocation::class);
     }
 
     /**
@@ -93,9 +93,9 @@ class Group
     /**
      * @param $experiments array Experiments in the group.
      */
-    public function setExperiments($experiments)
+    public function setExperiments($experiments = [])
     {
-        $this->_experiments = $experiments;
+        $this->_experiments = ConfigParser::generateMap($experiments, null, Experiment::class);
     }
 
     /**
@@ -109,7 +109,7 @@ class Group
     /**
      * @param $trafficAllocation array Traffic allocation of experiments in group.
      */
-    public function setTrafficAllocation($trafficAllocation)
+    public function setTrafficAllocation($trafficAllocation = [])
     {
         $this->_trafficAllocation = ConfigParser::generateMap($trafficAllocation, null, TrafficAllocation::class);
     }

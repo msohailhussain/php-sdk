@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright 2016, Optimizely
+ * Copyright 2016-2017, Optimizely
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -87,22 +87,22 @@ class Experiment
                                 $layerId = null,
                                 $status = null,
                                 $groupId = null,
-                                $variations = null,
+                                $variations = [],
                                 $forcedVariations = null,
                                 $groupPolicy = null,
                                 $audienceIds = null,
-                                $trafficAllocation = null)
+                                $trafficAllocation = [])
     {
         $this->_id = $id;
         $this->_key = $key;
         $this->_status = $status;
         $this->_layerId = $layerId;
         $this->_groupId = $groupId;
-        $this->_variations = $variations;
+        $this->_variations = ConfigParser::generateMap($variations, null, Variation::class);
         $this->_forcedVariations = $forcedVariations;
         $this->_groupPolicy = $groupPolicy;
         $this->_audienceIds = $audienceIds;
-        $this->_trafficAllocation = $trafficAllocation;
+        $this->_trafficAllocation = ConfigParser::generateMap($trafficAllocation, null, TrafficAllocation::class);
     }
 
     /**
