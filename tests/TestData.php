@@ -18,6 +18,8 @@ namespace Optimizely\Tests;
 
 use Exception;
 use Optimizely\Bucketer;
+use Optimizely\Entity\Experiment;
+use Optimizely\Entity\Group;
 use Optimizely\Event\Dispatcher\EventDispatcherInterface;
 use Optimizely\Event\LogEvent;
 use Optimizely\Optimizely;
@@ -737,6 +739,46 @@ define('DATAFILE','{
     }
   ]
 }');
+
+class TestData
+{
+
+  public $config;
+  public $group_7722400015;
+  public $experiment_7716830082;
+
+  public function __construct(){
+      $this->config = json_decode(DATAFILE, true);
+      $this->group_7722400015 = $this->getGroupTestObj();
+  }
+
+  public function getGroupTestObj(){
+      $experiments = [];
+      $trafficAllocation = [];
+      $groups = $this->config['groups'] ?: [];
+
+      foreach($groups as $group){
+        if($group['id'] == '7722400015'){
+          $experiments = $group['experiments'];
+          $trafficAllocation = $group['trafficAllocation'];
+        }
+      }
+
+      $returnGrp = new Group(
+                    '7722400015',
+                    'random',
+                    $experiments,
+                    $trafficAllocation
+                  );
+      foreach($returnGrp->getExperiments() as $exp){
+        $exp->setGroupId($returnGrp->getId());
+        $exp->setGroupPolicy($returnGrp->getPolicy());
+      }
+
+      return $returnGrp;
+  }
+}
+
 
 /**
  * Class TestBucketer

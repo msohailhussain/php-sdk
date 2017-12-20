@@ -83,12 +83,18 @@ class ProjectConfigTest extends \PHPUnit_Framework_TestCase
         $revision->setAccessible(true);
         $this->assertEquals('15', $revision->getValue($this->config));
 
+
+        $testData = new TestData();
+
+        $this->assertEquals(
+            $testData->group_7722400015,
+            $this->config->getGroup('7722400015')
+        );
+
         // Check group ID map
         $groupIdMap = new \ReflectionProperty(ProjectConfig::class, '_groupIdMap');
         $groupIdMap->setAccessible(true);
-        $this->assertEquals([
-            '7722400015' => $this->config->getGroup('7722400015')
-        ], $groupIdMap->getValue($this->config));
+        $this->assertEquals(['7722400015'], array_keys($groupIdMap->getValue($this->config)));
 
         // Check experiment key map
         $experimentKeyMap = new \ReflectionProperty(ProjectConfig::class, '_experimentKeyMap');
