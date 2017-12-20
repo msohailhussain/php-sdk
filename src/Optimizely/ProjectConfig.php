@@ -36,6 +36,7 @@ use Optimizely\Exceptions\InvalidFeatureFlagException;
 use Optimizely\Exceptions\InvalidFeatureVariableException;
 use Optimizely\Exceptions\InvalidGroupException;
 use Optimizely\Exceptions\InvalidRolloutException;
+use Optimizely\Exceptions\InvalidRolloutRuleException;
 use Optimizely\Exceptions\InvalidVariationException;
 use Optimizely\Logger\LoggerInterface;
 use Optimizely\Utils\ConditionDecoder;
@@ -355,12 +356,25 @@ class ProjectConfig
             return $this->_experimentIdMap[$experimentId];
         }
 
-        if (isset($this->_rolloutExperimentIdMap[$experimentId])) {
-            return $this->_rolloutExperimentIdMap[$experimentId];
-        }
-
         $this->_logger->log(Logger::ERROR, sprintf('Experiment ID "%s" is not in datafile.', $experimentId));
         $this->_errorHandler->handleError(new InvalidExperimentException('Provided experiment is not in datafile.'));
+        return new Experiment();
+    }
+
+    /**
+     * @param $ruleId string ID of the Rollout rule.
+     *
+     * @return Rollout rule Entity corresponding to the key.
+     *         Dummy entity is returned if ID is invalid.
+     */
+    public function getRolloutRuleFromId($ruleId)
+    {
+        if (isset($this->_rolloutExperimentIdMap[$ruleId])) {
+            return $this->_rolloutExperimentIdMap[$ruleId];
+        }
+
+        $this->_logger->log(Logger::ERROR, sprintf('Rollout rule "%s" is not in datafile.', $ruleId));
+        $this->_errorHandler->handleError(new InvalidRolloutRuleException('Provided rollout rule is not in datafile.'));
         return new Experiment();
     }
 
