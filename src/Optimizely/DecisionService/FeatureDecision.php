@@ -23,11 +23,13 @@ class FeatureDecision
 
     /**
     * The experiment in this decision.
+    * @var Experiment
     */
     private $_experiment;
 
     /**
     * The variation in this decision.
+    * @var Variation
     */
     private $_variation;
 
