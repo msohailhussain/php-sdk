@@ -63,6 +63,8 @@ class ProjectConfigTest extends \PHPUnit_Framework_TestCase
 
     public function testInit()
     {
+        $testData = new TestData();
+
         // Check version
         $version = new \ReflectionProperty(ProjectConfig::class, '_version');
         $version->setAccessible(true);
@@ -83,9 +85,7 @@ class ProjectConfigTest extends \PHPUnit_Framework_TestCase
         $revision->setAccessible(true);
         $this->assertEquals('15', $revision->getValue($this->config));
 
-
-        $testData = new TestData();
-
+        // Check group instance
         $this->assertEquals(
             $testData->group_7722400015,
             $this->config->getGroup('7722400015')
@@ -96,49 +96,67 @@ class ProjectConfigTest extends \PHPUnit_Framework_TestCase
         $groupIdMap->setAccessible(true);
         $this->assertEquals(['7722400015'], array_keys($groupIdMap->getValue($this->config)));
 
+        // Check experiment instance
+        $this->assertEquals(
+            $testData->experiment_7716830082,
+            $this->config->getExperimentFromId('7716830082')
+        );
+
         // Check experiment key map
         $experimentKeyMap = new \ReflectionProperty(ProjectConfig::class, '_experimentKeyMap');
         $experimentKeyMap->setAccessible(true);
         $this->assertEquals([
-            'test_experiment' => $this->config->getExperimentFromKey('test_experiment'),
-            'paused_experiment' => $this->config->getExperimentFromKey('paused_experiment'),
-            'group_experiment_1' => $this->config->getExperimentFromKey('group_experiment_1'),
-            'group_experiment_2' => $this->config->getExperimentFromKey('group_experiment_2'),
-            'test_experiment_multivariate' => $this->config->getExperimentFromKey('test_experiment_multivariate'),
-            'test_experiment_with_feature_rollout' => $this->config->getExperimentFromKey('test_experiment_with_feature_rollout'),
-            'test_experiment_double_feature' =>  $this->config->getExperimentFromKey('test_experiment_double_feature'),
-            'test_experiment_integer_feature' =>  $this->config->getExperimentFromKey('test_experiment_integer_feature')
-        ], $experimentKeyMap->getValue($this->config));
+            'test_experiment',
+            'paused_experiment',
+            'test_experiment_multivariate',
+            'test_experiment_with_feature_rollout',
+            'test_experiment_double_feature',
+            'test_experiment_integer_feature',
+            'group_experiment_1',
+            'group_experiment_2'
+        ], array_keys($experimentKeyMap->getValue($this->config)));
 
         // Check experiment ID map
         $experimentIdMap = new \ReflectionProperty(ProjectConfig::class, '_experimentIdMap');
         $experimentIdMap->setAccessible(true);
         $this->assertEquals([
-            '7716830082' => $this->config->getExperimentFromId('7716830082'),
-            '7723330021' => $this->config->getExperimentFromId('7723330021'),
-            '7718750065' => $this->config->getExperimentFromId('7718750065'),
-            '7716830585' => $this->config->getExperimentFromId('7716830585'),
-            '122230' => $this->config->getExperimentFromId('122230'),
-            '122235' => $this->config->getExperimentFromId('122235'),
-            '122238' => $this->config->getExperimentFromId('122238'),
-            '122241' => $this->config->getExperimentFromId('122241')
-        ], $experimentIdMap->getValue($this->config));
+            '7716830082',
+            '7716830585',
+            '122230',
+            '122235',
+            '122238',
+            '122241',
+            '7723330021',
+            '7718750065',
+        ], array_keys($experimentIdMap->getValue($this->config)));
+
+        // Check event instance
+        $this->assertEquals(
+            $testData->event_7718020063,
+            $this->config->getEvent('purchase')
+        );
 
         // Check event key map
         $eventKeyMap = new \ReflectionProperty(ProjectConfig::class, '_eventKeyMap');
         $eventKeyMap->setAccessible(true);
         $this->assertEquals([
-            'purchase' => $this->config->getEvent('purchase'),
-            'unlinked_event' => $this->config->getEvent('unlinked_event')
-        ], $eventKeyMap->getValue($this->config));
+            'purchase',
+            'unlinked_event'
+        ], array_keys($eventKeyMap->getValue($this->config)));
+
+        //Check attribute instance
+        $this->assertEquals(
+            $testData->attribute_7723280020,
+            $this->config->getAttribute('device_type')
+        );
 
         // Check attribute key map
         $attributeKeyMap = new \ReflectionProperty(ProjectConfig::class, '_attributeKeyMap');
         $attributeKeyMap->setAccessible(true);
         $this->assertEquals([
-            'device_type' => $this->config->getAttribute('device_type'),
-            'location' => $this->config->getAttribute('location')
-        ], $attributeKeyMap->getValue($this->config));
+            'device_type',
+            'location'
+        ], array_keys($attributeKeyMap->getValue($this->config)));
 
         // Check audience ID map
         $audienceIdMap = new \ReflectionProperty(ProjectConfig::class, '_audienceIdMap');

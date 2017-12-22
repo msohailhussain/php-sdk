@@ -18,13 +18,15 @@ namespace Optimizely\Tests;
 
 use Exception;
 use Optimizely\Bucketer;
+use Optimizely\Entity\Attribute;
+use Optimizely\Entity\Event;
 use Optimizely\Entity\Experiment;
 use Optimizely\Entity\Group;
 use Optimizely\Event\Dispatcher\EventDispatcherInterface;
 use Optimizely\Event\LogEvent;
 use Optimizely\Optimizely;
 
-define('DATAFILE','{
+define('DATAFILE', '{
   "experiments": [
     {
       "status": "Running",
@@ -742,43 +744,75 @@ define('DATAFILE','{
 
 class TestData
 {
+    public $datafile;
+    public $group_7722400015;
+    public $experiment_7716830082;
+    public $event_7718020063;
+    public $attribute_7723280020;
 
-  public $config;
-  public $group_7722400015;
-  public $experiment_7716830082;
+    public function __construct()
+    {
+        $this->datafile = json_decode(DATAFILE, true);
+        $this->group_7722400015 = $this->createTestObject($this->datafile['groups'], 'Group', '7722400015');
+        $this->experiment_7716830082 = $this->createTestObject($this->datafile['experiments'], 'Experiment', '7716830082');
+        $this->event_7718020063 = $this->createTestObject($this->datafile['events'], 'Event', '7718020063');
+        $this->attribute_7723280020 = $this->createTestObject($this->datafile['attributes'], 'Attribute', '7723280020');
+    }
 
-  public function __construct(){
-      $this->config = json_decode(DATAFILE, true);
-      $this->group_7722400015 = $this->getGroupTestObj();
-  }
+    public function createTestObject($items, $itemClass, $itemId)
+    {
+        $selectedItem = null;
+        $ref = $this->getRef($itemClass);
 
-  public function getGroupTestObj(){
-      $experiments = [];
-      $trafficAllocation = [];
-      $groups = $this->config['groups'] ?: [];
-
-      foreach($groups as $group){
-        if($group['id'] == '7722400015'){
-          $experiments = $group['experiments'];
-          $trafficAllocation = $group['trafficAllocation'];
+        foreach ($items as $item) {
+            if ($item['id'] == $itemId) {
+                $selectedItem = $item;
+            }
         }
-      }
 
-      $returnGrp = new Group(
-                    '7722400015',
-                    'random',
-                    $experiments,
-                    $trafficAllocation
-                  );
-      foreach($returnGrp->getExperiments() as $exp){
-        $exp->setGroupId($returnGrp->getId());
-        $exp->setGroupPolicy($returnGrp->getPolicy());
-      }
+        $paramArray = [];
+        for ($i=1; $i<count($ref); $i++) {
+            $value = isset($selectedItem[$ref[$i]]) ? $selectedItem[$ref[$i]] : null;
+            $paramArray[] = $value;
+        }
 
-      return $returnGrp;
-  }
+        $reflection_class = new \ReflectionClass(new $ref[0]);
+        $returnObj= $reflection_class->newInstanceArgs($paramArray);
+
+        if($itemClass == 'Group'){
+          foreach ($returnObj->getExperiments() as $exp) {
+            $exp->setGroupId($returnObj->getId());
+            $exp->setGroupPolicy($returnObj->getPolicy());
+          }
+        }
+
+        return $returnObj;
+    }
+
+    public function getRef($itemClass){
+        $referenceArray = [
+          'Experiment' => 
+              [
+                '\Optimizely\Entity\Experiment', 'id', 'key', 'layerId', 'status', 'groupId', 'variations', 'forcedVariations', 'groupPolicy', 'audienceIds', 'trafficAllocation'
+              ],
+          'Group' =>
+            [
+              '\Optimizely\Entity\Group', 'id', 'policy', 'experiments', 'trafficAllocation'
+            ],
+          'Event' =>
+            [
+              '\Optimizely\Entity\Event', 'id', 'key', 'experimentIds'
+            ],
+          'Attribute' =>
+            [
+              '\Optimizely\Entity\Attribute', 'id', 'key'
+            ]
+        ];
+
+        return $referenceArray[$itemClass];
+    }
+
 }
-
 
 /**
  * Class TestBucketer
@@ -808,40 +842,60 @@ class TestBucketer extends Bucketer
  */
 class OptimizelyTester extends Optimizely
 {
-  public function sendImpressionEvent($experimentKey, $variationKey, $userId, $attributes){
-    parent::sendImpressionEvent($experimentKey, $variationKey, $userId, $attributes);
-  }
+    public function sendImpressionEvent($experimentKey, $variationKey, $userId, $attributes)
+    {
+        parent::sendImpressionEvent($experimentKey, $variationKey, $userId, $attributes);
+    }
 }
 
-class FireNotificationTester{
-    public function decision_callback_no_args(){}
+class FireNotificationTester
+{
+    public function decision_callback_no_args()
+    {
+    }
 
-    public function decision_callback_no_args_2(){}
+    public function decision_callback_no_args_2()
+    {
+    }
 
-    public function decision_callback_with_args($anInt, $aDouble, $aString, $anArray, $aFunction){}
+    public function decision_callback_with_args($anInt, $aDouble, $aString, $anArray, $aFunction)
+    {
+    }
 
-    public function decision_callback_with_args_2($anInt, $aDouble, $aString, $anArray, $aFunction){}
+    public function decision_callback_with_args_2($anInt, $aDouble, $aString, $anArray, $aFunction)
+    {
+    }
 
-    public function track_callback_no_args(){}
+    public function track_callback_no_args()
+    {
+    }
 }
 
 
 class ValidEventDispatcher implements EventDispatcherInterface
 {
-    public function dispatchEvent(LogEvent $event) {}
+    public function dispatchEvent(LogEvent $event)
+    {
+    }
 }
 
 class InvalidEventDispatcher
 {
-    public function dispatchEvent(LogEvent $event) {}
+    public function dispatchEvent(LogEvent $event)
+    {
+    }
 }
 
 class InvalidLogger
 {
-    public function log($logLevel, $logMessage) {}
+    public function log($logLevel, $logMessage)
+    {
+    }
 }
 
 class InvalidErrorHandler
 {
-    public function handleError(Exception $error) {}
+    public function handleError(Exception $error)
+    {
+    }
 }
