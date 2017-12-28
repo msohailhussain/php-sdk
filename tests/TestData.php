@@ -18,13 +18,10 @@ namespace Optimizely\Tests;
 
 use Exception;
 use Optimizely\Bucketer;
-use Optimizely\Entity\Attribute;
-use Optimizely\Entity\Event;
-use Optimizely\Entity\Experiment;
-use Optimizely\Entity\Group;
 use Optimizely\Event\Dispatcher\EventDispatcherInterface;
 use Optimizely\Event\LogEvent;
 use Optimizely\Optimizely;
+use Optimizely\Utils\ConditionDecoder;
 
 define('DATAFILE', '{
   "experiments": [
@@ -757,6 +754,28 @@ class TestData
         $this->experiment_7716830082 = $this->createTestObject($this->datafile['experiments'], 'Experiment', '7716830082');
         $this->event_7718020063 = $this->createTestObject($this->datafile['events'], 'Event', '7718020063');
         $this->attribute_7723280020 = $this->createTestObject($this->datafile['attributes'], 'Attribute', '7723280020');
+        $this->audience_7718080042 = $this->createTestObject($this->datafile['audiences'], 'Audience', '7718080042');
+        
+        $variationConfig = [[
+          "id"=> "122231",
+          "key"=> "Fred",
+          "variables"=> [
+            [
+              "id"=> "155560",
+              "value"=> "F"
+            ],
+            [
+              "id"=> "155561",
+              "value"=> "red"
+            ]
+          ]
+        ]];
+
+        $this->variation_test_experiment_multivariate_122231 = $this->createTestObject(
+            $variationConfig,
+            'Variation',
+            '122231'
+        );
     }
 
     public function createTestObject($items, $itemClass, $itemId)
@@ -779,19 +798,24 @@ class TestData
         $reflection_class = new \ReflectionClass(new $ref[0]);
         $returnObj= $reflection_class->newInstanceArgs($paramArray);
 
-        if($itemClass == 'Group'){
-          foreach ($returnObj->getExperiments() as $exp) {
-            $exp->setGroupId($returnObj->getId());
-            $exp->setGroupPolicy($returnObj->getPolicy());
-          }
+        if ($itemClass == 'Group') {
+            foreach ($returnObj->getExperiments() as $exp) {
+                $exp->setGroupId($returnObj->getId());
+                $exp->setGroupPolicy($returnObj->getPolicy());
+            }
+        } else if ($itemClass == 'Audience') {
+            $conditionDecoder = new ConditionDecoder();
+            $conditionDecoder->deserializeAudienceConditions($returnObj->getConditions());
+            $returnObj->setConditionsList($conditionDecoder->getConditionsList());
         }
 
         return $returnObj;
     }
 
-    public function getRef($itemClass){
+    public function getRef($itemClass)
+    {
         $referenceArray = [
-          'Experiment' => 
+          'Experiment' =>
               [
                 '\Optimizely\Entity\Experiment', 'id', 'key', 'layerId', 'status', 'groupId', 'variations', 'forcedVariations', 'groupPolicy', 'audienceIds', 'trafficAllocation'
               ],
@@ -806,12 +830,15 @@ class TestData
           'Attribute' =>
             [
               '\Optimizely\Entity\Attribute', 'id', 'key'
+            ],
+          'Audience' =>
+            [
+              '\Optimizely\Entity\Audience', 'id', 'name', 'conditions'
             ]
         ];
 
         return $referenceArray[$itemClass];
     }
-
 }
 
 /**

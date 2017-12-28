@@ -145,10 +145,7 @@ class ProjectConfigTest extends \PHPUnit_Framework_TestCase
         ], array_keys($eventKeyMap->getValue($this->config)));
 
         //Check attribute instance
-        $this->assertEquals(
-            $testData->attribute_7723280020,
-            $this->config->getAttribute('device_type')
-        );
+        
 
         // Check attribute key map
         $attributeKeyMap = new \ReflectionProperty(ProjectConfig::class, '_attributeKeyMap');
@@ -158,14 +155,25 @@ class ProjectConfigTest extends \PHPUnit_Framework_TestCase
             'location'
         ], array_keys($attributeKeyMap->getValue($this->config)));
 
+        // Check audience instance
+        $this->assertEquals(
+            $testData->audience_7718080042,
+            $this->config->getAudience('7718080042')
+        );
+
         // Check audience ID map
         $audienceIdMap = new \ReflectionProperty(ProjectConfig::class, '_audienceIdMap');
         $audienceIdMap->setAccessible(true);
         $this->assertEquals([
-            '7718080042' => $this->config->getAudience('7718080042'),
-            '11155' => $this->config->getAudience('11155')
-        ], $audienceIdMap->getValue($this->config));
+            '7718080042',
+            '11155'
+        ], array_keys($audienceIdMap->getValue($this->config)));
 
+        // Check Variation instance
+        $this->assertEquals(
+            $this->variation_test_experiment_multivariate_122231,
+            $this->config->getVariationFromId('test_experiment_multivariate', '122231')
+        );
         // Check variation key map
         $variationKeyMap = new \ReflectionProperty(ProjectConfig::class, '_variationKeyMap');
         $variationKeyMap->setAccessible(true);
