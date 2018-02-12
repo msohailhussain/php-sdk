@@ -274,7 +274,7 @@ define(
               "value": "13.37"
             }
           ],
-          "featureEnabled": "true"
+          "featureEnabled": "false"
         }
       ]
     },
