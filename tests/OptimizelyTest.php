@@ -2351,8 +2351,9 @@ class OptimizelyTest extends \PHPUnit_Framework_TestCase
         $optimizelyMock->expects($this->never())
             ->method('sendImpressionEvent');
 
-        $this->loggerMock->expects($this->never())
-            ->method('log');
+        $this->loggerMock->expects($this->at(0))
+            ->method('log')
+            ->with(Logger::INFO, "Feature Flag 'double_single_variable_feature' is not enabled for user 'user_id'.");
 
         $this->assertFalse($optimizelyMock->isFeatureEnabled('double_single_variable_feature', 'user_id', []));
     }
@@ -2379,7 +2380,7 @@ class OptimizelyTest extends \PHPUnit_Framework_TestCase
         $variation = $experiment->getVariations()[0];
         $variation->setFeatureEnabled('false');
 
-        // assert variation's 'featureEnabled' is set to 'false' to ensure that this property 
+        // assert variation's 'featureEnabled' is set to 'false' to ensure that this property
         // has no effect when Decision object is from Rollout
         $this->assertEquals(
             'false',

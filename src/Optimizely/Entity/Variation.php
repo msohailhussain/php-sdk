@@ -91,7 +91,6 @@ class Variation
     }
 
     /**
-     * 
      * @return boolean featureEnabled property
      */
     public function getFeatureEnabled()
@@ -100,7 +99,7 @@ class Variation
     }
 
     /**
-     * @param boolean $flag 
+     * @param boolean $flag
      */
     public function setFeatureEnabled($flag)
     {
