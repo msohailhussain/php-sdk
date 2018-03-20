@@ -320,12 +320,11 @@ class DecisionService
             if ($variation && $variation->getKey()) {
                 return new FeatureDecision($experiment, $variation, FeatureDecision::DECISION_SOURCE_ROLLOUT);
             }
-        } else{
-            $this->_logger->log(
-                Logger::DEBUG,
-                sprintf("User '%s' did not meet the audience conditions to be in rollout rule '%s'.", $userId, $experiment->getKey())
-            );
-        }
+        } 
+        $this->_logger->log(
+			Logger::DEBUG,
+            sprintf("User '%s' did not meet the audience conditions to be in rollout rule '%s'.", $userId, $experiment->getKey()));
+        
         return null;
     }
 

@@ -1098,12 +1098,7 @@ class DecisionServiceTest extends \PHPUnit_Framework_TestCase
         // Set an AudienceId for everyone else/last rule so that user does not qualify for audience
         $experiment2->setAudienceIds(["11154"]);
         $expected_variation = $experiment2->getVariations()[0];
-        $expected_decision = new FeatureDecision(
-            $experiment2,
-            $expected_variation,
-            FeatureDecision::DECISION_SOURCE_ROLLOUT
-        );
-
+        
         // Provide null attributes so that user does not qualify for audience
         $user_attributes = [];
         $this->decisionService = new DecisionService($this->loggerMock, $this->config);
@@ -1112,9 +1107,8 @@ class DecisionServiceTest extends \PHPUnit_Framework_TestCase
         $bucketer->setValue($this->decisionService, $this->bucketerMock);
 
         // // Expect bucket never called for the everyone else/last rule.
-        $this->bucketerMock->expects($this->exactly(0))
-            ->method('bucket')
-            ->willReturn($expected_variation);
+        $this->bucketerMock->expects($this->never())
+            ->method('bucket');
 
         $this->loggerMock->expects($this->at(0))
             ->method('log')
@@ -1137,9 +1131,6 @@ class DecisionServiceTest extends \PHPUnit_Framework_TestCase
                 "User 'user_1' did not meet the audience conditions to be in rollout rule '{$experiment2->getKey()}'."
         );    
 
-        $this->assertEquals(
-            null,
-            $this->decisionService->getVariationForFeatureRollout($feature_flag, 'user_1', $user_attributes)
-        );
+        $this->assertNull($this->decisionService->getVariationForFeatureRollout($feature_flag, 'user_1', $user_attributes));
     }
 }
