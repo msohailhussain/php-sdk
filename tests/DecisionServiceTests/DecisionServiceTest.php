@@ -1157,7 +1157,7 @@ class DecisionServiceTest extends \PHPUnit_Framework_TestCase
         $bucketer->setAccessible(true);
         $bucketer->setValue($this->decisionService, $this->bucketerMock);
 
-        // Expect bucket to be called exactly once for the everyone else/last rule.
+        // Expect bucket to be called exactly once and returns null for the everyone else/last rule.
         $this->bucketerMock->expects($this->at(0))
             ->method('bucket')
             ->willReturn(null);
@@ -1179,10 +1179,7 @@ class DecisionServiceTest extends \PHPUnit_Framework_TestCase
         $this->loggerMock->expects($this->exactly(2))
             ->method('log');    
 
-        $this->assertEquals(
-            null,
-            $this->decisionService->getVariationForFeatureRollout($feature_flag, 'user_1', $user_attributes)
-        );
+        $this->assertNull($this->decisionService->getVariationForFeatureRollout($feature_flag, 'user_1', $user_attributes));
 
     }
 
