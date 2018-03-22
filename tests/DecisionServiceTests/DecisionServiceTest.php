@@ -1025,6 +1025,9 @@ class DecisionServiceTest extends \PHPUnit_Framework_TestCase
             ->method('bucket')
             ->willReturn(null);
 
+        $this->loggerMock->expects($this->never())
+            ->method('log');
+
         $this->assertEquals(
             null,
             $this->decisionService->getVariationForFeatureRollout($feature_flag, 'user_1', $user_attributes)
@@ -1132,55 +1135,6 @@ class DecisionServiceTest extends \PHPUnit_Framework_TestCase
         );    
 
         $this->assertNull($this->decisionService->getVariationForFeatureRollout($feature_flag, 'user_1', $user_attributes));
-    }
-
-    public function testGetVariationForFeatureRolloutWhenUserDoesNotQualifyForAnyTargetingRulesAndUserIsNotBucketedInTheEveryoneElseRule()
-    {
-        $feature_flag = $this->config->getFeatureFlagFromKey('boolean_single_variable_feature');
-        $rollout_id = $feature_flag->getRolloutId();
-        $rollout = $this->config->getRolloutFromId($rollout_id);
-        $experiment0 = $rollout->getExperiments()[0];
-        $experiment1 = $rollout->getExperiments()[1];
-        // Everyone Else Rule
-        $experiment2 = $rollout->getExperiments()[2];
-        $expected_variation = $experiment2->getVariations()[0];
-        $expected_decision = new FeatureDecision(
-            $experiment2,
-            $expected_variation,
-            FeatureDecision::DECISION_SOURCE_ROLLOUT
-        );
-
-        // Provide null attributes so that user does not qualify for audience
-        $user_attributes = [];
-        $this->decisionService = new DecisionService($this->loggerMock, $this->config);
-        $bucketer = new \ReflectionProperty(DecisionService::class, '_bucketer');
-        $bucketer->setAccessible(true);
-        $bucketer->setValue($this->decisionService, $this->bucketerMock);
-
-        // Expect bucket to be called exactly once and returns null for the everyone else/last rule.
-        $this->bucketerMock->expects($this->at(0))
-            ->method('bucket')
-            ->willReturn(null);
-
-        $this->loggerMock->expects($this->at(0))
-            ->method('log')
-            ->with(
-                Logger::DEBUG,
-                "User 'user_1' did not meet the audience conditions to be in rollout rule '{$experiment0->getKey()}'."
-            );
-
-        $this->loggerMock->expects($this->at(1))
-            ->method('log')
-            ->with(
-                Logger::DEBUG,
-                "User 'user_1' did not meet the audience conditions to be in rollout rule '{$experiment1->getKey()}'."
-            );
-
-        $this->loggerMock->expects($this->exactly(2))
-            ->method('log');    
-
-        $this->assertNull($this->decisionService->getVariationForFeatureRollout($feature_flag, 'user_1', $user_attributes));
-
     }
 
 }
