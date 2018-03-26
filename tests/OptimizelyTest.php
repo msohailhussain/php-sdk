@@ -2147,7 +2147,7 @@ class OptimizelyTest extends \PHPUnit_Framework_TestCase
 
         // confirm that invalid audience returns null
         $variationKey = $optlyObject->getVariation($this->experimentKey, $this->userId);
-        $this->assertEquals(null, $variationKey, sprintf('Invalid variation key "%s" for getVariation with bucketing ID "%s".', $variationKey, $this->testBucketingIdControl));
+        $this->assertNull($variationKey, sprintf('Invalid variation key "%s" for getVariation with bucketing ID "%s".', $variationKey, $this->testBucketingIdControl));
 
         // confirm that a valid variation is bucketed with the bucketing ID
         $variationKey = $optlyObject->getVariation($this->experimentKey, $this->userId, $userAttributesWithBucketingId);
@@ -2155,7 +2155,7 @@ class OptimizelyTest extends \PHPUnit_Framework_TestCase
 
         // confirm that invalid experiment with the bucketing ID returns null
         $variationKey = $optlyObject->getVariation("invalidExperimentKey", $this->userId, $userAttributesWithBucketingId);
-        $this->assertEquals(null, $variationKey, sprintf('Invalid variation key "%s" for getVariation with bucketing ID "%s".', $variationKey, $this->testBucketingIdControl));
+        $this->assertNull($variationKey, sprintf('Invalid variation key "%s" for getVariation with bucketing ID "%s".', $variationKey, $this->testBucketingIdControl));
     }
 
     public function testIsFeatureEnabledGivenInvalidDataFile()

@@ -755,10 +755,7 @@ class DecisionServiceTest extends \PHPUnit_Framework_TestCase
                 Logger::INFO,
                 "The user 'user_1' is not bucketed into any of the experiments using the feature 'boolean_feature'."
             );
-        $this->assertEquals(
-            null,
-            $this->decisionServiceMock->getVariationForFeatureExperiment($feature_flag, 'user_1', [])
-        );
+        $this->assertNull($this->decisionServiceMock->getVariationForFeatureExperiment($feature_flag, 'user_1', []));
     }
 
     // should return the bucketed experiment and variation
@@ -855,10 +852,7 @@ class DecisionServiceTest extends \PHPUnit_Framework_TestCase
                 "User 'user_1' is not bucketed into rollout for feature flag 'string_single_variable_feature'."
             );
 
-        $this->assertEquals(
-            null,
-            $decisionServiceMock->getVariationForFeature($feature_flag, 'user_1', [])
-        );
+        $this->assertNull($decisionServiceMock->getVariationForFeature($feature_flag, 'user_1', []));
     }
 
     // should return null
@@ -874,10 +868,7 @@ class DecisionServiceTest extends \PHPUnit_Framework_TestCase
                 "Feature flag 'boolean_feature' is not used in a rollout."
             );
 
-        $this->assertEquals(
-            null,
-            $this->decisionServiceMock->getVariationForFeatureRollout($feature_flag, 'user_1', [])
-        );
+        $this->assertNull($this->decisionServiceMock->getVariationForFeatureRollout($feature_flag, 'user_1', []));
     }
 
     // should return null
@@ -895,10 +886,7 @@ class DecisionServiceTest extends \PHPUnit_Framework_TestCase
                 'Rollout with ID "invalid_rollout_id" is not in the datafile.'
             );
 
-        $this->assertEquals(
-            null,
-            $this->decisionServiceMock->getVariationForFeatureRollout($feature_flag, 'user_1', [])
-        );
+        $this->assertNull($this->decisionServiceMock->getVariationForFeatureRollout($feature_flag, 'user_1', []));
     }
 
     // should return null
@@ -922,10 +910,8 @@ class DecisionServiceTest extends \PHPUnit_Framework_TestCase
             ->method('getRolloutFromId')
             ->will($this->returnValue($experiment_less_rollout));
 
-        $this->assertEquals(
-            null,
-            $this->decisionService->getVariationForFeatureRollout($feature_flag, 'user_1', [])
-        );
+        $this->assertNull(
+            $this->decisionService->getVariationForFeatureRollout($feature_flag, 'user_1', []));
     }
 
     // ============== when the user qualifies for targeting rule (audience match) ======================
@@ -1028,10 +1014,8 @@ class DecisionServiceTest extends \PHPUnit_Framework_TestCase
         $this->loggerMock->expects($this->never())
             ->method('log');
 
-        $this->assertEquals(
-            null,
-            $this->decisionService->getVariationForFeatureRollout($feature_flag, 'user_1', $user_attributes)
-        );
+        $this->assertNull(
+            $this->decisionService->getVariationForFeatureRollout($feature_flag, 'user_1', $user_attributes));
     }
 
     // ============== END of tests - when the user qualifies for targeting rule (audience match) ======================
