@@ -73,6 +73,7 @@ class Bucketer
     private function generateHashCode($bucketingKey)
     {
         return murmurhash3_int($bucketingKey, Bucketer::$HASH_SEED) & Bucketer::$UNSIGNED_MAX_32_BIT_VALUE;
+        
     }
 
     /**
