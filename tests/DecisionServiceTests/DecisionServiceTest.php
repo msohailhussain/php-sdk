@@ -630,10 +630,7 @@ class DecisionServiceTest extends \PHPUnit_Framework_TestCase
             ->method('log')
             ->with(Logger::DEBUG, "The feature flag 'empty_feature' is not used in any experiments.");
 
-        $this->assertSame(
-            null,
-            $this->decisionService->getVariationForFeatureExperiment($feature_flag, 'user1', [])
-        );
+        $this->assertNull($this->decisionService->getVariationForFeatureExperiment($feature_flag, 'user1', []));
     }
 
     // should return nil and log a message when the experiment is not in the datafile
@@ -655,10 +652,7 @@ class DecisionServiceTest extends \PHPUnit_Framework_TestCase
                 "The user 'user1' is not bucketed into any of the experiments using the feature 'boolean_feature'."
             );
 
-        $this->assertSame(
-            null,
-            $this->decisionService->getVariationForFeatureExperiment($feature_flag, 'user1', [])
-        );
+        $this->assertNull($this->decisionService->getVariationForFeatureExperiment($feature_flag, 'user1', []));
     }
 
     // should return nil and log when the user is not bucketed into the feature flag's experiments
@@ -679,10 +673,7 @@ class DecisionServiceTest extends \PHPUnit_Framework_TestCase
                 "The user 'user1' is not bucketed into any of the experiments using the feature 'multi_variate_feature'."
             );
         $feature_flag = $this->config->getFeatureFlagFromKey('multi_variate_feature');
-        $this->assertSame(
-            null,
-            $this->decisionServiceMock->getVariationForFeatureExperiment($feature_flag, 'user1', [])
-        );
+        $this->assertNull($this->decisionServiceMock->getVariationForFeatureExperiment($feature_flag, 'user1', []));
     }
 
     //  should return the variation when the user is bucketed into a variation for the experiment on the feature flag
@@ -910,8 +901,7 @@ class DecisionServiceTest extends \PHPUnit_Framework_TestCase
             ->method('getRolloutFromId')
             ->will($this->returnValue($experiment_less_rollout));
 
-        $this->assertNull(
-            $this->decisionService->getVariationForFeatureRollout($feature_flag, 'user_1', []));
+        $this->assertNull($this->decisionService->getVariationForFeatureRollout($feature_flag, 'user_1', []));
     }
 
     // ============== when the user qualifies for targeting rule (audience match) ======================
