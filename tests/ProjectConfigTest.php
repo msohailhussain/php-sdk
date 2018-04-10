@@ -423,6 +423,26 @@ class ProjectConfigTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(new Experiment(), $this->config->getExperimentFromId('42'));
     }
 
+    public function testExperimentStatus()
+    {
+        $experiment = $this->config->getExperimentFromId('7716830082');
+        $this->assertEquals('Running', $experiment->getStatus());
+        $experiment->setStatus('Not Ruining');
+        $this->assertEquals('Not Ruining', $experiment->getStatus());
+    }
+
+    public function testExperimentGroupPolicy()
+    {
+        $experiment = $this->config->getExperimentFromId('7723330021');
+        $this->assertEquals('random', $experiment->getGroupPolicy());
+    }
+
+    public function testExperimentUserInForcedVariation()
+    {
+        $experiment = $this->config->getExperimentFromKey('test_experiment');
+        $this->assertFalse($experiment->isUserInForcedVariation('test_user'));
+    }
+
     public function testGetFeatureFlagInvalidKey()
     {
         $this->loggerMock->expects($this->once())
