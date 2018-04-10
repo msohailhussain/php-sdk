@@ -54,7 +54,22 @@ class UserProfileUtilsTest extends \PHPUnit_Framework_TestCase
         $profileWithMissingExperimentBucketMap = array(
             'user_id' => null,
         );
+
         $this->assertFalse(UserProfileUtils::isValidUserProfileMap($profileWithMissingExperimentBucketMap));
+
+        $profileWithNullExperimentBucketMap = array(
+            'user_id' => null,
+            'experiment_bucket_map' => null
+        );
+
+        $this->assertFalse(UserProfileUtils::isValidUserProfileMap($profileWithNullExperimentBucketMap));
+
+        $profileWithInvalidExperimentBucketMap = array(
+            'user_id' => null,
+            'experiment_bucket_map' => "string"
+        );
+
+        $this->assertFalse(UserProfileUtils::isValidUserProfileMap($profileWithInvalidExperimentBucketMap));
 
         $profileWithBadExperimentBucketMap = array(
             'user_id' => null,
@@ -64,6 +79,7 @@ class UserProfileUtilsTest extends \PHPUnit_Framework_TestCase
                 )
             )
         );
+
         $this->assertFalse(UserProfileUtils::isValidUserProfileMap($profileWithBadExperimentBucketMap));
 
         $validUserProfileMap = $this->userProfileMap;
