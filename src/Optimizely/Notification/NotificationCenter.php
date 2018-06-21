@@ -122,7 +122,7 @@ class NotificationCenter
      *
      * @param string $notification_type One of the constants defined in NotificationType
      */
-    public function clearNotifications($notification_type)
+    public function clearNotificationListeners($notification_type)
     {
         if (!NotificationType::isNotificationTypeValid($notification_type)) {
             $this->_logger->log(Logger::ERROR, "Invalid notification type.");
@@ -138,7 +138,7 @@ class NotificationCenter
      * Removes all notifications for all notification types
      * from the notification center
      */
-    public function cleanAllNotifications()
+    public function clearAllNotificationListeners()
     {
         foreach (array_values(NotificationType::getAll()) as $type) {
             $this->_notifications[$type] = [];
