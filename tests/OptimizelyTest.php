@@ -1878,7 +1878,7 @@ class OptimizelyTest extends \PHPUnit_Framework_TestCase
             'device_type' => 'iPhone',
             'company' => 'Optimizely',
             'location' => 'San Francisco',
-            RESERVED_ATTRIBUTE_KEY_BUCKETING_ID => $this->testBucketingIdVariation
+            "\$opt_bucketing_id" => $this->testBucketingIdVariation
         ];
 
         $optlyObject = new Optimizely(DATAFILE, new ValidEventDispatcher(), $this->loggerMock);
@@ -1960,11 +1960,11 @@ class OptimizelyTest extends \PHPUnit_Framework_TestCase
         $config->setAccessible(true);
         $config->setValue($optimizelyObj, $projectConfig);
 
-        $feature_flag = $projectConfig->getFeatureFlagFromKey('mutex_group_feature');
+        $featureFlag = $projectConfig->getFeatureFlagFromKey('mutex_group_feature');
         // Add such an experiment to the list of experiment ids, that does not belong to the same mutex group
-        $experimentIds = $feature_flag->getExperimentIds();
+        $experimentIds = $featureFlag->getExperimentIds();
         $experimentIds [] = '122241';
-        $feature_flag->setExperimentIds($experimentIds);
+        $featureFlag->setExperimentIds($experimentIds);
 
         //should return false when feature flag is invalid
         $this->assertFalse($optimizelyObj->isFeatureEnabled('mutex_group_feature', "user_id"));
