@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright 2017, Optimizely Inc and Contributors
+ * Copyright 2017-2018, Optimizely Inc and Contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -118,6 +118,19 @@ class NotificationCenter
     }
 
     /**
+     * Logs deprecation message
+     *
+     * @deprecated Use 'clearNotificationListeners' instead.
+     */
+    public function clearNotifications($notification_type){
+      $this->_logger->log(
+        Logger::WARNING,
+        "'clearNotifications' is deprecated. Call 'clearNotificationListeners' instead."
+      );
+      $this->clearNotificationListeners($notification_type);
+    }
+
+    /**
      * Removes all notification callbacks for the given notification type
      *
      * @param string $notification_type One of the constants defined in NotificationType
@@ -132,6 +145,19 @@ class NotificationCenter
 
         $this->_notifications[$notification_type] = [];
         $this->_logger->log(Logger::INFO, "All callbacks for notification type '{$notification_type}' have been removed.");
+    }
+
+    /**
+     * Logs deprecation message
+     *
+     * @deprecated Use 'clearAllNotificationListeners' instead.
+     */
+    public function cleanAllNotifications(){
+      $this->_logger->log(
+        Logger::WARNING,
+        "'cleanAllNotifications' is deprecated. Call 'clearAllNotificationListeners' instead."
+      );
+      $this->clearAllNotificationListeners();
     }
 
     /**

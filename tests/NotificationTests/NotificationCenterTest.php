@@ -407,6 +407,31 @@ class NotificationCenterTest extends \PHPUnit_Framework_TestCase
         );
     }
 
+    public function testclearNotificationsAndVerifyThatclearNotificationListenersWithArgsIsCalled()
+    {
+      # Mock NotificationCenter
+      $this->notificationCenterMock = $this->getMockBuilder(NotificationCenter::class)
+        ->setConstructorArgs(array($this->loggerMock, $this->errorHandlerMock))
+        ->setMethods(array('clearNotificationListeners'))
+        ->getMock();
+
+      # Log deprecation message
+      $this->loggerMock->expects($this->at(0))
+        ->method('log')
+        ->with(
+          Logger::WARNING,
+          sprintf("'clearNotifications' is deprecated. Call 'clearNotificationListeners' instead.")
+        );
+
+      $this->notificationCenterMock->expects($this->once())
+        ->method('clearNotificationListeners')
+        ->with(
+          NotificationType::ACTIVATE
+        );
+
+      $this->notificationCenterMock->clearNotifications(NotificationType::ACTIVATE);
+    }
+
     public function testclearNotificationListeners()
     {
         // ensure that notifications length is zero for each notification type
@@ -577,6 +602,28 @@ class NotificationCenterTest extends \PHPUnit_Framework_TestCase
         //=== verify that clearAllNotificationListeners doesn't throw an error when called again === //
         ///////////////////////////////////////////////////////////////////////////////////////
         $notificationCenterA->clearAllNotificationListeners();
+    }
+
+    public function testcleanAllNotificationsAndVerifyThatclearAllNotificationListenersIsCalled()
+    {
+      # Mock NotificationCenter
+      $this->notificationCenterMock = $this->getMockBuilder(NotificationCenter::class)
+        ->setConstructorArgs(array($this->loggerMock, $this->errorHandlerMock))
+        ->setMethods(array('clearAllNotificationListeners'))
+        ->getMock();
+
+      # Log deprecation message
+      $this->loggerMock->expects($this->at(0))
+        ->method('log')
+        ->with(
+          Logger::WARNING,
+          sprintf("'cleanAllNotifications' is deprecated. Call 'clearAllNotificationListeners' instead.")
+        );
+
+      $this->notificationCenterMock->expects($this->once())
+        ->method('clearAllNotificationListeners');
+
+      $this->notificationCenterMock->cleanAllNotifications();
     }
 
     public function testsendNotificationsGivenLessThanExpectedNumberOfArguments()
