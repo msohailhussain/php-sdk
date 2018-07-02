@@ -407,7 +407,7 @@ class NotificationCenterTest extends \PHPUnit_Framework_TestCase
         );
     }
 
-    public function testclearNotificationsAndVerifyThatclearNotificationListenersWithArgsIsCalled()
+    public function testClearNotificationsAndVerifyThatClearNotificationListenersWithArgsIsCalled()
     {
       # Mock NotificationCenter
       $this->notificationCenterMock = $this->getMockBuilder(NotificationCenter::class)
@@ -432,7 +432,7 @@ class NotificationCenterTest extends \PHPUnit_Framework_TestCase
       $this->notificationCenterMock->clearNotifications(NotificationType::ACTIVATE);
     }
 
-    public function testclearNotificationListeners()
+    public function testClearNotificationListeners()
     {
         // ensure that notifications length is zero for each notification type
         $this->notificationCenterObj->clearAllNotificationListeners();
@@ -604,7 +604,7 @@ class NotificationCenterTest extends \PHPUnit_Framework_TestCase
         $notificationCenterA->clearAllNotificationListeners();
     }
 
-    public function testcleanAllNotificationsAndVerifyThatclearAllNotificationListenersIsCalled()
+    public function testCleanAllNotificationsAndVerifyThatClearAllNotificationListenersIsCalled()
     {
       # Mock NotificationCenter
       $this->notificationCenterMock = $this->getMockBuilder(NotificationCenter::class)
@@ -626,7 +626,7 @@ class NotificationCenterTest extends \PHPUnit_Framework_TestCase
       $this->notificationCenterMock->cleanAllNotifications();
     }
 
-    public function testsendNotificationsGivenLessThanExpectedNumberOfArguments()
+    public function testSendNotificationsGivenLessThanExpectedNumberOfArguments()
     {
         $clientObj = new FireNotificationTester;
         $this->notificationCenterObj->clearAllNotificationListeners();
