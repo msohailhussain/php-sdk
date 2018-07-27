@@ -21,13 +21,13 @@ use Optimizely\Utils\ConditionDecoder;
 
 class ConditionDecoderTest extends \PHPUnit_Framework_TestCase
 {
-    private $conditionDecoder;
+    protected static $conditionDecoder;
 
-    public function setUp()
+    public static function setUpBeforeClass()
     {
-        $this->conditionDecoder = new ConditionDecoder();
+        self::$conditionDecoder = new ConditionDecoder();
         $conditions = "[\"and\", [\"or\", [\"or\", {\"name\": \"device_type\", \"type\": \"custom_attribute\", \"value\": \"iPhone\"}]], [\"or\", [\"or\", {\"name\": \"location\", \"type\": \"custom_attribute\", \"value\": \"San Francisco\"}]]]";
-        $this->conditionDecoder->deserializeAudienceConditions($conditions);
+        self::$conditionDecoder->deserializeAudienceConditions($conditions);
     }
 
     public function testGetConditionsList()
@@ -52,7 +52,7 @@ class ConditionDecoderTest extends \PHPUnit_Framework_TestCase
                 ]
             ]
             ],
-            $this->conditionDecoder->getConditionsList()
+            self::$conditionDecoder->getConditionsList()
         );
     }
 }

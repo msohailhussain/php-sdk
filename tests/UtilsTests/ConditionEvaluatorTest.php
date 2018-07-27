@@ -22,17 +22,17 @@ use Optimizely\Utils\ConditionEvaluator;
 
 class ConditionEvaluatorTest extends \PHPUnit_Framework_TestCase
 {
-    private $conditionsList;
-    private $conditionEvaluator;
+    protected static $conditionsList;
+    protected static $conditionEvaluator;
 
-    public function setUp()
+    public static function setUpBeforeClass()
     {
         $decoder = new ConditionDecoder();
         $conditions = "[\"and\", [\"or\", [\"or\", {\"name\": \"device_type\", \"type\": \"custom_attribute\", \"value\": \"iPhone\"}]], [\"or\", [\"or\", {\"name\": \"location\", \"type\": \"custom_attribute\", \"value\": \"San Francisco\"}]], [\"or\", [\"not\", [\"or\", {\"name\": \"browser\", \"type\": \"custom_attribute\", \"value\": \"Firefox\"}]]]]";
         $decoder->deserializeAudienceConditions($conditions);
 
-        $this->conditionsList = $decoder->getConditionsList();
-        $this->conditionEvaluator = new ConditionEvaluator();
+        self::$conditionsList = $decoder->getConditionsList();
+        self::$conditionEvaluator = new ConditionEvaluator();
     }
 
     public function testEvaluateConditionsMatch()
@@ -43,7 +43,7 @@ class ConditionEvaluatorTest extends \PHPUnit_Framework_TestCase
             'browser' => 'Chrome'
         ];
 
-        $this->assertTrue($this->conditionEvaluator->evaluate($this->conditionsList, $userAttributes));
+        $this->assertTrue(self::$conditionEvaluator->evaluate(self::$conditionsList, $userAttributes));
     }
 
 
@@ -55,18 +55,18 @@ class ConditionEvaluatorTest extends \PHPUnit_Framework_TestCase
             'browser' => 'Firefox'
         ];
 
-        $this->assertFalse($this->conditionEvaluator->evaluate($this->conditionsList, $userAttributes));
+        $this->assertFalse(self::$conditionEvaluator->evaluate(self::$conditionsList, $userAttributes));
     }
 
     public function testEvaluateEmptyUserAttributes()
     {
         $userAttributes = [];
-        $this->assertFalse($this->conditionEvaluator->evaluate($this->conditionsList, $userAttributes));
+        $this->assertFalse(self::$conditionEvaluator->evaluate(self::$conditionsList, $userAttributes));
     }
 
     public function testEvaluateNullUserAttributes()
     {
         $userAttributes = null;
-        $this->assertFalse($this->conditionEvaluator->evaluate($this->conditionsList, $userAttributes));
+        $this->assertFalse(self::$conditionEvaluator->evaluate(self::$conditionsList, $userAttributes));
     }
 }

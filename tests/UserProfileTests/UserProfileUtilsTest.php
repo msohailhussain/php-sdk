@@ -24,11 +24,11 @@ use Optimizely\UserProfile\UserProfileUtils;
 
 class UserProfileUtilsTest extends \PHPUnit_Framework_TestCase
 {
-    private $userProfileMap;
+    protected static $userProfileMap;
 
-    protected function setUp()
+    public static function setUpBeforeClass()
     {
-        $this->userProfileMap = array(
+        self::$userProfileMap = array(
             'user_id' => 'test_user',
             'experiment_bucket_map' => array(
                 '111111' => array(
@@ -66,7 +66,7 @@ class UserProfileUtilsTest extends \PHPUnit_Framework_TestCase
         );
         $this->assertFalse(UserProfileUtils::isValidUserProfileMap($profileWithBadExperimentBucketMap));
 
-        $validUserProfileMap = $this->userProfileMap;
+        $validUserProfileMap = self::$userProfileMap;
         $this->assertTrue(UserProfileUtils::isValidUserProfileMap($validUserProfileMap));
     }
 
@@ -80,7 +80,7 @@ class UserProfileUtilsTest extends \PHPUnit_Framework_TestCase
             )
         );
 
-        $this->assertEquals($expectedUserProfile, UserProfileUtils::convertMapToUserProfile($this->userProfileMap));
+        $this->assertEquals($expectedUserProfile, UserProfileUtils::convertMapToUserProfile(self::$userProfileMap));
     }
 
     public function testConvertUserProfileToMap()

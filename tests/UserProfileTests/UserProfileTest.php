@@ -22,13 +22,13 @@ use Optimizely\UserProfile\UserProfile;
 
 class UserProfileTest extends \PHPUnit_Framework_TestCase
 {
-    private $userProfile;
+    protected static $userProfile;
 
-    protected function setUp()
+    public static function setUpBeforeClass()
     {
         $experimentBucketMap = array();
         $experimentBucketMap['111111'] = new Decision('211111');
-        $this->userProfile = new UserProfile(
+        self::$userProfile = new UserProfile(
             'user_1',
             $experimentBucketMap
         );
@@ -36,12 +36,12 @@ class UserProfileTest extends \PHPUnit_Framework_TestCase
 
     public function testGetVariationForExperiment()
     {
-        $this->assertEquals('211111', $this->userProfile->getVariationForExperiment('111111'));
+        $this->assertEquals('211111', self::$userProfile->getVariationForExperiment('111111'));
     }
 
     public function testGetDecisionForExperiment()
     {
         $expectedDecision = new Decision('211111');
-        $this->assertEquals($expectedDecision, $this->userProfile->getDecisionForExperiment('111111'));
+        $this->assertEquals($expectedDecision, self::$userProfile->getDecisionForExperiment('111111'));
     }
 }
