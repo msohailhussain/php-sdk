@@ -134,7 +134,7 @@ class OptimizelyTest extends \PHPUnit_Framework_TestCase
         $this->fail('Unexpected behavior. Invalid error handler went through.');
     }
 
-    public function testInitInvalidDatafileVersion()
+    public function testInitUnSupportedDatafileVersion()
     {
         $datafile = json_decode($this->datafile, true);
         $datafile['version'] = '5';
@@ -145,7 +145,7 @@ class OptimizelyTest extends \PHPUnit_Framework_TestCase
             new DefaultErrorHandler(),
             true
         );
-        $this->expectOutputRegex("/This version of the Ruby SDK does not support the given datafile version: 5./");
+        $this->expectOutputRegex("/This version of the PHP SDK does not support the given datafile version: 5./");
     }
 
     public function testValidateDatafileInvalidFileJsonValidationNotSkipped()

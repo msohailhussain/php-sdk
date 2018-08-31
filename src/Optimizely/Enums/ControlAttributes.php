@@ -22,9 +22,4 @@ class ControlAttributes
     const BOT_FILTERING = "\$opt_bot_filtering";
     const BUCKETING_ID = "\$opt_bucketing_id";
     const USER_AGENT = "\$opt_user_agent";
-    const SUPPORTED_VERSIONS = array(
-      'v2'=> '2',
-      'v3'=> '3',
-      'v4'=> '4'
-    );
 }
