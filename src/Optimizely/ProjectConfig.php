@@ -196,12 +196,10 @@ class ProjectConfig
         $this->_botFiltering = isset($config['botFiltering'])? $config['botFiltering'] : null;
         $this->_revision = $config['revision'];
         $this->_forcedVariationMap = [];
-        if(in_array($this->_revision, ControlAttributes::SUPPORTED_VERSIONS)){
-          $this->_errorHandler->handleError(
-            new InvalidDatafileVersionException(
-              "This version of the Ruby SDK does not support the given datafile version: '{$this->_revision}'."
-            )
-          );
+        if(!in_array($this->_version, ControlAttributes::SUPPORTED_VERSIONS)){
+            throw new InvalidDatafileVersionException(
+                "This version of the Ruby SDK does not support the given datafile version: {$this->_version}."
+            );
         }
 
         $groups = $config['groups'] ?: [];
