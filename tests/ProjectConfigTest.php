@@ -67,6 +67,7 @@ class ProjectConfigTest extends \PHPUnit_Framework_TestCase
 
     public function testInit()
     {
+
         // Check account ID
         $accountId = new \ReflectionProperty(ProjectConfig::class, '_accountId');
         $accountId->setAccessible(true);
@@ -327,16 +328,15 @@ class ProjectConfigTest extends \PHPUnit_Framework_TestCase
 
     public function testExceptionThrownForUnsupportedVersion()
     {
-        // Verify that an exception is thrown when given datafile version is unsupported //
-        $datafile = json_decode(DATAFILE, true);
-        $datafile['version'] = '5';
-        $this->setExpectedException(
-            InvalidDatafileVersionException::class,
-            'This version of the PHP SDK does not support the given datafile version: 5.'
-        );
+        /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        // === Verify that an exception is thrown when given datafile version is unsupported === //
+        /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+        $this->expectException(InvalidDatafileVersionException::class);
+        $this->expectExceptionMessage('This version of the PHP SDK does not support the given datafile version: 5.');
 
         $this->config = new ProjectConfig(
-            json_encode($datafile),
+            UNSUPPORTED_DATAFILE,
             $this->loggerMock,
             $this->errorHandlerMock
         );
