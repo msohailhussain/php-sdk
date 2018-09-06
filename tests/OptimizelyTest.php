@@ -173,7 +173,7 @@ class OptimizelyTest extends \PHPUnit_Framework_TestCase
             ->getMock();
         $errorHandlerMock->expects($this->once())
             ->method('handleError')
-            ->with(new InvalidInputException('Provided "datafile" is in an invalid format.'));
+            ->with(new InvalidInputException('Provided datafile is in an invalid format.'));
         $optlyObject = new Optimizely(
             '{"version": "2"}',
             null,
@@ -181,7 +181,7 @@ class OptimizelyTest extends \PHPUnit_Framework_TestCase
             $errorHandlerMock,
             true
         );
-        $this->expectOutputRegex('/Provided "datafile" is in an invalid format./');
+        $this->expectOutputRegex('/Provided datafile is in an invalid format./');
     }
 
     public function testValidateDatafileInvalidFileJsonValidationNotSkipped()

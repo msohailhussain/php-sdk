@@ -132,7 +132,7 @@ class Optimizely
         } catch (Exception $exception) {
             $this->_isValid = false;
             $defaultLogger = new DefaultLogger();
-            $errorMsg = $exception->getCode() == InvalidDatafileVersionException::class ? $exception->getMessage() : 'Provided "datafile" is in an invalid format.';
+            $errorMsg = $exception->getCode() == InvalidDatafileVersionException::class ? $exception->getMessage() : sprintf(Errors::INVALID_FORMAT, 'datafile');
             $errorToHandle = $exception->getCode() == InvalidDatafileVersionException::class ? new InvalidDatafileVersionException($errorMsg) : new InvalidInputException($errorMsg);
             $defaultLogger->log(Logger::ERROR, $errorMsg);
             $this->_logger->log(Logger::ERROR, $errorMsg);

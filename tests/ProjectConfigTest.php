@@ -66,6 +66,11 @@ class ProjectConfigTest extends \PHPUnit_Framework_TestCase
 
     public function testInit()
     {
+        // Check version
+        $version = new \ReflectionProperty(ProjectConfig::class, '_version');
+        $version->setAccessible(true);
+        $this->assertEquals('4', $version->getValue($this->config));
+
         // Check account ID
         $accountId = new \ReflectionProperty(ProjectConfig::class, '_accountId');
         $accountId->setAccessible(true);
