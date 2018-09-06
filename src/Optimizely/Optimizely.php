@@ -129,7 +129,7 @@ class Optimizely
 
         try {
             $this->_config = new ProjectConfig($datafile, $this->_logger, $this->_errorHandler);
-        } catch (Throwable $exception) {
+        } catch (Exception $exception) {
             $this->_isValid = false;
             $defaultLogger = new DefaultLogger();
             $errorMsg = $exception->getCode() == InvalidDatafileVersionException::class ? $exception->getMessage() : 'Provided "datafile" is in an invalid format.';
