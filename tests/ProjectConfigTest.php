@@ -29,9 +29,11 @@ use Optimizely\Entity\Group;
 use Optimizely\Entity\Rollout;
 use Optimizely\Entity\Variation;
 use Optimizely\Entity\VariableUsage;
+use Optimizely\Enums\ControlAttributes;
 use Optimizely\ErrorHandler\NoOpErrorHandler;
 use Optimizely\Exceptions\InvalidAttributeException;
 use Optimizely\Exceptions\InvalidAudienceException;
+use Optimizely\Exceptions\InvalidDatafileVersionException;
 use Optimizely\Exceptions\InvalidEventException;
 use Optimizely\Exceptions\InvalidExperimentException;
 use Optimizely\Exceptions\InvalidFeatureFlagException;
@@ -65,10 +67,6 @@ class ProjectConfigTest extends \PHPUnit_Framework_TestCase
 
     public function testInit()
     {
-        // Check version
-        $version = new \ReflectionProperty(ProjectConfig::class, '_version');
-        $version->setAccessible(true);
-        $this->assertEquals('4', $version->getValue($this->config));
 
         // Check account ID
         $accountId = new \ReflectionProperty(ProjectConfig::class, '_accountId');
@@ -326,6 +324,22 @@ class ProjectConfigTest extends \PHPUnit_Framework_TestCase
         $actualVariation = $this->config->getVariationFromKey("test_experiment_multivariate", "Fred");
 
         $this->assertEquals($expectedVariation, $actualVariation);
+    }
+
+    public function testExceptionThrownForUnsupportedVersion()
+    {
+        /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        // === Verify that an exception is thrown when given datafile version is unsupported === //
+        /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+        $this->expectException(InvalidDatafileVersionException::class);
+        $this->expectExceptionMessage('This version of the PHP SDK does not support the given datafile version: 5.');
+
+        $this->config = new ProjectConfig(
+            UNSUPPORTED_DATAFILE,
+            $this->loggerMock,
+            $this->errorHandlerMock
+        );
     }
 
     public function testVariationParsingWithoutFeatureEnabledProp()
