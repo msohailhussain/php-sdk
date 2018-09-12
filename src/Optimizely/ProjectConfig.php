@@ -207,6 +207,13 @@ class ProjectConfig
         $this->_revision = $config['revision'];
         $this->_forcedVariationMap = [];
 
+        $supportedVersions = array(self::V2, self::V3, self::V4);
+        if(!in_array($this->_version, $supportedVersions)){
+            throw new InvalidDatafileVersionException(
+                "This version of the PHP SDK does not support the given datafile version: {$this->_version}."
+            );
+        }
+
         $groups = $config['groups'] ?: [];
         $experiments = $config['experiments'] ?: [];
         $events = $config['events'] ?: [];
