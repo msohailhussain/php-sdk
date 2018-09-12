@@ -467,6 +467,18 @@ define(
     {
       "id": "7723340006",
       "key": "$opt_xyz"
+    },
+    {
+      "id": "7723340007",
+      "key": "boolean_key"
+    },
+    {
+      "id": "7723340008",
+      "key": "double_key"
+    },
+    {
+      "id": "7723340009",
+      "key": "integer_key"
     }
   ],
   "projectId": "7720880029",

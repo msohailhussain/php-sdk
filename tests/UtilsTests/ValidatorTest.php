@@ -70,8 +70,11 @@ class ValidatorTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue(
             Validator::areAttributesValid(
                 [
-                'location' => 'San Francisco',
-                'browser' => 'Firefox'
+                    'location' => 'San Francisco',
+                    'browser' => 'Firefox',
+                    'boolean'=> true,
+                    'double'=> 5.5,
+                    'integer'=> 5
                 ]
             )
         );
