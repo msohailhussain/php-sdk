@@ -118,6 +118,33 @@ class DecisionServiceTest extends \PHPUnit_Framework_TestCase
         );
     }
 
+    public function testGetVariationBucketsUserWhenBucketingID()
+    {
+        $userAttributesWithBucketingId = [
+            'device_type' => 'iPhone',
+            'company' => 'Optimizely',
+            'location' => 'San Francisco',
+            '$opt_bucketing_id' => 5
+        ];
+        $expectedVariation = new Variation('7722370027', 'control');
+        $this->bucketerMock->expects($this->once())
+            ->method('bucket')
+            ->willReturn($expectedVariation);
+
+        $runningExperiment = $this->config->getExperimentFromKey('test_experiment');
+
+        $bucketer = new \ReflectionProperty(DecisionService::class, '_bucketer');
+        $bucketer->setAccessible(true);
+        $bucketer->setValue($this->decisionService, $this->bucketerMock);
+
+        $variation = $this->decisionService->getVariation($runningExperiment, $this->testUserId, $userAttributesWithBucketingId);
+
+        $this->assertEquals(
+            $expectedVariation,
+            $variation
+        );
+    }
+
     public function testGetVariationReturnsWhitelistedVariation()
     {
         $expectedVariation = new Variation('7722370027', 'control');

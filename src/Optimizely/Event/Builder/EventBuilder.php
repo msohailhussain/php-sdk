@@ -26,6 +26,7 @@ use Optimizely\Event\LogEvent;
 use Optimizely\ProjectConfig;
 use Optimizely\Utils\EventTagUtils;
 use Optimizely\Utils\GeneratorUtils;
+use Optimizely\Utils\Validator;
 
 class EventBuilder
 {
@@ -102,7 +103,7 @@ class EventBuilder
             foreach ($attributes as $attributeKey => $attributeValue) {
                 $feature = [];
                 // Do not discard attribute if value is zero or false
-                if (!is_null($attributeValue)) {
+                if (Validator::isAttributeValid($attributeKey, $attributeValue)) {
                     $attributeEntity = $config->getAttribute($attributeKey);
                     if ($attributeEntity instanceof Attribute) {
                         $feature = [

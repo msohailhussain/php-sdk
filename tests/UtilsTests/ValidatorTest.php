@@ -80,6 +80,32 @@ class ValidatorTest extends \PHPUnit_Framework_TestCase
         );
     }
 
+    public function testisAttributeValidValidAttributeValidKeyValue()
+    {
+        $this->assertTrue(Validator::isAttributeValid('key', 'value'));
+        $this->assertTrue(Validator::isAttributeValid('key', 5));
+        $this->assertTrue(Validator::isAttributeValid('key', 5.5));
+        $this->assertTrue(Validator::isAttributeValid('key', true));
+        $this->assertTrue(Validator::isAttributeValid('key', false));
+        $this->assertTrue(Validator::isAttributeValid('key', 0));
+        $this->assertTrue(Validator::isAttributeValid('key', 0.0));
+        $this->assertTrue(Validator::isAttributeValid('', 0.0));
+    }
+
+    public function testisAttributeValidInValidAttributeKeyValue()
+    {
+        # Invalid Value
+        $this->assertFalse(Validator::isAttributeValid('key', null));
+        $this->assertFalse(Validator::isAttributeValid('key', []));
+        $this->assertFalse(Validator::isAttributeValid('key', ['key'=>'value']));
+        # Invalid Key
+        $this->assertFalse(Validator::isAttributeValid(null, 'value'));
+        $this->assertFalse(Validator::isAttributeValid([], 'value'));
+        $this->assertFalse(Validator::isAttributeValid(5, 'value'));
+        $this->assertFalse(Validator::isAttributeValid(5.5, 'value'));
+        $this->assertFalse(Validator::isAttributeValid(5.5, []));
+    }
+
     public function testAreAttributesValidInvalidAttributes()
     {
         // String as attributes

@@ -18,6 +18,7 @@ namespace Optimizely\Utils;
 
 use JsonSchema;
 use Monolog\Logger;
+use Optimizely\Entity\Attribute;
 use Optimizely\Entity\Experiment;
 use Optimizely\Logger\LoggerInterface;
 use Optimizely\ProjectConfig;
@@ -60,6 +61,17 @@ class Validator
     public static function areAttributesValid($attributes)
     {
         return is_array($attributes) && count(array_filter(array_keys($attributes), 'is_int')) == 0;
+    }
+
+
+    /**
+     * @param $attributes mixed Attributes of the user.
+     *
+     * @return boolean Representing whether attributes are valid or not.
+     */
+    public static function isAttributeValid($attributeKey, $attributeValue)
+    {
+        return is_string($attributeKey) && in_array(gettype($attributeValue), Attribute::getConstants());
     }
 
     /**

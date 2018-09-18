@@ -19,6 +19,16 @@ namespace Optimizely\Entity;
 
 class Attribute
 {
+
+    /**
+     *
+     */
+
+    const BOOLEAN = 'boolean';
+    const DOUBLE = 'double';
+    const INTEGER = 'integer';
+    const STRING = 'string';
+
     /**
      * @var string Attribute ID.
      */
@@ -34,6 +44,14 @@ class Attribute
     {
         $this->_id = $id;
         $this->_key = $key;
+    }
+
+    /**
+     * @return boolean Representing whether attributes are valid or not.
+     */
+    public static function getConstants()
+    {
+        return array(self::BOOLEAN, self::DOUBLE, self::INTEGER, self::STRING);
     }
 
     /**
