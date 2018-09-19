@@ -118,31 +118,53 @@ class DecisionServiceTest extends \PHPUnit_Framework_TestCase
         );
     }
 
-    public function testGetVariationBucketsUserWhenBucketingID()
+    public function testGetBucketingIdBucketingIdAttributeNotString()
     {
+        $decisionService = new DecisionTester($this->loggerMock, $this->config, $this->userProvideServiceMock);
         $userAttributesWithBucketingId = [
             'device_type' => 'iPhone',
             'company' => 'Optimizely',
             'location' => 'San Francisco',
             '$opt_bucketing_id' => 5
         ];
-        $expectedVariation = new Variation('7722370027', 'control');
-        $this->bucketerMock->expects($this->once())
-            ->method('bucket')
-            ->willReturn($expectedVariation);
 
-        $runningExperiment = $this->config->getExperimentFromKey('test_experiment');
+        $this->loggerMock->expects($this->never())
+            ->method('log');
 
-        $bucketer = new \ReflectionProperty(DecisionService::class, '_bucketer');
-        $bucketer->setAccessible(true);
-        $bucketer->setValue($this->decisionService, $this->bucketerMock);
+        $this->assertSame($decisionService->getBucketingId($this->testUserId, $userAttributesWithBucketingId), $this->testUserId);
+    }
 
-        $variation = $this->decisionService->getVariation($runningExperiment, $this->testUserId, $userAttributesWithBucketingId);
+    public function testGetBucketingIdBucketingIdAttributEmptyString()
+    {
+        $decisionService = new DecisionTester($this->loggerMock, $this->config, $this->userProvideServiceMock);
+        $userAttributesWithBucketingId = [
+            'device_type' => 'iPhone',
+            'company' => 'Optimizely',
+            'location' => 'San Francisco',
+            '$opt_bucketing_id' => ''
+        ];
 
-        $this->assertEquals(
-            $expectedVariation,
-            $variation
-        );
+        $this->loggerMock->expects($this->never())
+            ->method('log');
+
+        $this->assertSame($decisionService->getBucketingId($this->testUserId, $userAttributesWithBucketingId), $this->testUserId);
+    }
+
+    public function testGetBucketingIdBucketingIdAttributeString()
+    {
+        $decisionService = new DecisionTester($this->loggerMock, $this->config, $this->userProvideServiceMock);
+        $userAttributesWithBucketingId = [
+            'device_type' => 'iPhone',
+            'company' => 'Optimizely',
+            'location' => 'San Francisco',
+            '$opt_bucketing_id' => $this->testBucketingIdVariation
+        ];
+
+        $this->loggerMock->expects($this->at(0))
+            ->method('log')
+            ->with(Logger::DEBUG, sprintf('Setting the bucketing ID to "%s".', $this->testBucketingIdVariation));
+
+        $this->assertSame($decisionService->getBucketingId($this->testUserId, $userAttributesWithBucketingId), $this->testBucketingIdVariation);
     }
 
     public function testGetVariationReturnsWhitelistedVariation()

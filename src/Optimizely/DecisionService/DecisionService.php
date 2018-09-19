@@ -89,7 +89,7 @@ class DecisionService
      *
      * @return string  the bucketing ID assigned to user
      */
-    private function getBucketingId($userId, $userAttributes)
+    protected function getBucketingId($userId, $userAttributes)
     {
         // By default, the bucketing ID should be the user ID
         $bucketingId = $userId;
