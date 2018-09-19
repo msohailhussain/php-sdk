@@ -19,7 +19,6 @@ namespace Optimizely\Entity;
 
 class Attribute
 {
-
     /**
      * @var string Attribute ID.
      */
