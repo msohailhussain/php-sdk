@@ -103,6 +103,7 @@ class EventBuilder
             foreach ($attributes as $attributeKey => $attributeValue) {
                 $feature = [];
                 // Do not discard attribute if value is zero or false
+                // Omit attributes that are not supported by the log endpoint.
                 if (Validator::isAttributeValid($attributeKey, $attributeValue)) {
                     $attributeEntity = $config->getAttribute($attributeKey);
                     if ($attributeEntity instanceof Attribute) {

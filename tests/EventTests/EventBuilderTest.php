@@ -143,11 +143,27 @@ class EventBuilderTest extends \PHPUnit_Framework_TestCase
     public function testCreateImpressionEventWithAttributesNoValue()
     {
         array_unshift($this->expectedEventParams['visitors'][0]['attributes'],
-          [ 'entity_id' => '7723280020',
-            'key' => 'device_type',
-            'type' => 'custom',
-            'value' => 'iPhone',
-          ]);
+            [
+                'entity_id' => '7723280020',
+                'key' => 'device_type',
+                'type' => 'custom',
+                'value' => 'iPhone',
+            ],[
+                'entity_id' => '7723340007',
+                'key' => 'boolean_key',
+                'type' => 'custom',
+                'value' => true
+            ],[
+                'entity_id' => '7723340008',
+                'key' => 'double_key',
+                'type' => 'custom',
+                'value' => 5.5
+            ],[
+                'entity_id' => '7723340009',
+                'key' => 'integer_key',
+                'type' => 'custom',
+                'value' => 5
+            ]);
 
         $this->expectedLogEvent = new LogEvent(
             $this->expectedEventUrl,
@@ -158,7 +174,9 @@ class EventBuilderTest extends \PHPUnit_Framework_TestCase
 
         $userAttributes = [
             'device_type' => 'iPhone',
-            'company' => 'Optimizely'
+            'boolean_key' => true,
+            'double_key' => 5.5,
+            'integer_key' => 5
         ];
         $logEvent = $this->eventBuilder->createImpressionEvent(
             $this->config,
@@ -309,59 +327,7 @@ class EventBuilderTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($result[0], $result[1]);
     }
 
-    public function testCreateImpressionEventWithAttributesOfValidType()
-    {
-        array_unshift($this->expectedEventParams['visitors'][0]['attributes'],
-            [
-                'entity_id' => '7723280020',
-                'key' => 'device_type',
-                'type' => 'custom',
-                'value' => 'iPhone',
-            ],[
-                'entity_id' => '7723340007',
-                'key' => 'boolean_key',
-                'type' => 'custom',
-                'value' => true
-            ],[
-                'entity_id' => '7723340008',
-                'key' => 'double_key',
-                'type' => 'custom',
-                'value' => 5.5
-            ],[
-                'entity_id' => '7723340009',
-                'key' => 'integer_key',
-                'type' => 'custom',
-                'value' => 5
-            ]
-        );
-
-        $this->expectedLogEvent = new LogEvent(
-            $this->expectedEventUrl,
-            $this->expectedEventParams,
-            $this->expectedEventHttpVerb,
-            $this->expectedEventHeaders
-        );
-
-        $userAttributes = [
-            'device_type' => 'iPhone',
-            'boolean_key' => true,
-            'double_key' => 5.5,
-            'integer_key' => 5
-        ];
-        $logEvent = $this->eventBuilder->createImpressionEvent(
-            $this->config,
-            'test_experiment',
-            'variation',
-            $this->testUserId,
-            $userAttributes
-        );
-
-        $logEvent = $this->fakeParamsToReconcile($logEvent);
-        $result = $this->areLogEventsEqual($this->expectedLogEvent, $logEvent);
-        $this->assertTrue($result[0], $result[1]);
-    }
-
-    public function testCreateImpressionEventWithAttributesOfInValidType()
+    public function testCreateImpressionEventWithInvalidAttributeTypes()
     {
         array_unshift($this->expectedEventParams['visitors'][0]['attributes'],
             [

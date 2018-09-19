@@ -118,7 +118,7 @@ class DecisionServiceTest extends \PHPUnit_Framework_TestCase
         );
     }
 
-    public function testGetBucketingIdBucketingIdAttributeNotString()
+    public function testGetBucketingIdWhenBucketingIdIsNotString()
     {
         $decisionService = new DecisionTester($this->loggerMock, $this->config, $this->userProvideServiceMock);
         $userAttributesWithBucketingId = [
@@ -128,43 +128,44 @@ class DecisionServiceTest extends \PHPUnit_Framework_TestCase
             '$opt_bucketing_id' => 5
         ];
 
-        $this->loggerMock->expects($this->never())
-            ->method('log');
+        $this->loggerMock->expects($this->at(0))
+            ->method('log')
+            ->with(Logger::WARNING, 'Bucketing ID attribute is not a string. Defaulted to user_id.');
 
-        $this->assertSame($decisionService->getBucketingId($this->testUserId, $userAttributesWithBucketingId), $this->testUserId);
+        $this->assertSame($this->testUserId, $decisionService->getBucketingId($this->testUserId, $userAttributesWithBucketingId));
     }
 
-    public function testGetBucketingIdBucketingIdAttributEmptyString()
+    public function testGetBucketingIdWhenBucketingIdIsNull()
     {
         $decisionService = new DecisionTester($this->loggerMock, $this->config, $this->userProvideServiceMock);
         $userAttributesWithBucketingId = [
             'device_type' => 'iPhone',
             'company' => 'Optimizely',
             'location' => 'San Francisco',
-            '$opt_bucketing_id' => ''
-        ];
-
-        $this->loggerMock->expects($this->never())
-            ->method('log');
-
-        $this->assertSame($decisionService->getBucketingId($this->testUserId, $userAttributesWithBucketingId), $this->testUserId);
-    }
-
-    public function testGetBucketingIdBucketingIdAttributeString()
-    {
-        $decisionService = new DecisionTester($this->loggerMock, $this->config, $this->userProvideServiceMock);
-        $userAttributesWithBucketingId = [
-            'device_type' => 'iPhone',
-            'company' => 'Optimizely',
-            'location' => 'San Francisco',
-            '$opt_bucketing_id' => $this->testBucketingIdVariation
+            '$opt_bucketing_id' => Null
         ];
 
         $this->loggerMock->expects($this->at(0))
             ->method('log')
-            ->with(Logger::DEBUG, sprintf('Setting the bucketing ID to "%s".', $this->testBucketingIdVariation));
+            ->with(Logger::WARNING, 'Bucketing ID attribute is not a string. Defaulted to user_id.');
 
-        $this->assertSame($decisionService->getBucketingId($this->testUserId, $userAttributesWithBucketingId), $this->testBucketingIdVariation);
+        $this->assertSame($this->testUserId, $decisionService->getBucketingId($this->testUserId, $userAttributesWithBucketingId));
+    }
+
+    public function testGetBucketingIdWhenBucketingIdIsString()
+    {
+        $decisionService = new DecisionTester($this->loggerMock, $this->config, $this->userProvideServiceMock);
+        $userAttributesWithBucketingId = [
+            'device_type' => 'iPhone',
+            'company' => 'Optimizely',
+            'location' => 'San Francisco',
+            '$opt_bucketing_id' => 'i_am_bucketing_id'
+        ];
+
+        $this->loggerMock->expects($this->never())
+            ->method('log');
+
+        $this->assertSame('i_am_bucketing_id', $decisionService->getBucketingId($this->testUserId, $userAttributesWithBucketingId));
     }
 
     public function testGetVariationReturnsWhitelistedVariation()
@@ -175,6 +176,9 @@ class DecisionServiceTest extends \PHPUnit_Framework_TestCase
         $callIndex = 0;
         $this->bucketerMock->expects($this->never())
             ->method('bucket');
+        $this->loggerMock->expects($this->at($callIndex++))
+            ->method('log')
+            ->with(Logger::WARNING, 'Bucketing ID attribute is not a string. Defaulted to user_id.');
         $this->loggerMock->expects($this->at($callIndex++))
             ->method('log')
             ->with(Logger::DEBUG, 'User "user1" is not in the forced variation map.');
@@ -212,6 +216,9 @@ class DecisionServiceTest extends \PHPUnit_Framework_TestCase
         $callIndex = 0;
         $this->bucketerMock->expects($this->never())
             ->method('bucket');
+        $this->loggerMock->expects($this->at($callIndex++))
+            ->method('log')
+            ->with(Logger::WARNING, 'Bucketing ID attribute is not a string. Defaulted to user_id.');
         $this->loggerMock->expects($this->at($callIndex++))
             ->method('log')
             ->with(Logger::DEBUG, 'User "user1" is not in the forced variation map.');
@@ -336,6 +343,9 @@ class DecisionServiceTest extends \PHPUnit_Framework_TestCase
             ->method('bucket');
         $this->loggerMock->expects($this->at($callIndex++))
             ->method('log')
+            ->with(Logger::WARNING, 'Bucketing ID attribute is not a string. Defaulted to user_id.');
+        $this->loggerMock->expects($this->at($callIndex++))
+            ->method('log')
             ->with(Logger::DEBUG, 'User "not_whitelisted_user" is not in the forced variation map.');
         $this->loggerMock->expects($this->at($callIndex++))
             ->method('log')
@@ -372,6 +382,9 @@ class DecisionServiceTest extends \PHPUnit_Framework_TestCase
         $this->bucketerMock->expects($this->once())
             ->method('bucket')
             ->willReturn($expectedVariation);
+        $this->loggerMock->expects($this->at($callIndex++))
+            ->method('log')
+            ->with(Logger::WARNING, 'Bucketing ID attribute is not a string. Defaulted to user_id.');
         $this->loggerMock->expects($this->at($callIndex++))
             ->method('log')
             ->with(Logger::DEBUG, sprintf('User "%s" is not in the forced variation map.', $userId));
@@ -422,6 +435,9 @@ class DecisionServiceTest extends \PHPUnit_Framework_TestCase
         $this->bucketerMock->expects($this->once())
             ->method('bucket')
             ->willReturn($expectedVariation);
+        $this->loggerMock->expects($this->at($callIndex++))
+            ->method('log')
+            ->with(Logger::WARNING, 'Bucketing ID attribute is not a string. Defaulted to user_id.');
         $this->loggerMock->expects($this->at($callIndex++))
             ->method('log')
             ->with(Logger::DEBUG, sprintf('User "%s" is not in the forced variation map.', $userId));
@@ -478,6 +494,9 @@ class DecisionServiceTest extends \PHPUnit_Framework_TestCase
             ->willReturn($expectedVariation);
         $this->loggerMock->expects($this->at($callIndex++))
             ->method('log')
+            ->with(Logger::WARNING, 'Bucketing ID attribute is not a string. Defaulted to user_id.');
+        $this->loggerMock->expects($this->at($callIndex++))
+            ->method('log')
             ->with(Logger::DEBUG, sprintf('User "%s" is not in the forced variation map.', $userId));
         $this->loggerMock->expects($this->at($callIndex++))
             ->method('log')
@@ -530,6 +549,9 @@ class DecisionServiceTest extends \PHPUnit_Framework_TestCase
         $this->bucketerMock->expects($this->once())
             ->method('bucket')
             ->willReturn($expectedVariation);
+        $this->loggerMock->expects($this->at($callIndex++))
+            ->method('log')
+            ->with(Logger::WARNING, 'Bucketing ID attribute is not a string. Defaulted to user_id.');
         $this->loggerMock->expects($this->at($callIndex++))
             ->method('log')
             ->with(Logger::DEBUG, sprintf('User "%s" is not in the forced variation map.', $userId));
@@ -901,7 +923,11 @@ class DecisionServiceTest extends \PHPUnit_Framework_TestCase
         // No rollout id is associated to boolean_feature
         $featureFlag = $this->config->getFeatureFlagFromKey('boolean_feature');
 
-        $this->loggerMock->expects($this->at(0))
+        $callIndex = 0;
+        $this->loggerMock->expects($this->at($callIndex++))
+            ->method('log')
+            ->with(Logger::WARNING, 'Bucketing ID attribute is not a string. Defaulted to user_id.');
+        $this->loggerMock->expects($this->at($callIndex))
             ->method('log')
             ->with(
                 Logger::DEBUG,
@@ -919,7 +945,11 @@ class DecisionServiceTest extends \PHPUnit_Framework_TestCase
         // Set any string which is not a rollout id in the data file
         $featureFlag->setRolloutId('invalid_rollout_id');
 
-        $this->loggerMock->expects($this->at(0))
+        $callIndex = 0;
+        $this->loggerMock->expects($this->at($callIndex++))
+            ->method('log')
+            ->with(Logger::WARNING, 'Bucketing ID attribute is not a string. Defaulted to user_id.');
+        $this->loggerMock->expects($this->at($callIndex++))
             ->method('log')
             ->with(
                 Logger::ERROR,
@@ -1050,8 +1080,9 @@ class DecisionServiceTest extends \PHPUnit_Framework_TestCase
             ->method('bucket')
             ->willReturn(null);
 
-        $this->loggerMock->expects($this->never())
-            ->method('log');
+        $this->loggerMock->expects($this->at(0))
+            ->method('log')
+            ->with(Logger::WARNING, 'Bucketing ID attribute is not a string. Defaulted to user_id.');
 
         $this->assertNull(
             $this->decisionService->getVariationForFeatureRollout($featureFlag, 'user_1', $user_attributes));
@@ -1090,15 +1121,19 @@ class DecisionServiceTest extends \PHPUnit_Framework_TestCase
         $this->bucketerMock->expects($this->exactly(1))
             ->method('bucket')
             ->willReturn($expected_variation);
+        $callIndex = 0;
+        $this->loggerMock->expects($this->at($callIndex++))
+            ->method('log')
+            ->with(Logger::WARNING, 'Bucketing ID attribute is not a string. Defaulted to user_id.');
 
-        $this->loggerMock->expects($this->at(0))
+        $this->loggerMock->expects($this->at($callIndex++))
             ->method('log')
             ->with(
                 Logger::DEBUG,
                 "User 'user_1' did not meet the audience conditions to be in rollout rule '{$experiment0->getKey()}'."
             );
 
-        $this->loggerMock->expects($this->at(1))
+        $this->loggerMock->expects($this->at($callIndex++))
             ->method('log')
             ->with(
                 Logger::DEBUG,
@@ -1135,22 +1170,26 @@ class DecisionServiceTest extends \PHPUnit_Framework_TestCase
         // // Expect bucket never called for the everyone else/last rule.
         $this->bucketerMock->expects($this->never())
             ->method('bucket');
+        $callIndex = 0;
+        $this->loggerMock->expects($this->at($callIndex++))
+            ->method('log')
+            ->with(Logger::WARNING, 'Bucketing ID attribute is not a string. Defaulted to user_id.');
 
-        $this->loggerMock->expects($this->at(0))
+        $this->loggerMock->expects($this->at($callIndex++))
             ->method('log')
             ->with(
                 Logger::DEBUG,
                 "User 'user_1' did not meet the audience conditions to be in rollout rule '{$experiment0->getKey()}'."
             );
 
-        $this->loggerMock->expects($this->at(1))
+        $this->loggerMock->expects($this->at($callIndex++))
             ->method('log')
             ->with(
                 Logger::DEBUG,
                 "User 'user_1' did not meet the audience conditions to be in rollout rule '{$experiment1->getKey()}'."
             );
         
-        $this->loggerMock->expects($this->at(2))
+        $this->loggerMock->expects($this->at($callIndex++))
             ->method('log')
             ->with(
                 Logger::DEBUG,

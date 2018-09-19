@@ -63,15 +63,17 @@ class Validator
         return is_array($attributes) && count(array_filter(array_keys($attributes), 'is_int')) == 0;
     }
 
-
     /**
-     * @param $attributes mixed Attributes of the user.
+     * @param $attributeKey The key to validate.
      *
-     * @return boolean Representing whether attributes are valid or not.
+     * @param $attributeValue The value to validate.
+     *
+     * @return boolean Representing whether attribute's key and value are valid or not.
      */
     public static function isAttributeValid($attributeKey, $attributeValue)
     {
-        return is_string($attributeKey) && in_array(gettype($attributeValue), Attribute::getConstants());
+        $validTypes = array('boolean', 'double', 'integer', 'string');
+        return is_string($attributeKey) && in_array(gettype($attributeValue), $validTypes);
     }
 
     /**

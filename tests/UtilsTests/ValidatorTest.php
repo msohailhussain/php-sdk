@@ -103,7 +103,6 @@ class ValidatorTest extends \PHPUnit_Framework_TestCase
         $this->assertFalse(Validator::isAttributeValid([], 'value'));
         $this->assertFalse(Validator::isAttributeValid(5, 'value'));
         $this->assertFalse(Validator::isAttributeValid(5.5, 'value'));
-        $this->assertFalse(Validator::isAttributeValid(5.5, []));
     }
 
     public function testAreAttributesValidInvalidAttributes()
