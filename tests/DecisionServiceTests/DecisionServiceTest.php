@@ -168,6 +168,22 @@ class DecisionServiceTest extends \PHPUnit_Framework_TestCase
         $this->assertSame('i_am_bucketing_id', $decisionService->getBucketingId($this->testUserId, $userAttributesWithBucketingId));
     }
 
+    public function testGetBucketingIdWhenBucketingIdIsEmptyString()
+    {
+        $decisionService = new DecisionTester($this->loggerMock, $this->config, $this->userProvideServiceMock);
+        $userAttributesWithBucketingId = [
+            'device_type' => 'iPhone',
+            'company' => 'Optimizely',
+            'location' => 'San Francisco',
+            '$opt_bucketing_id' => ''
+        ];
+
+        $this->loggerMock->expects($this->never())
+            ->method('log');
+
+        $this->assertSame('', $decisionService->getBucketingId($this->testUserId, $userAttributesWithBucketingId));
+    }
+
     public function testGetVariationReturnsWhitelistedVariation()
     {
         $expectedVariation = new Variation('7722370027', 'control');
