@@ -1106,6 +1106,7 @@ class DecisionServiceTest extends \PHPUnit_Framework_TestCase
         $this->bucketerMock->expects($this->exactly(1))
             ->method('bucket')
             ->willReturn($expected_variation);
+
         $this->loggerMock->expects($this->at(0))
             ->method('log')
             ->with(
