@@ -550,13 +550,12 @@ class OptimizelyTest extends \PHPUnit_Framework_TestCase
         $optimizelyMock->expects($this->never())
             ->method('sendImpressionEvent');
 
-        $callIndex=0;
         $this->loggerMock->expects($this->exactly(2))
             ->method('log');
-        $this->loggerMock->expects($this->at($callIndex++))
+        $this->loggerMock->expects($this->at(0))
             ->method('log')
             ->with(Logger::INFO, 'Experiment "paused_experiment" is not running.');
-        $this->loggerMock->expects($this->at($callIndex++))
+        $this->loggerMock->expects($this->at(1))
             ->method('log')
             ->with(
                 Logger::INFO,
@@ -692,10 +691,7 @@ class OptimizelyTest extends \PHPUnit_Framework_TestCase
 
     public function testGetVariationExperimentNotRunning()
     {
-        $callIndex = 0;
-        $this->loggerMock->expects($this->exactly(1))
-            ->method('log');
-        $this->loggerMock->expects($this->at($callIndex++))
+        $this->loggerMock->expects($this->once())
             ->method('log')
             ->with(Logger::INFO, 'Experiment "paused_experiment" is not running.');
 
@@ -1006,7 +1002,6 @@ class OptimizelyTest extends \PHPUnit_Framework_TestCase
                 Logger::INFO,
                 'Not tracking user "test_user" for experiment "test_experiment".'
             );
-        
         $this->loggerMock->expects($this->at($callIndex++))
             ->method('log')
             ->with(Logger::DEBUG, 'User "test_user" is not in the forced variation map.');
@@ -1028,7 +1023,7 @@ class OptimizelyTest extends \PHPUnit_Framework_TestCase
                 Logger::INFO,
                 'Not tracking user "test_user" for experiment "group_experiment_1".'
             );
-        
+
         $this->loggerMock->expects($this->at($callIndex++))
             ->method('log')
             ->with(Logger::DEBUG, 'User "test_user" is not in the forced variation map.');
@@ -1056,7 +1051,6 @@ class OptimizelyTest extends \PHPUnit_Framework_TestCase
                 Logger::INFO,
                 'User "test_user" is in variation group_exp_2_var_2 of experiment group_experiment_2.'
             );
-        
         $this->loggerMock->expects($this->at($callIndex++))
             ->method('log')
             ->with(
@@ -1148,7 +1142,6 @@ class OptimizelyTest extends \PHPUnit_Framework_TestCase
                 Logger::INFO,
                 'Not tracking user "test_user" for experiment "test_experiment".'
             );
-        
         $this->loggerMock->expects($this->at($callIndex++))
             ->method('log')
             ->with(Logger::DEBUG, 'User "test_user" is not in the forced variation map.');
@@ -1170,7 +1163,6 @@ class OptimizelyTest extends \PHPUnit_Framework_TestCase
                 Logger::INFO,
                 'Not tracking user "test_user" for experiment "group_experiment_1".'
             );
-        
         $this->loggerMock->expects($this->at($callIndex++))
             ->method('log')
             ->with(Logger::DEBUG, 'User "test_user" is not in the forced variation map.');
@@ -1198,7 +1190,6 @@ class OptimizelyTest extends \PHPUnit_Framework_TestCase
                 Logger::INFO,
                 'User "test_user" is in variation group_exp_2_var_2 of experiment group_experiment_2.'
             );
-        
         $this->loggerMock->expects($this->at($callIndex++))
             ->method('log')
             ->with(
@@ -1292,7 +1283,6 @@ class OptimizelyTest extends \PHPUnit_Framework_TestCase
                 Logger::INFO,
                 'User "test_user" is in variation control of experiment test_experiment.'
             );
-        
         $this->loggerMock->expects($this->at($callIndex++))
             ->method('log')
             ->with(Logger::DEBUG, 'User "test_user" is not in the forced variation map.');
@@ -1314,7 +1304,6 @@ class OptimizelyTest extends \PHPUnit_Framework_TestCase
                 Logger::INFO,
                 'Not tracking user "test_user" for experiment "group_experiment_1".'
             );
-        
         $this->loggerMock->expects($this->at($callIndex++))
             ->method('log')
             ->with(Logger::DEBUG, 'User "test_user" is not in the forced variation map.');
@@ -1342,7 +1331,6 @@ class OptimizelyTest extends \PHPUnit_Framework_TestCase
                 Logger::INFO,
                 'User "test_user" is in variation group_exp_2_var_2 of experiment group_experiment_2.'
             );
-        
         $this->loggerMock->expects($this->at($callIndex++))
             ->method('log')
             ->with(
@@ -1554,7 +1542,6 @@ class OptimizelyTest extends \PHPUnit_Framework_TestCase
         $this->loggerMock->expects($this->at($callIndex++))
             ->method('log')
             ->with(Logger::INFO, 'Not tracking user "test_user" for experiment "test_experiment".');
-        
         $this->loggerMock->expects($this->at($callIndex++))
             ->method('log')
             ->with(Logger::DEBUG, 'User "test_user" is not in the forced variation map.');
@@ -1567,7 +1554,6 @@ class OptimizelyTest extends \PHPUnit_Framework_TestCase
         $this->loggerMock->expects($this->at($callIndex++))
             ->method('log')
             ->with(Logger::INFO, 'Not tracking user "test_user" for experiment "group_experiment_1".');
-        
         $this->loggerMock->expects($this->at($callIndex++))
             ->method('log')
             ->with(Logger::DEBUG, 'User "test_user" is not in the forced variation map.');
@@ -1583,7 +1569,6 @@ class OptimizelyTest extends \PHPUnit_Framework_TestCase
         $this->loggerMock->expects($this->at($callIndex++))
             ->method('log')
             ->with(Logger::INFO, 'User "test_user" is in variation group_exp_2_var_2 of experiment group_experiment_2.');
-        
         $this->loggerMock->expects($this->at($callIndex++))
             ->method('log')
             ->with(Logger::INFO, 'Experiment "paused_experiment" is not running.');
@@ -1651,7 +1636,6 @@ class OptimizelyTest extends \PHPUnit_Framework_TestCase
         $callIndex = 0;
         $this->loggerMock->expects($this->exactly(16))
             ->method('log');
-        
         $this->loggerMock->expects($this->at($callIndex++))
             ->method('log')
             ->with(Logger::DEBUG, 'User "test_user" is not in the forced variation map.');
@@ -1664,7 +1648,6 @@ class OptimizelyTest extends \PHPUnit_Framework_TestCase
                 Logger::INFO,
                 'User "test_user" is in variation control of experiment test_experiment.'
             );
-        
         $this->loggerMock->expects($this->at($callIndex++))
             ->method('log')
             ->with(Logger::DEBUG, 'User "test_user" is not in the forced variation map.');
@@ -1686,7 +1669,6 @@ class OptimizelyTest extends \PHPUnit_Framework_TestCase
                 Logger::INFO,
                 'Not tracking user "test_user" for experiment "group_experiment_1".'
             );
-        
         $this->loggerMock->expects($this->at($callIndex++))
             ->method('log')
             ->with(Logger::DEBUG, 'User "test_user" is not in the forced variation map.');
@@ -1714,7 +1696,6 @@ class OptimizelyTest extends \PHPUnit_Framework_TestCase
                 Logger::INFO,
                 'User "test_user" is in variation group_exp_2_var_2 of experiment group_experiment_2.'
             );
-        
         $this->loggerMock->expects($this->at($callIndex++))
             ->method('log')
             ->with(

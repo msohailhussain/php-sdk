@@ -917,8 +917,7 @@ class DecisionServiceTest extends \PHPUnit_Framework_TestCase
         // No rollout id is associated to boolean_feature
         $featureFlag = $this->config->getFeatureFlagFromKey('boolean_feature');
 
-        $callIndex = 0;
-        $this->loggerMock->expects($this->at($callIndex))
+        $this->loggerMock->expects($this->at(0))
             ->method('log')
             ->with(
                 Logger::DEBUG,
@@ -936,8 +935,7 @@ class DecisionServiceTest extends \PHPUnit_Framework_TestCase
         // Set any string which is not a rollout id in the data file
         $featureFlag->setRolloutId('invalid_rollout_id');
 
-        $callIndex = 0;
-        $this->loggerMock->expects($this->at($callIndex++))
+        $this->loggerMock->expects($this->at(0))
             ->method('log')
             ->with(
                 Logger::ERROR,
@@ -1068,6 +1066,9 @@ class DecisionServiceTest extends \PHPUnit_Framework_TestCase
             ->method('bucket')
             ->willReturn(null);
 
+        $this->loggerMock->expects($this->never())
+            ->method('log');
+
         $this->assertNull(
             $this->decisionService->getVariationForFeatureRollout($featureFlag, 'user_1', $user_attributes));
     }
@@ -1105,15 +1106,14 @@ class DecisionServiceTest extends \PHPUnit_Framework_TestCase
         $this->bucketerMock->expects($this->exactly(1))
             ->method('bucket')
             ->willReturn($expected_variation);
-        $callIndex = 0;
-        $this->loggerMock->expects($this->at($callIndex++))
+        $this->loggerMock->expects($this->at(0))
             ->method('log')
             ->with(
                 Logger::DEBUG,
                 "User 'user_1' did not meet the audience conditions to be in rollout rule '{$experiment0->getKey()}'."
             );
 
-        $this->loggerMock->expects($this->at($callIndex++))
+        $this->loggerMock->expects($this->at(1))
             ->method('log')
             ->with(
                 Logger::DEBUG,
@@ -1150,22 +1150,21 @@ class DecisionServiceTest extends \PHPUnit_Framework_TestCase
         // // Expect bucket never called for the everyone else/last rule.
         $this->bucketerMock->expects($this->never())
             ->method('bucket');
-        $callIndex = 0;
-        $this->loggerMock->expects($this->at($callIndex++))
+        $this->loggerMock->expects($this->at(0))
             ->method('log')
             ->with(
                 Logger::DEBUG,
                 "User 'user_1' did not meet the audience conditions to be in rollout rule '{$experiment0->getKey()}'."
             );
 
-        $this->loggerMock->expects($this->at($callIndex++))
+        $this->loggerMock->expects($this->at(1))
             ->method('log')
             ->with(
                 Logger::DEBUG,
                 "User 'user_1' did not meet the audience conditions to be in rollout rule '{$experiment1->getKey()}'."
             );
-        
-        $this->loggerMock->expects($this->at($callIndex++))
+
+        $this->loggerMock->expects($this->at(2))
             ->method('log')
             ->with(
                 Logger::DEBUG,
