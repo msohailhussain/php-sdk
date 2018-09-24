@@ -93,10 +93,12 @@ class DecisionService
     {
         $bucketingIdKey = ControlAttributes::BUCKETING_ID;
 
-        if (isset($userAttributes[$bucketingIdKey]) && is_string($userAttributes[$bucketingIdKey])){
-            return $userAttributes[$bucketingIdKey];
+        if (isset($userAttributes[$bucketingIdKey])){
+            if (is_string($userAttributes[$bucketingIdKey])){
+                return $userAttributes[$bucketingIdKey];
+            }
+            $this->_logger->log(Logger::WARNING, 'Bucketing ID attribute is not a string. Defaulted to user ID.');
         }
-        $this->_logger->log(Logger::WARNING, 'Bucketing ID attribute is not a string. Defaulted to user ID.');
         return $userId;
     }
 
