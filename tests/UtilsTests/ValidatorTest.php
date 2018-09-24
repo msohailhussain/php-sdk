@@ -80,7 +80,7 @@ class ValidatorTest extends \PHPUnit_Framework_TestCase
         );
     }
 
-    public function testisAttributeValidValidAttributeValidKeyValue()
+    public function testisAttributeValidAttributeWithValidKeyValue()
     {
         $this->assertTrue(Validator::isAttributeValid('key', 'value'));
         $this->assertTrue(Validator::isAttributeValid('key', 5));
@@ -92,7 +92,7 @@ class ValidatorTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue(Validator::isAttributeValid('', 0.0));
     }
 
-    public function testisAttributeValidInValidAttributeKeyValue()
+    public function testisAttributeValidAttributeWithInValidKeyValue()
     {
         # Invalid Value
         $this->assertFalse(Validator::isAttributeValid('key', null));

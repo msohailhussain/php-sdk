@@ -18,7 +18,6 @@ namespace Optimizely\Utils;
 
 use JsonSchema;
 use Monolog\Logger;
-use Optimizely\Entity\Attribute;
 use Optimizely\Entity\Experiment;
 use Optimizely\Logger\LoggerInterface;
 use Optimizely\ProjectConfig;
@@ -65,10 +64,10 @@ class Validator
 
     /**
      * @param $attributeKey The key to validate.
-     *
      * @param $attributeValue The value to validate.
      *
-     * @return boolean Representing whether attribute's key and value are valid or not.
+     * @return boolean Representing whether attribute's key and value are
+     * valid for event payload or not.
      */
     public static function isAttributeValid($attributeKey, $attributeValue)
     {

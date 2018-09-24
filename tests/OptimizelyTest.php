@@ -299,7 +299,7 @@ class OptimizelyTest extends \PHPUnit_Framework_TestCase
             ->method('log');
         $this->loggerMock->expects($this->at($callIndex++))
             ->method('log')
-            ->with(Logger::WARNING, 'Bucketing ID attribute is not a string. Defaulted to user_id.');
+            ->with(Logger::WARNING, 'Bucketing ID attribute is not a string. Defaulted to user ID.');
         $this->loggerMock->expects($this->at($callIndex++))
             ->method('log')
             ->with(Logger::DEBUG, 'User "not_in_variation_user" is not in the forced variation map.');
@@ -345,7 +345,7 @@ class OptimizelyTest extends \PHPUnit_Framework_TestCase
             ->method('log');
         $this->loggerMock->expects($this->at($callIndex++))
             ->method('log')
-            ->with(Logger::WARNING, 'Bucketing ID attribute is not a string. Defaulted to user_id.');
+            ->with(Logger::WARNING, 'Bucketing ID attribute is not a string. Defaulted to user ID.');
         $this->loggerMock->expects($this->at($callIndex++))
             ->method('log')
             ->with(Logger::DEBUG, 'User "user_1" is not in the forced variation map.');
@@ -401,7 +401,7 @@ class OptimizelyTest extends \PHPUnit_Framework_TestCase
             ->with(Logger::DEBUG, sprintf('Set variation "%s" for experiment "%s" and user "%s" in the forced variation map.', $variationId, $experimentId, $userId));
         $this->loggerMock->expects($this->at($callIndex++))
             ->method('log')
-            ->with(Logger::WARNING, 'Bucketing ID attribute is not a string. Defaulted to user_id.');
+            ->with(Logger::WARNING, 'Bucketing ID attribute is not a string. Defaulted to user ID.');
         $this->loggerMock->expects($this->at($callIndex++))
             ->method('log')
             ->with(Logger::DEBUG, 'User "user_1" is not in the forced variation map.');
@@ -455,7 +455,7 @@ class OptimizelyTest extends \PHPUnit_Framework_TestCase
             ->method('log');
         $this->loggerMock->expects($this->at($callIndex++))
             ->method('log')
-            ->with(Logger::WARNING, 'Bucketing ID attribute is not a string. Defaulted to user_id.');
+            ->with(Logger::WARNING, 'Bucketing ID attribute is not a string. Defaulted to user ID.');
         $this->loggerMock->expects($this->at($callIndex++))
             ->method('log')
             ->with(Logger::DEBUG, 'User "test_user" is not in the forced variation map.');
@@ -491,7 +491,7 @@ class OptimizelyTest extends \PHPUnit_Framework_TestCase
             ->method('log');
         $this->loggerMock->expects($this->at($callIndex++))
             ->method('log')
-            ->with(Logger::WARNING, 'Bucketing ID attribute is not a string. Defaulted to user_id.');
+            ->with(Logger::WARNING, 'Bucketing ID attribute is not a string. Defaulted to user ID.');
         $this->loggerMock->expects($this->at($callIndex++))
             ->method('log')
             ->with(Logger::DEBUG, 'User "test_user" is not in the forced variation map.');
@@ -534,7 +534,7 @@ class OptimizelyTest extends \PHPUnit_Framework_TestCase
             ->method('log');
         $this->loggerMock->expects($this->at($callIndex++))
             ->method('log')
-            ->with(Logger::WARNING, 'Bucketing ID attribute is not a string. Defaulted to user_id.');
+            ->with(Logger::WARNING, 'Bucketing ID attribute is not a string. Defaulted to user ID.');
         $this->loggerMock->expects($this->at($callIndex++))
             ->method('log')
             ->with(Logger::DEBUG, 'User "test_user" is not in the forced variation map.');
@@ -573,7 +573,7 @@ class OptimizelyTest extends \PHPUnit_Framework_TestCase
             ->method('log');
         $this->loggerMock->expects($this->at($callIndex++))
             ->method('log')
-            ->with(Logger::WARNING, 'Bucketing ID attribute is not a string. Defaulted to user_id.');
+            ->with(Logger::WARNING, 'Bucketing ID attribute is not a string. Defaulted to user ID.');
         $this->loggerMock->expects($this->at($callIndex++))
             ->method('log')
             ->with(Logger::INFO, 'Experiment "paused_experiment" is not running.');
@@ -649,7 +649,7 @@ class OptimizelyTest extends \PHPUnit_Framework_TestCase
             ->method('log');
         $this->loggerMock->expects($this->at($callIndex++))
             ->method('log')
-            ->with(Logger::WARNING, 'Bucketing ID attribute is not a string. Defaulted to user_id.');
+            ->with(Logger::WARNING, 'Bucketing ID attribute is not a string. Defaulted to user ID.');
         $this->loggerMock->expects($this->at($callIndex++))
             ->method('log')
             ->with(Logger::DEBUG, 'User "test_user" is not in the forced variation map.');
@@ -693,7 +693,7 @@ class OptimizelyTest extends \PHPUnit_Framework_TestCase
             ->with(Logger::DEBUG, sprintf('Set variation "%s" for experiment "%s" and user "%s" in the forced variation map.', $variationId, $experimentId, $userId));
         $this->loggerMock->expects($this->at($callIndex++))
             ->method('log')
-            ->with(Logger::WARNING, 'Bucketing ID attribute is not a string. Defaulted to user_id.');
+            ->with(Logger::WARNING, 'Bucketing ID attribute is not a string. Defaulted to user ID.');
         $this->loggerMock->expects($this->at($callIndex++))
             ->method('log')
             ->with(Logger::DEBUG, sprintf('Variation "%s" is mapped to experiment "%s" and user "%s" in the forced variation map', $variationKey, $experimentKey, $userId));
@@ -709,7 +709,7 @@ class OptimizelyTest extends \PHPUnit_Framework_TestCase
             ->method('log');
         $this->loggerMock->expects($this->at($callIndex++))
             ->method('log')
-            ->with(Logger::WARNING, 'Bucketing ID attribute is not a string. Defaulted to user_id.');
+            ->with(Logger::WARNING, 'Bucketing ID attribute is not a string. Defaulted to user ID.');
         $this->loggerMock->expects($this->at($callIndex++))
             ->method('log')
             ->with(Logger::DEBUG, 'User "test_user" is not in the forced variation map.');
@@ -727,7 +727,7 @@ class OptimizelyTest extends \PHPUnit_Framework_TestCase
             ->method('log');
         $this->loggerMock->expects($this->at($callIndex++))
             ->method('log')
-            ->with(Logger::WARNING, 'Bucketing ID attribute is not a string. Defaulted to user_id.');
+            ->with(Logger::WARNING, 'Bucketing ID attribute is not a string. Defaulted to user ID.');
         $this->loggerMock->expects($this->at($callIndex++))
             ->method('log')
             ->with(Logger::INFO, 'Experiment "paused_experiment" is not running.');
@@ -751,7 +751,7 @@ class OptimizelyTest extends \PHPUnit_Framework_TestCase
             ->with(Logger::DEBUG, sprintf('Set variation "%s" for experiment "%s" and user "%s" in the forced variation map.', $variationId, $experimentId, $userId));
         $this->loggerMock->expects($this->at($callIndex++))
             ->method('log')
-            ->with(Logger::WARNING, 'Bucketing ID attribute is not a string. Defaulted to user_id.');
+            ->with(Logger::WARNING, 'Bucketing ID attribute is not a string. Defaulted to user ID.');
         $this->loggerMock->expects($this->at($callIndex++))
             ->method('log')
             ->with(Logger::INFO, 'Experiment "paused_experiment" is not running.');
@@ -767,7 +767,7 @@ class OptimizelyTest extends \PHPUnit_Framework_TestCase
             ->method('log');
         $this->loggerMock->expects($this->at($callIndex++))
             ->method('log')
-            ->with(Logger::WARNING, 'Bucketing ID attribute is not a string. Defaulted to user_id.');
+            ->with(Logger::WARNING, 'Bucketing ID attribute is not a string. Defaulted to user ID.');
         $this->loggerMock->expects($this->at($callIndex++))
             ->method('log')
             ->with(Logger::DEBUG, 'User "user1" is not in the forced variation map.');
@@ -797,7 +797,7 @@ class OptimizelyTest extends \PHPUnit_Framework_TestCase
             ->with(Logger::DEBUG, sprintf('Set variation "%s" for experiment "%s" and user "%s" in the forced variation map.', $variationId, $experimentId, $userId));
         $this->loggerMock->expects($this->at($callIndex++))
             ->method('log')
-            ->with(Logger::WARNING, 'Bucketing ID attribute is not a string. Defaulted to user_id.');
+            ->with(Logger::WARNING, 'Bucketing ID attribute is not a string. Defaulted to user ID.');
         $this->loggerMock->expects($this->at($callIndex++))
             ->method('log')
             ->with(Logger::DEBUG, sprintf('Variation "%s" is mapped to experiment "%s" and user "%s" in the forced variation map', $variationKey, $experimentKey, $userId));
@@ -815,7 +815,7 @@ class OptimizelyTest extends \PHPUnit_Framework_TestCase
             ->method('log');
         $this->loggerMock->expects($this->at($callIndex++))
             ->method('log')
-            ->with(Logger::WARNING, 'Bucketing ID attribute is not a string. Defaulted to user_id.');
+            ->with(Logger::WARNING, 'Bucketing ID attribute is not a string. Defaulted to user ID.');
         $this->loggerMock->expects($this->at($callIndex++))
             ->method('log')
             ->with(Logger::DEBUG, 'User "test_user" is not in the forced variation map.');
@@ -833,7 +833,7 @@ class OptimizelyTest extends \PHPUnit_Framework_TestCase
             ->method('log');
         $this->loggerMock->expects($this->at($callIndex++))
             ->method('log')
-            ->with(Logger::WARNING, 'Bucketing ID attribute is not a string. Defaulted to user_id.');
+            ->with(Logger::WARNING, 'Bucketing ID attribute is not a string. Defaulted to user ID.');
         $this->loggerMock->expects($this->at($callIndex++))
             ->method('log')
             ->with(Logger::DEBUG, 'User "test_user" is not in the forced variation map.');
@@ -1046,7 +1046,7 @@ class OptimizelyTest extends \PHPUnit_Framework_TestCase
             ->method('log');
         $this->loggerMock->expects($this->at($callIndex++))
             ->method('log')
-            ->with(Logger::WARNING, 'Bucketing ID attribute is not a string. Defaulted to user_id.');
+            ->with(Logger::WARNING, 'Bucketing ID attribute is not a string. Defaulted to user ID.');
         $this->loggerMock->expects($this->at($callIndex++))
             ->method('log')
             ->with(Logger::DEBUG, 'User "test_user" is not in the forced variation map.');
@@ -1061,7 +1061,7 @@ class OptimizelyTest extends \PHPUnit_Framework_TestCase
             );
         $this->loggerMock->expects($this->at($callIndex++))
             ->method('log')
-            ->with(Logger::WARNING, 'Bucketing ID attribute is not a string. Defaulted to user_id.');
+            ->with(Logger::WARNING, 'Bucketing ID attribute is not a string. Defaulted to user ID.');
         $this->loggerMock->expects($this->at($callIndex++))
             ->method('log')
             ->with(Logger::DEBUG, 'User "test_user" is not in the forced variation map.');
@@ -1085,7 +1085,7 @@ class OptimizelyTest extends \PHPUnit_Framework_TestCase
             );
         $this->loggerMock->expects($this->at($callIndex++))
             ->method('log')
-            ->with(Logger::WARNING, 'Bucketing ID attribute is not a string. Defaulted to user_id.');
+            ->with(Logger::WARNING, 'Bucketing ID attribute is not a string. Defaulted to user ID.');
         $this->loggerMock->expects($this->at($callIndex++))
             ->method('log')
             ->with(Logger::DEBUG, 'User "test_user" is not in the forced variation map.');
@@ -1115,7 +1115,7 @@ class OptimizelyTest extends \PHPUnit_Framework_TestCase
             );
         $this->loggerMock->expects($this->at($callIndex++))
             ->method('log')
-            ->with(Logger::WARNING, 'Bucketing ID attribute is not a string. Defaulted to user_id.');
+            ->with(Logger::WARNING, 'Bucketing ID attribute is not a string. Defaulted to user ID.');
         $this->loggerMock->expects($this->at($callIndex++))
             ->method('log')
             ->with(
@@ -1196,7 +1196,7 @@ class OptimizelyTest extends \PHPUnit_Framework_TestCase
             ->with(Logger::DEBUG, sprintf('Set variation "%s" for experiment "%s" and user "%s" in the forced variation map.', $variationId, $experimentId, $userId));
         $this->loggerMock->expects($this->at($callIndex++))
             ->method('log')
-            ->with(Logger::WARNING, 'Bucketing ID attribute is not a string. Defaulted to user_id.');
+            ->with(Logger::WARNING, 'Bucketing ID attribute is not a string. Defaulted to user ID.');
         $this->loggerMock->expects($this->at($callIndex++))
             ->method('log')
             ->with(Logger::DEBUG, 'User "test_user" is not in the forced variation map.');
@@ -1211,7 +1211,7 @@ class OptimizelyTest extends \PHPUnit_Framework_TestCase
             );
         $this->loggerMock->expects($this->at($callIndex++))
             ->method('log')
-            ->with(Logger::WARNING, 'Bucketing ID attribute is not a string. Defaulted to user_id.');
+            ->with(Logger::WARNING, 'Bucketing ID attribute is not a string. Defaulted to user ID.');
         $this->loggerMock->expects($this->at($callIndex++))
             ->method('log')
             ->with(Logger::DEBUG, 'User "test_user" is not in the forced variation map.');
@@ -1235,7 +1235,7 @@ class OptimizelyTest extends \PHPUnit_Framework_TestCase
             );
         $this->loggerMock->expects($this->at($callIndex++))
             ->method('log')
-            ->with(Logger::WARNING, 'Bucketing ID attribute is not a string. Defaulted to user_id.');
+            ->with(Logger::WARNING, 'Bucketing ID attribute is not a string. Defaulted to user ID.');
         $this->loggerMock->expects($this->at($callIndex++))
             ->method('log')
             ->with(Logger::DEBUG, 'User "test_user" is not in the forced variation map.');
@@ -1265,7 +1265,7 @@ class OptimizelyTest extends \PHPUnit_Framework_TestCase
             );
         $this->loggerMock->expects($this->at($callIndex++))
             ->method('log')
-            ->with(Logger::WARNING, 'Bucketing ID attribute is not a string. Defaulted to user_id.');
+            ->with(Logger::WARNING, 'Bucketing ID attribute is not a string. Defaulted to user ID.');
         $this->loggerMock->expects($this->at($callIndex++))
             ->method('log')
             ->with(
@@ -1348,7 +1348,7 @@ class OptimizelyTest extends \PHPUnit_Framework_TestCase
             ->method('log');
         $this->loggerMock->expects($this->at($callIndex++))
             ->method('log')
-            ->with(Logger::WARNING, 'Bucketing ID attribute is not a string. Defaulted to user_id.');
+            ->with(Logger::WARNING, 'Bucketing ID attribute is not a string. Defaulted to user ID.');
         $this->loggerMock->expects($this->at($callIndex++))
             ->method('log')
             ->with(Logger::DEBUG, 'User "test_user" is not in the forced variation map.');
@@ -1363,7 +1363,7 @@ class OptimizelyTest extends \PHPUnit_Framework_TestCase
             );
         $this->loggerMock->expects($this->at($callIndex++))
             ->method('log')
-            ->with(Logger::WARNING, 'Bucketing ID attribute is not a string. Defaulted to user_id.');
+            ->with(Logger::WARNING, 'Bucketing ID attribute is not a string. Defaulted to user ID.');
         $this->loggerMock->expects($this->at($callIndex++))
             ->method('log')
             ->with(Logger::DEBUG, 'User "test_user" is not in the forced variation map.');
@@ -1387,7 +1387,7 @@ class OptimizelyTest extends \PHPUnit_Framework_TestCase
             );
         $this->loggerMock->expects($this->at($callIndex++))
             ->method('log')
-            ->with(Logger::WARNING, 'Bucketing ID attribute is not a string. Defaulted to user_id.');
+            ->with(Logger::WARNING, 'Bucketing ID attribute is not a string. Defaulted to user ID.');
         $this->loggerMock->expects($this->at($callIndex++))
             ->method('log')
             ->with(Logger::DEBUG, 'User "test_user" is not in the forced variation map.');
@@ -1417,7 +1417,7 @@ class OptimizelyTest extends \PHPUnit_Framework_TestCase
             );
         $this->loggerMock->expects($this->at($callIndex++))
             ->method('log')
-            ->with(Logger::WARNING, 'Bucketing ID attribute is not a string. Defaulted to user_id.');
+            ->with(Logger::WARNING, 'Bucketing ID attribute is not a string. Defaulted to user ID.');
         $this->loggerMock->expects($this->at($callIndex++))
             ->method('log')
             ->with(
@@ -1490,7 +1490,7 @@ class OptimizelyTest extends \PHPUnit_Framework_TestCase
             ->method('log');
         $this->loggerMock->expects($this->at($callIndex++))
             ->method('log')
-            ->with(Logger::WARNING, 'Bucketing ID attribute is not a string. Defaulted to user_id.');
+            ->with(Logger::WARNING, 'Bucketing ID attribute is not a string. Defaulted to user ID.');
         $this->loggerMock->expects($this->at($callIndex++))
             ->method('log')
             ->with(Logger::DEBUG, 'User "test_user" is not in the forced variation map.');
@@ -1505,7 +1505,7 @@ class OptimizelyTest extends \PHPUnit_Framework_TestCase
             );
         $this->loggerMock->expects($this->at($callIndex++))
             ->method('log')
-            ->with(Logger::WARNING, 'Bucketing ID attribute is not a string. Defaulted to user_id.');
+            ->with(Logger::WARNING, 'Bucketing ID attribute is not a string. Defaulted to user ID.');
         $this->loggerMock->expects($this->at($callIndex++))
             ->method('log')
             ->with(Logger::DEBUG, 'User "test_user" is not in the forced variation map.');
@@ -1526,7 +1526,7 @@ class OptimizelyTest extends \PHPUnit_Framework_TestCase
             );
         $this->loggerMock->expects($this->at($callIndex++))
             ->method('log')
-            ->with(Logger::WARNING, 'Bucketing ID attribute is not a string. Defaulted to user_id.');
+            ->with(Logger::WARNING, 'Bucketing ID attribute is not a string. Defaulted to user ID.');
         $this->loggerMock->expects($this->at($callIndex++))
             ->method('log')
             ->with(Logger::DEBUG, 'User "test_user" is not in the forced variation map.');
@@ -1556,7 +1556,7 @@ class OptimizelyTest extends \PHPUnit_Framework_TestCase
             );
         $this->loggerMock->expects($this->at($callIndex++))
             ->method('log')
-            ->with(Logger::WARNING, 'Bucketing ID attribute is not a string. Defaulted to user_id.');
+            ->with(Logger::WARNING, 'Bucketing ID attribute is not a string. Defaulted to user ID.');
         $this->loggerMock->expects($this->at($callIndex++))
             ->method('log')
             ->with(
@@ -1629,7 +1629,7 @@ class OptimizelyTest extends \PHPUnit_Framework_TestCase
             ->method('log');
         $this->loggerMock->expects($this->at($callIndex++))
             ->method('log')
-            ->with(Logger::WARNING, 'Bucketing ID attribute is not a string. Defaulted to user_id.');
+            ->with(Logger::WARNING, 'Bucketing ID attribute is not a string. Defaulted to user ID.');
         $this->loggerMock->expects($this->at($callIndex++))
             ->method('log')
             ->with(Logger::DEBUG, 'User "test_user" is not in the forced variation map.');
@@ -1641,7 +1641,7 @@ class OptimizelyTest extends \PHPUnit_Framework_TestCase
             ->with(Logger::INFO, 'Not tracking user "test_user" for experiment "test_experiment".');
         $this->loggerMock->expects($this->at($callIndex++))
             ->method('log')
-            ->with(Logger::WARNING, 'Bucketing ID attribute is not a string. Defaulted to user_id.');
+            ->with(Logger::WARNING, 'Bucketing ID attribute is not a string. Defaulted to user ID.');
         $this->loggerMock->expects($this->at($callIndex++))
             ->method('log')
             ->with(Logger::DEBUG, 'User "test_user" is not in the forced variation map.');
@@ -1656,7 +1656,7 @@ class OptimizelyTest extends \PHPUnit_Framework_TestCase
             ->with(Logger::INFO, 'Not tracking user "test_user" for experiment "group_experiment_1".');
         $this->loggerMock->expects($this->at($callIndex++))
             ->method('log')
-            ->with(Logger::WARNING, 'Bucketing ID attribute is not a string. Defaulted to user_id.');
+            ->with(Logger::WARNING, 'Bucketing ID attribute is not a string. Defaulted to user ID.');
         $this->loggerMock->expects($this->at($callIndex++))
             ->method('log')
             ->with(Logger::DEBUG, 'User "test_user" is not in the forced variation map.');
@@ -1674,7 +1674,7 @@ class OptimizelyTest extends \PHPUnit_Framework_TestCase
             ->with(Logger::INFO, 'User "test_user" is in variation group_exp_2_var_2 of experiment group_experiment_2.');
         $this->loggerMock->expects($this->at($callIndex++))
             ->method('log')
-            ->with(Logger::WARNING, 'Bucketing ID attribute is not a string. Defaulted to user_id.');
+            ->with(Logger::WARNING, 'Bucketing ID attribute is not a string. Defaulted to user ID.');
         $this->loggerMock->expects($this->at($callIndex++))
             ->method('log')
             ->with(Logger::INFO, 'Experiment "paused_experiment" is not running.');
@@ -1744,7 +1744,7 @@ class OptimizelyTest extends \PHPUnit_Framework_TestCase
             ->method('log');
         $this->loggerMock->expects($this->at($callIndex++))
             ->method('log')
-            ->with(Logger::WARNING, 'Bucketing ID attribute is not a string. Defaulted to user_id.');
+            ->with(Logger::WARNING, 'Bucketing ID attribute is not a string. Defaulted to user ID.');
         $this->loggerMock->expects($this->at($callIndex++))
             ->method('log')
             ->with(Logger::DEBUG, 'User "test_user" is not in the forced variation map.');
@@ -1759,7 +1759,7 @@ class OptimizelyTest extends \PHPUnit_Framework_TestCase
             );
         $this->loggerMock->expects($this->at($callIndex++))
             ->method('log')
-            ->with(Logger::WARNING, 'Bucketing ID attribute is not a string. Defaulted to user_id.');
+            ->with(Logger::WARNING, 'Bucketing ID attribute is not a string. Defaulted to user ID.');
         $this->loggerMock->expects($this->at($callIndex++))
             ->method('log')
             ->with(Logger::DEBUG, 'User "test_user" is not in the forced variation map.');
@@ -1783,7 +1783,7 @@ class OptimizelyTest extends \PHPUnit_Framework_TestCase
             );
         $this->loggerMock->expects($this->at($callIndex++))
             ->method('log')
-            ->with(Logger::WARNING, 'Bucketing ID attribute is not a string. Defaulted to user_id.');
+            ->with(Logger::WARNING, 'Bucketing ID attribute is not a string. Defaulted to user ID.');
         $this->loggerMock->expects($this->at($callIndex++))
             ->method('log')
             ->with(Logger::DEBUG, 'User "test_user" is not in the forced variation map.');
@@ -1813,7 +1813,7 @@ class OptimizelyTest extends \PHPUnit_Framework_TestCase
             );
         $this->loggerMock->expects($this->at($callIndex++))
             ->method('log')
-            ->with(Logger::WARNING, 'Bucketing ID attribute is not a string. Defaulted to user_id.');
+            ->with(Logger::WARNING, 'Bucketing ID attribute is not a string. Defaulted to user ID.');
         $this->loggerMock->expects($this->at($callIndex++))
             ->method('log')
             ->with(
