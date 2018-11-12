@@ -42,6 +42,7 @@ use Optimizely\Exceptions\InvalidVariationException;
 use Optimizely\Logger\LoggerInterface;
 use Optimizely\Utils\ConditionDecoder;
 use Optimizely\Utils\ConfigParser;
+use Optimizely\Utils\Validator;
 
 /**
  * Class ProjectConfig
@@ -644,6 +645,12 @@ class ProjectConfig
         // check for null and empty string user ID
         if (strlen($userId) == 0) {
             $this->_logger->log(Logger::DEBUG, 'User ID is invalid');
+            return false;
+        }
+
+        // check for empty string Variation key
+        if (!is_null($variationKey) && !Validator::validateNonEmptyString($variationKey)) {
+            $this->_logger->log(Logger::DEBUG, 'Variation key is invalid');
             return false;
         }
 
