@@ -725,7 +725,7 @@ class ProjectConfigTest extends \PHPUnit_Framework_TestCase
             ->with(Logger::DEBUG, sprintf('Variation mapped to experiment "%s" has been removed for user "%s".', $experimentKey, $userId));
         $this->loggerMock->expects($this->at($callIndex++))
             ->method('log')
-            ->with(Logger::DEBUG, 'Variation key is invalid');
+            ->with(Logger::ERROR, sprintf('Provided %s is in an invalid format.', Optimizely::VARIATION_KEY));
         $this->loggerMock->expects($this->at($callIndex++))
             ->method('log')
             ->with(Logger::ERROR, sprintf('No variation key "%s" defined in datafile for experiment "%s".', $invalidVariationKey, $experimentKey));
