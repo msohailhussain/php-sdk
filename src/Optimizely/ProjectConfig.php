@@ -596,9 +596,9 @@ class ProjectConfig
     public function getForcedVariation($experimentKey, $userId)
     {
 
-        // check for null and empty string user ID
-        if (strlen($userId) == 0) {
-            $this->_logger->log(Logger::DEBUG, 'User ID is invalid');
+        // check for empty string user ID
+        if (!is_string($userId)) {
+            $this->_logger->log(Logger::ERROR, sprintf('Provided %s is in an invalid format.', Optimizely::USER_ID));
             return null;
         }
 
@@ -641,9 +641,9 @@ class ProjectConfig
      */
     public function setForcedVariation($experimentKey, $userId, $variationKey)
     {
-        // check for null and empty string user ID
-        if (strlen($userId) == 0) {
-            $this->_logger->log(Logger::DEBUG, 'User ID is invalid');
+        // check for empty string user ID
+        if (!is_string($userId)) {
+            $this->_logger->log(Logger::ERROR, sprintf('Provided %s is in an invalid format.', Optimizely::USER_ID));
             return false;
         }
 
