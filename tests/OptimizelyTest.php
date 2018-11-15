@@ -238,7 +238,10 @@ class OptimizelyTest extends \PHPUnit_Framework_TestCase
 
         $experimentKey = 'test_experiment';
         $userId = 'test_user';
-        $inputArray = [Optimizely::EXPERIMENT_KEY => $experimentKey];
+        $inputArray = [
+            Optimizely::EXPERIMENT_KEY => $experimentKey,
+            Optimizely::USER_ID => $userId
+        ];
 
         // assert that validateInputs gets called with exactly same keys
         $optimizelyMock->expects($this->once())
@@ -602,7 +605,10 @@ class OptimizelyTest extends \PHPUnit_Framework_TestCase
 
         $experimentKey = 'test_experiment';
         $userId = 'test_user';
-        $inputArray = [Optimizely::EXPERIMENT_KEY => $experimentKey];
+        $inputArray = [
+            Optimizely::EXPERIMENT_KEY => $experimentKey,
+            Optimizely::USER_ID => $userId
+        ];
 
         // assert that validateInputs gets called with exactly same keys
         $optimizelyMock->expects($this->once())
@@ -868,7 +874,10 @@ class OptimizelyTest extends \PHPUnit_Framework_TestCase
 
         $eventKey = 'test_event';
         $userId = 'test_user';
-        $inputArray = [Optimizely::EVENT_KEY => $eventKey];
+        $inputArray = [
+            Optimizely::EVENT_KEY => $eventKey,
+            Optimizely::USER_ID => $userId
+        ];
 
         // assert that validateInputs gets called with exactly same keys
         $optimizelyMock->expects($this->once())
@@ -2313,7 +2322,10 @@ class OptimizelyTest extends \PHPUnit_Framework_TestCase
 
         $featureKey = 'boolean_feature';
         $userId = null;
-        $inputArray = ['Feature Flag Key' => $featureKey];
+        $inputArray = [
+            'Feature Flag Key' => $featureKey,
+            'User ID' => $userId
+        ];
 
         // assert that validateInputs gets called with exactly same keys
         $optimizelyMock->expects($this->once())
@@ -2655,25 +2667,18 @@ class OptimizelyTest extends \PHPUnit_Framework_TestCase
 
     public function testGetEnabledFeaturesWithInvalidUserID()
     {
+        $optlyObject = new Optimizely($this->datafile, new ValidEventDispatcher(), $this->loggerMock);
+
         $this->loggerMock->expects($this->exactly(6))
             ->method('log')
             ->with(Logger::ERROR, sprintf('Provided %s is in an invalid format.', Optimizely::USER_ID));
 
-        $optimizelyMock = $this->getMockBuilder(Optimizely::class)
-            ->setConstructorArgs(array($this->datafile, new ValidEventDispatcher(), $this->loggerMock))
-            ->setMethods(array('validateInputs'))
-            ->getMock();
-
-        // assert that validateInputs never gets called
-        $optimizelyMock->expects($this->never())
-            ->method('validateInputs');
-
-        $this->assertEmpty($optimizelyMock->getEnabledFeatures(null));
-        $this->assertEmpty($optimizelyMock->getEnabledFeatures(5));
-        $this->assertEmpty($optimizelyMock->getEnabledFeatures(5.5));
-        $this->assertEmpty($optimizelyMock->getEnabledFeatures(false));
-        $this->assertEmpty($optimizelyMock->getEnabledFeatures([]));
-        $this->assertEmpty($optimizelyMock->getEnabledFeatures((object) array()));
+        $this->assertEmpty($optlyObject->getEnabledFeatures(null));
+        $this->assertEmpty($optlyObject->getEnabledFeatures(5));
+        $this->assertEmpty($optlyObject->getEnabledFeatures(5.5));
+        $this->assertEmpty($optlyObject->getEnabledFeatures(false));
+        $this->assertEmpty($optlyObject->getEnabledFeatures([]));
+        $this->assertEmpty($optlyObject->getEnabledFeatures((object) array()));
     }
 
     public function testGetEnabledFeaturesGivenNoFeatureIsEnabledForUser()
@@ -2791,7 +2796,8 @@ class OptimizelyTest extends \PHPUnit_Framework_TestCase
         $userId = null;
         $inputArray = [
             'Feature Flag Key' => $featureKey,
-            'Variable Key' => $variableKey
+            'Variable Key' => $variableKey,
+            'User ID' => $userId
         ];
 
         // assert that validateInputs gets called with exactly same keys
@@ -3388,11 +3394,12 @@ class OptimizelyTest extends \PHPUnit_Framework_TestCase
         // Verify that multiple messages are logged.
         $this->loggerMock->expects($this->at(0))
             ->method('log')
-            ->with(Logger::ERROR, $INVALID_EVENT_KEY_LOG);
+            ->with(Logger::ERROR, $INVALID_USER_ID_LOG);
 
         $this->loggerMock->expects($this->at(1))
             ->method('log')
-            ->with(Logger::ERROR, $INVALID_USER_ID_LOG);
+            ->with(Logger::ERROR, $INVALID_EVENT_KEY_LOG);
+
         $this->assertFalse($optlyObject->validateInputs([Optimizely::EVENT_KEY => null, Optimizely::USER_ID => null]));
 
         // Verify that logger level is taken into account

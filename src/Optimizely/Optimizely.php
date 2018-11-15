@@ -297,12 +297,13 @@ class Optimizely
             return null;
         }
 
-        if (!$this->validateInputs([self::EXPERIMENT_KEY =>$experimentKey])) {
-            return null;
-        }
-
-        if (!is_string($userId)) {
-            $this->_logger->log(Logger::ERROR, sprintf(Errors::INVALID_FORMAT, self::USER_ID));
+        if (!$this->validateInputs(
+            [
+                self::EXPERIMENT_KEY =>$experimentKey,
+                self::USER_ID => $userId
+            ]
+        	)
+        ) {
             return null;
         }
 
@@ -332,12 +333,13 @@ class Optimizely
             return;
         }
 
-        if (!$this->validateInputs([self::EVENT_KEY =>$eventKey])) {
-            return null;
-        }
-
-        if (!is_string($userId)) {
-            $this->_logger->log(Logger::ERROR, sprintf(Errors::INVALID_FORMAT, self::USER_ID));
+        if (!$this->validateInputs(
+            [
+                self::EVENT_KEY =>$eventKey,
+                self::USER_ID => $userId
+            ]
+        	)
+        ) {
             return null;
         }
 
@@ -428,12 +430,13 @@ class Optimizely
             return null;
         }
 
-        if (!$this->validateInputs([self::EXPERIMENT_KEY =>$experimentKey])) {
-            return null;
-        }
-
-        if (!is_string($userId)) {
-            $this->_logger->log(Logger::ERROR, sprintf(Errors::INVALID_FORMAT, self::USER_ID));
+        if (!$this->validateInputs(
+            [
+                self::EXPERIMENT_KEY =>$experimentKey,
+                self::USER_ID => $userId
+            ]
+        	)
+        ) {
             return null;
         }
 
@@ -506,12 +509,13 @@ class Optimizely
             return false;
         }
 
-        if (!$this->validateInputs([self::FEATURE_FLAG_KEY =>$featureFlagKey])) {
-            return false;
-        }
-
-        if (!is_string($userId)) {
-            $this->_logger->log(Logger::ERROR, sprintf(Errors::INVALID_FORMAT, self::USER_ID));
+        if (!$this->validateInputs(
+            [
+                self::FEATURE_FLAG_KEY =>$featureFlagKey,
+                self::USER_ID => $userId
+            ]
+            )
+        ) {
             return false;
         }
 
@@ -561,8 +565,12 @@ class Optimizely
     {
         $enabledFeatureKeys = [];
 
-        if (!is_string($userId)) {
-            $this->_logger->log(Logger::ERROR, sprintf(Errors::INVALID_FORMAT, self::USER_ID));
+        if (!$this->validateInputs(
+            [
+                self::USER_ID => $userId
+            ]
+            )
+        ) {
             return $enabledFeatureKeys;
         }
 
@@ -603,15 +611,11 @@ class Optimizely
         if (!$this->validateInputs(
             [
                 self::FEATURE_FLAG_KEY => $featureFlagKey,
-                self::VARIABLE_KEY => $variableKey
+                self::VARIABLE_KEY => $variableKey,
+                self::USER_ID => $userId
             ]
             )
         ) {
-            return null;
-        }
-
-        if (!is_string($userId)) {
-            $this->_logger->log(Logger::ERROR, sprintf(Errors::INVALID_FORMAT, self::USER_ID));
             return null;
         }
 
@@ -795,6 +799,15 @@ class Optimizely
     protected function validateInputs(array $values, $logLevel = Logger::ERROR)
     {
         $isValid = true;
+        if (array_key_exists(self::USER_ID, $values)) {
+            // empty str is a valid user ID
+            if (!is_string($values[self::USER_ID])) {
+                $this->_logger->log(Logger::ERROR, sprintf(Errors::INVALID_FORMAT, self::USER_ID));
+                $isValid = false;
+            }
+            unset($values[self::USER_ID]);
+        }
+
         foreach ($values as $key => $value) {
             if (!Validator::validateNonEmptyString($value)) {
                 $isValid = false;
