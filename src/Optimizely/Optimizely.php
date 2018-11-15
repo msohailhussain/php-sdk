@@ -440,7 +440,6 @@ class Optimizely
             return null;
         }
 
-
         $experiment = $this->_config->getExperimentFromKey($experimentKey);
 
         if (is_null($experiment->getKey())) {
@@ -645,7 +644,7 @@ class Optimizely
         if (!$decision) {
             $this->_logger->log(
                 Logger::INFO,
-                "User '{$userId}' is not in any variation, ".
+                "User '{$userId}'is not in any variation, ".
                 "returning default value '{$variableValue}'."
             );
         } else {

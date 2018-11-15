@@ -2889,7 +2889,7 @@ class OptimizelyTest extends \PHPUnit_Framework_TestCase
             ->method('log')
             ->with(
                 Logger::INFO,
-                "User 'user_id' is not in any variation, returning default value '14.99'."
+                "User 'user_id'is not in any variation, returning default value '14.99'."
             );
 
         $this->assertSame(
@@ -3039,7 +3039,7 @@ class OptimizelyTest extends \PHPUnit_Framework_TestCase
             ->method('log')
             ->with(
                 Logger::INFO,
-                "User '' is not in any variation, returning default value '14.99'."
+                "User ''is not in any variation, returning default value '14.99'."
             );
 
         $this->assertSame(
